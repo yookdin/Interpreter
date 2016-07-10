@@ -99,7 +99,7 @@ void DFA::print() {
         cout << endl;
     }
 }
-
+ 
 
 //==========================================================================================================
 // Calculate the epsiolon closure for a state in the NFA, this is needed for constructing the DFA.
