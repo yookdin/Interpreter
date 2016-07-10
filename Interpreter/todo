@@ -1,0 +1,11 @@
+
+
+- Probably implement an SLR parser
+
+o Parser should be generated half-automatically from grammer
+For this need:
+    - Read grammar and automatically create SLR table
+    - NFA creation
+    - NFA to DFA
+    - Compute First(), Nullable(), Follow()
+    - Complete initial DFA with using Follow() to create final SLR table  
