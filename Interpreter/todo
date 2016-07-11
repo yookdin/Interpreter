@@ -7,3 +7,11 @@ For this need:
     - Read grammar and automatically create SLR table
     - Compute First(), Nullable(), Follow()
     - Complete initial DFA with using Follow() to create final SLR table  
+
+
+o A possible optimization of DFA minimization:
+  A pair should be marked if by multiple transitions it can reach a marked pair. So, build a directed graph
+  of pairs, where there's an edge from pair Pj to Pi, if there's an input symbol c for which there's a
+  transition: Pi --- c ---> Pj.
+  Note that the edges are in reverse direction to the transition. This enables us to go BFS-ly go from a 
+  marked pair, mark all pairs we find, and remove all of them (including the root).

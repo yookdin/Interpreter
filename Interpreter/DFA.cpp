@@ -13,8 +13,18 @@
 //==========================================================================================================
 //==========================================================================================================
 DFA::DFA(NFA& nfa) {
-    vector<set<int>> epsilon_closures; // Epsilon closures per NFA state
+    nfa_to_dfa(nfa);
+    minimize();
+    
+} // DFA()
 
+
+//==========================================================================================================
+// Create a DFA from an NFA using the Subset-Construction algorithm
+//==========================================================================================================
+void DFA::nfa_to_dfa(NFA& nfa) {
+    vector<set<int>> epsilon_closures; // Epsilon closures per NFA state
+    
     //------------------------------------------------------------------------------------------------------
     // Calculate epsilon-closures for each state in the NFA
     //------------------------------------------------------------------------------------------------------
@@ -33,7 +43,7 @@ DFA::DFA(NFA& nfa) {
     //------------------------------------------------------------------------------------------------------
     for(int i = 0; i < table.size(); ++i) {
         for(int sym = 0; sym < NUM_SYMBOLS; ++sym) { // For each possible symbol
-
+            
             //----------------------------------------------------------------------------------------------
             // Get the set of reachable NFA states from the current DFA state
             //----------------------------------------------------------------------------------------------
@@ -46,7 +56,7 @@ DFA::DFA(NFA& nfa) {
                 table[i].push_back(-1); // Indicating no transition on this symbol for the current state
                 continue;
             }
-
+            
             //----------------------------------------------------------------------------------------------
             // Check if this set already exists as a DFA state
             //----------------------------------------------------------------------------------------------
@@ -78,9 +88,127 @@ DFA::DFA(NFA& nfa) {
         }
         accepting.push_back(cur_accepting);
     }
+} // nfa_to_dfa()
+
+
+//==========================================================================================================
+// Mimimize the DFA using Myphill-Nerode based algorithm. The algorithm consider all state pairs, marking
+// them as non-equivalent if possible. When finished, those not marked are put in the same new state.
+// Steps:
+// 1. Mark as non-equivalent those pairs when one state is accepting and the other isn't
+// 2. Iteratively mark pairs that for any input symbol go to a marked pair (or transition defined just for
+//    one of them on that symbol).
+// 3. Combine unmarked pairs to form new states.
+// 4. Write the new transitions, mark accepting new states
+//==========================================================================================================
+void DFA::minimize() {
+    //------------------------------------------------------------------------------------------------------
+    // Create the pairs and do initial mark (true means pair is non-equivalent)
+    //------------------------------------------------------------------------------------------------------
+    vector<bool*> pairs;
+    int num_states = get_num_states();
     
+    for(int i = 0; i < num_states - 1; ++i) {
+        pairs.push_back(new bool[num_states - i - 1]);
+        pairs[i] -= (i+1); // This ugly trick enables accessing pairs[i][j], but actually using just half the memory
+        
+        for(int j = i+1; j < num_states; ++j) {
+            pairs[i][j] = (accepting[i] != accepting[j]);
+        }
+    }
     
-} // DFA()
+    //------------------------------------------------------------------------------------------------------
+    // Mark until an iteration where no changes are made
+    //------------------------------------------------------------------------------------------------------
+    bool changed = true;
+    while(changed) {
+        changed = false;
+        
+        for(int i = 0; i < num_states - 1; ++i) {
+            for(int j = i+1; j < num_states; ++j) {
+                if(pairs[i][j]) continue; // Pair already marked
+                
+                for(int sym = 0; sym < NUM_SYMBOLS; ++sym) {
+                    int x = get_next_state(i, sym), y = get_next_state(j, sym);
+                    if(x == y) continue;
+
+                    pair_sort(x,y); // Must have the smaller index first to acces pairs table
+                    
+                    if(x == -1 or pairs[x][y]) {
+                        pairs[i][j] = true;
+                        changed = true;
+                    }
+                } // for each symbol
+            }
+        }
+    }
+    
+    //------------------------------------------------------------------------------------------------------
+    // Combine states:
+    // 1. A new state is a set of old states which are equivalent
+    // 2. If an old state is not equivalent to any other state, a new state is created that contains only it
+    // 3. After adding a pair {i,j} (i < j}, there's no need to look at pairs {j,x} (j < x), because pair
+    // {i,x} must have already been added.
+    //------------------------------------------------------------------------------------------------------
+    vector<vector<int>> new_states;
+    vector<int> old_to_new(num_states, -1);
+    set<int> added_states;
+    
+    for(int i = 0; i < num_states - 1; ++i) {
+        if(added_states.count(i) != 0) continue;
+        
+        new_states.push_back({i});
+        old_to_new[i] = new_states.size() - 1;
+        
+        for(int j = i+1; j < num_states; ++j) {
+            if(not pairs[i][j]) {
+                new_states.back().push_back(j);
+                old_to_new[j] = new_states.size() - 1;
+                added_states.insert(j);
+            }
+        }
+    }
+    
+    //------------------------------------------------------------------------------------------------------
+    // Write new transitions and mark accepting new states. Then replace the old DFA with the new one.
+    //------------------------------------------------------------------------------------------------------
+    vector<bool> new_accepting(new_states.size(), false);
+    vector<vector<int>> new_table(new_states.size(), vector<int>(NUM_SYMBOLS, -1));
+    
+    for(int i = 0; i < new_states.size(); ++i) {
+        new_accepting[i] = accepting[new_states[i][0]]; // If the first is accepting they all are, and vice versa
+        
+        for(int sym = 0; sym < NUM_SYMBOLS; ++sym) {
+            // Since all old states in this new states are equivalent, need to check only one
+            int old_next_state = get_next_state(new_states[i][0], sym);
+            if(old_next_state != -1)
+                new_table[i][sym] = old_to_new[old_next_state];
+        }
+    }
+    
+    accepting = new_accepting;
+    table = new_table;
+    
+
+    //------------------------------------------------------------------------------------------------------
+    // Free memory
+    //------------------------------------------------------------------------------------------------------
+    for(int i = 0; i < num_states - 1; ++i) {
+        delete (pairs[i] + i + 1);
+    }    
+} // minimize()
+
+
+
+//==========================================================================================================
+//==========================================================================================================
+void DFA::pair_sort(int& x, int& y) {
+    if(x > y) {
+        int tmp = x;
+        x = y;
+        y = tmp;
+    }
+}
 
 
 //==========================================================================================================

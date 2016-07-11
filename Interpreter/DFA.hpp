@@ -22,7 +22,18 @@ private:
     vector<bool> accepting;
     vector<vector<int>> table;
     
+    void nfa_to_dfa(NFA& nfa);
+    void minimize();
     set<int> calc_epsilon_closure(int state, NFA& nfa);
+    inline int get_next_state(int state, int sym) { return table[state][sym]; }
+    inline int get_num_states() { return table.size(); }
+    inline void pair_sort(int& x, int& y);
+    
+    
+    //======================================================================================================
+    //======================================================================================================
+    //class 
+    
 };
 
 
