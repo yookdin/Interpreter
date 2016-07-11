@@ -34,9 +34,10 @@
 
 using namespace std;
 
-enum Symbol { LEFT_PAREN, RIGHT_PAREN, NUM, OP, EXP, EPSILON };
+enum Symbol { LEFT_PAREN, RIGHT_PAREN, NUM, OP, EXP };
+#define NUM_SYMBOLS 5
 
-string symbol_to_string(Symbol sym);
+string symbol_to_string(int sym);
 
 
 #endif /* common_h */

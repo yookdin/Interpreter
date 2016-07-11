@@ -20,7 +20,7 @@ void NFA::add_state(int state, bool accepting_state) {
         throw string("Can only add state that is the next after the current last state");
         
     accepting.push_back(accepting_state);
-    table.push_back(vector<set<int>>(num_symbols));
+    table.push_back(vector<set<int>>(NUM_SYMBOLS + 1)); // Add one place for epsilon transition
 }
 
 
@@ -35,10 +35,19 @@ void NFA::add_transition(int from_state, Symbol sym, int to_state, bool to_state
 
 
 //==========================================================================================================
+//==========================================================================================================
+void NFA::add_epsilon_transition(int from_state, int to_state) {
+    add_state(from_state);
+    add_state(to_state);
+    table[from_state][NUM_SYMBOLS].insert(to_state);
+}
+
+
+//==========================================================================================================
 // Return all the states that can be reached directly from given state using epsilon transitions
 //==========================================================================================================
 set<int>& NFA::get_epsilon_transitions(int state) {
-    return table[state][EPSILON];
+    return table[state][NUM_SYMBOLS]; // Epsilon transition are written after all the symbols transitions
 }
 
 

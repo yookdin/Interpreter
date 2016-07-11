@@ -12,8 +12,7 @@
 
 int main(int argc, const char * argv[]) {
 
-    NFA nfa(6);
-    //void add_transition(int from_state, Symbol sym, int to_state, bool to_state_accepting);
+    NFA nfa;
     nfa.add_transition(0, EXP, 1, true);
     nfa.add_transition(2, NUM, 3, true);
     nfa.add_transition(4, LEFT_PAREN, 5); 
@@ -22,20 +21,19 @@ int main(int argc, const char * argv[]) {
     nfa.add_transition(8, EXP, 9); 
     nfa.add_transition(9, OP, 10); 
     nfa.add_transition(10, EXP, 11, true); 
-    nfa.add_transition(0, EPSILON, 2);
-    nfa.add_transition(0, EPSILON, 4); 
-    nfa.add_transition(0, EPSILON, 8); 
-    nfa.add_transition(5, EPSILON, 2); 
-    nfa.add_transition(5, EPSILON, 4); 
-    nfa.add_transition(5, EPSILON, 8); 
-    nfa.add_transition(8, EPSILON, 2); 
-    nfa.add_transition(8, EPSILON, 4); 
-    nfa.add_transition(8, EPSILON, 8); 
-    nfa.add_transition(10, EPSILON, 2); 
-    nfa.add_transition(10, EPSILON, 4); 
-    nfa.add_transition(10, EPSILON, 8);
+    nfa.add_epsilon_transition(0, 2);
+    nfa.add_epsilon_transition(0, 4); 
+    nfa.add_epsilon_transition(0, 8); 
+    nfa.add_epsilon_transition(5, 2); 
+    nfa.add_epsilon_transition(5, 4); 
+    nfa.add_epsilon_transition(5, 8); 
+    nfa.add_epsilon_transition(8, 2); 
+    nfa.add_epsilon_transition(8, 4); 
+    nfa.add_epsilon_transition(8, 8); 
+    nfa.add_epsilon_transition(10, 2); 
+    nfa.add_epsilon_transition(10, 4); 
+    nfa.add_epsilon_transition(10, 8);
     
-    //nfa.print();
     DFA dfa(nfa);
     dfa.print();
     

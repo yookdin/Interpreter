@@ -15,15 +15,14 @@
 //==========================================================================================================
 class NFA {
 public:
-    NFA(int _num_symbols): num_symbols(_num_symbols){}
     void add_transition(int from_state, Symbol sym, int to_state, bool to_state_accepting = false);
+    void add_epsilon_transition(int from_state, int to_state);
     long get_num_states() { return table.size(); }
     bool is_accepting(int state) { return accepting[state]; }
     void print();
     
     friend class DFA;
-private:
-    const int num_symbols;
+private:    
     void add_state(int state, bool accepting = false);
     vector<bool> accepting;
     vector<vector<set<int>>> table;

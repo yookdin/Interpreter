@@ -12,7 +12,7 @@
 
 //==========================================================================================================
 //==========================================================================================================
-DFA::DFA(NFA& nfa): num_symbols(nfa.num_symbols) {
+DFA::DFA(NFA& nfa) {
     vector<set<int>> epsilon_closures; // Epsilon closures per NFA state
 
     //------------------------------------------------------------------------------------------------------
@@ -22,18 +22,17 @@ DFA::DFA(NFA& nfa): num_symbols(nfa.num_symbols) {
         epsilon_closures.push_back(calc_epsilon_closure(i, nfa));     
     }
     
-    // Map between DFA state, and a set of NFA states it was constructed from (this index is the DFA state)
+    // Map between DFA state, and a set of NFA states it was constructed from (the index in the vector is the DFA state)
     vector<set<int>> nfa_states;
     nfa_states.push_back(epsilon_closures[0]); // Initial, starting state
-    table.push_back({}); // Addint the start state
+    table.push_back({}); // Adding the start state
     
     //------------------------------------------------------------------------------------------------------
     // As long as there are new states in the DFA, calcuate the transitions for them, while creating new
     // states if needed
     //------------------------------------------------------------------------------------------------------
     for(int i = 0; i < table.size(); ++i) {
-        for(int sym = 0; sym < num_symbols; ++sym) { // For each possible symbol
-            if(sym == EPSILON) continue;
+        for(int sym = 0; sym < NUM_SYMBOLS; ++sym) { // For each possible symbol
 
             //----------------------------------------------------------------------------------------------
             // Get the set of reachable NFA states from the current DFA state
@@ -93,7 +92,7 @@ void DFA::print() {
         if(accepting[i]) cout << " (accepting) ";
         cout << ":" << endl;
 
-        for(int sym = 0; sym < num_symbols - 1; ++sym) {
+        for(int sym = 0; sym < NUM_SYMBOLS; ++sym) {
             cout << "Transition for symbol " << symbol_to_string(Symbol(sym)) << ": " << table[i][sym] << endl;
         }
         cout << endl;
@@ -102,33 +101,38 @@ void DFA::print() {
  
 
 //==========================================================================================================
-// Calculate the epsiolon closure for a state in the NFA, this is needed for constructing the DFA.
+// Calculate the epsiolon closure for a state in the NFA. This is needed for constructing the DFA.
 //==========================================================================================================
 set<int> DFA::calc_epsilon_closure(int state, NFA& nfa) {
-    map<int, bool> closure;
-    closure[state] = false;
-    int next;
-    
-    while((next = get_unmarked_element(closure)) != -1) {
-        closure[next] = true;
-        for(int s: nfa.get_epsilon_transitions(next)) {
-            if(closure.count(s) == 0)
-                closure[s] = false;
-        }
-    }    
-    
     set<int> res;
-    for(auto& p: closure)
-        res.insert(p.first);
+    vector<int> cur_states;
+    res.insert(state);
+    cur_states.push_back(state);
+    
+    //------------------------------------------------------------------------------------------------------
+    // As long as there are states in the list, add their epsilon neighbors, but only if they weren't adde
+    // yet
+    //------------------------------------------------------------------------------------------------------
+    for(int i = 0; i < cur_states.size(); ++i) {
+        for(int s: nfa.get_epsilon_transitions(cur_states[i])) {
+            if(res.count(s) == 0) {
+                res.insert(s);
+                cur_states.push_back(s);
+            }
+        }
+    }
+    
     return res;
 }
 
 
-//==========================================================================================================
-//==========================================================================================================
-int DFA::get_unmarked_element(map<int, bool>& closure) {
-    for(auto& p: closure)
-        if(p.second == false)
-            return p.first;
-    return -1;
-}
+
+
+
+
+
+
+
+
+
+

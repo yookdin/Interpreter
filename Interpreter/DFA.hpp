@@ -19,12 +19,10 @@ public:
     DFA(NFA& nfa);
     void print();
 private:
-    const int num_symbols;
     vector<bool> accepting;
     vector<vector<int>> table;
     
     set<int> calc_epsilon_closure(int state, NFA& nfa);
-    int get_unmarked_element(map<int, bool>& closure);
 };
 
 

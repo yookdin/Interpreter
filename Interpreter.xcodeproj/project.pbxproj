@@ -84,9 +84,9 @@
 				FE29B5CC1D326677001FDDB0 /* NFA.cpp */,
 				FE29B5D11D3272CF001FDDB0 /* DFA.hpp */,
 				FE29B5D01D3272CF001FDDB0 /* DFA.cpp */,
+				FE29B5D31D328833001FDDB0 /* utils.cpp */,
 				FE29B5CF1D3267F2001FDDB0 /* grammar */,
 				FE29B5CB1D325DBC001FDDB0 /* todo */,
-				FE29B5D31D328833001FDDB0 /* utils.cpp */,
 			);
 			path = Interpreter;
 			sourceTree = "<group>";
