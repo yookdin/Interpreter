@@ -16,6 +16,7 @@
 //==========================================================================================================
 class SLR_Table {
 public:
+    SLR_Table(){}
     SLR_Table(Grammar& grammar, DFA& dfa);
     void print();
     

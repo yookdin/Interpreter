@@ -42,7 +42,7 @@ enum Symbol { START = -1, LEFT_PAREN, RIGHT_PAREN, NUM, OP, EOI, EXP };
 string symbol_to_string(int sym);
 bool is_nonterminal(Symbol sym);
 bool is_terminal(Symbol sym);
-
+string& trim(string& line);
 
 //==========================================================================================================
 //==========================================================================================================

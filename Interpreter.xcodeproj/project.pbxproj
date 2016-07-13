@@ -15,6 +15,7 @@
 		FE964BC01D2D042800BA1254 /* Lexer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FE964BBE1D2D042800BA1254 /* Lexer.cpp */; };
 		FEE621871D35AAC5006D3C6C /* Grammar.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FEE621851D35AAC5006D3C6C /* Grammar.cpp */; };
 		FEE6218A1D367E55006D3C6C /* SLR_Table.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FEE621881D367E55006D3C6C /* SLR_Table.cpp */; };
+		FEE6218D1D369896006D3C6C /* Parser.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FEE6218B1D369896006D3C6C /* Parser.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -33,7 +34,7 @@
 		FE29B5CB1D325DBC001FDDB0 /* todo */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = todo; sourceTree = "<group>"; };
 		FE29B5CC1D326677001FDDB0 /* NFA.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = NFA.cpp; sourceTree = "<group>"; };
 		FE29B5CD1D326677001FDDB0 /* NFA.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = NFA.hpp; sourceTree = "<group>"; };
-		FE29B5CF1D3267F2001FDDB0 /* grammar */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = grammar; sourceTree = "<group>"; };
+		FE29B5CF1D3267F2001FDDB0 /* grammar_definition */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = grammar_definition; sourceTree = "<group>"; };
 		FE29B5D01D3272CF001FDDB0 /* DFA.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = DFA.cpp; sourceTree = "<group>"; };
 		FE29B5D11D3272CF001FDDB0 /* DFA.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = DFA.hpp; sourceTree = "<group>"; };
 		FE29B5D31D328833001FDDB0 /* utils.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = utils.cpp; sourceTree = "<group>"; };
@@ -48,6 +49,8 @@
 		FEE621861D35AAC5006D3C6C /* Grammar.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Grammar.hpp; sourceTree = "<group>"; };
 		FEE621881D367E55006D3C6C /* SLR_Table.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SLR_Table.cpp; sourceTree = "<group>"; };
 		FEE621891D367E55006D3C6C /* SLR_Table.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = SLR_Table.hpp; sourceTree = "<group>"; };
+		FEE6218B1D369896006D3C6C /* Parser.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Parser.cpp; sourceTree = "<group>"; };
+		FEE6218C1D369896006D3C6C /* Parser.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Parser.hpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -88,7 +91,7 @@
 				FE964BBA1D2CFE9200BA1254 /* Token.cpp */,
 				FEE621811D35A92E006D3C6C /* parser */,
 				FE29B5D31D328833001FDDB0 /* utils.cpp */,
-				FE29B5CF1D3267F2001FDDB0 /* grammar */,
+				FE29B5CF1D3267F2001FDDB0 /* grammar_definition */,
 				FE29B5CB1D325DBC001FDDB0 /* todo */,
 			);
 			path = Interpreter;
@@ -97,6 +100,8 @@
 		FEE621811D35A92E006D3C6C /* parser */ = {
 			isa = PBXGroup;
 			children = (
+				FEE6218C1D369896006D3C6C /* Parser.hpp */,
+				FEE6218B1D369896006D3C6C /* Parser.cpp */,
 				FEE621861D35AAC5006D3C6C /* Grammar.hpp */,
 				FEE621851D35AAC5006D3C6C /* Grammar.cpp */,
 				FE29B5CD1D326677001FDDB0 /* NFA.hpp */,
@@ -169,6 +174,7 @@
 				FE29B5CE1D326677001FDDB0 /* NFA.cpp in Sources */,
 				FE964BB41D2CFDA500BA1254 /* main.cpp in Sources */,
 				FEE621871D35AAC5006D3C6C /* Grammar.cpp in Sources */,
+				FEE6218D1D369896006D3C6C /* Parser.cpp in Sources */,
 				FE29B5D41D328833001FDDB0 /* utils.cpp in Sources */,
 				FE29B5D21D3272CF001FDDB0 /* DFA.cpp in Sources */,
 				FEE6218A1D367E55006D3C6C /* SLR_Table.cpp in Sources */,

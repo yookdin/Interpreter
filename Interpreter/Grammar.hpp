@@ -15,10 +15,10 @@
 //==========================================================================================================
 class Grammar {
 public:
+    Grammar(string grammar_file);
     void add_production(vector<Symbol> production);
     Symbol get_nonterminal_of_production(int p);
     void print();
-    void calc_follow_table();
     Set<Symbol> get_follow_set(Symbol sym);
     
     friend class NFA;
@@ -33,10 +33,10 @@ private:
     // Follow(N) = {t | (t is terminal) and (START => A N t B  (A and B can be empty))}
     map<Symbol, Set<Symbol>> follow_table;
     
+    void read_grammar_file(string grammar_file);
+    void calc_follow_table();
     void calc_first_table();
     Set<Symbol> get_first_set(Symbol sym);
-
-    
 };
 
 #endif /* Grammar_hpp */
