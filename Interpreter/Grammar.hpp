@@ -19,8 +19,11 @@ public:
     Symbol get_nonterminal_of_production(int p);
     void print();
     void calc_follow_table();
+    Set<Symbol> get_follow_set(Symbol sym);
     
     friend class NFA;
+    friend class SLR_Table;
+
 private:
     // For each production the first symbol is the lhs (must be a nonterminal) and the rest are the rhs
     vector<vector<Symbol>> productions;

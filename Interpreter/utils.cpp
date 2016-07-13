@@ -13,7 +13,6 @@ string symbol_to_string(int sym) {
         return "EPSILON";
     
     switch (sym) {
-        case REAL_START: return "REAL_START";
         case START: return "START";
         case EOI: return "$";
         case LEFT_PAREN: return "'('";

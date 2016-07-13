@@ -77,10 +77,10 @@ void Grammar::calc_follow_table() {
     calc_first_table();
     
     //------------------------------------------------------------------------------------------------------
-    // Add a "real" start symbol, with a single production that is the old start symbol followed by end of
-    // input symbol. This will enable handling end of input in the same way as any follow symbol.
+    // To handle end-of-input correctly, add the EOI symbol to the follow of the start symbol, and the rest
+    // will follow...
     //------------------------------------------------------------------------------------------------------
-    productions.insert(productions.begin(), {REAL_START, START, EOI});
+    follow_table[START].insert(EOI);
     
     //------------------------------------------------------------------------------------------------------
     // Go over the productions:
@@ -125,7 +125,18 @@ void Grammar::calc_follow_table() {
 
 //==========================================================================================================
 //==========================================================================================================
+Set<Symbol> Grammar::get_follow_set(Symbol sym) {
+    if(follow_table.count(sym) > 0)
+        return follow_table[sym];
+    else
+        return {};
+}
+
+
+//==========================================================================================================
+//==========================================================================================================
 void Grammar::print() {
+    cout << "Grammar:" << endl;
     for(int i = 0; i < productions.size(); ++i) {
         cout << i << ": " << symbol_to_string(productions[i][0]) << " --> ";
         for(int j = 1; j < productions[i].size(); ++j)
@@ -146,6 +157,7 @@ void Grammar::print() {
             cout << symbol_to_string(s) << " ";
         cout << "}" << endl;
     }
+    cout << endl;
 }
 
 

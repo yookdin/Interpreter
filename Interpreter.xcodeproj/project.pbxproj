@@ -14,6 +14,7 @@
 		FE964BBC1D2CFE9200BA1254 /* Token.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FE964BBA1D2CFE9200BA1254 /* Token.cpp */; };
 		FE964BC01D2D042800BA1254 /* Lexer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FE964BBE1D2D042800BA1254 /* Lexer.cpp */; };
 		FEE621871D35AAC5006D3C6C /* Grammar.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FEE621851D35AAC5006D3C6C /* Grammar.cpp */; };
+		FEE6218A1D367E55006D3C6C /* SLR_Table.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FEE621881D367E55006D3C6C /* SLR_Table.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -45,6 +46,8 @@
 		FE964BBF1D2D042800BA1254 /* Lexer.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Lexer.hpp; sourceTree = "<group>"; };
 		FEE621851D35AAC5006D3C6C /* Grammar.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Grammar.cpp; sourceTree = "<group>"; };
 		FEE621861D35AAC5006D3C6C /* Grammar.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Grammar.hpp; sourceTree = "<group>"; };
+		FEE621881D367E55006D3C6C /* SLR_Table.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SLR_Table.cpp; sourceTree = "<group>"; };
+		FEE621891D367E55006D3C6C /* SLR_Table.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = SLR_Table.hpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -100,6 +103,8 @@
 				FE29B5CC1D326677001FDDB0 /* NFA.cpp */,
 				FE29B5D11D3272CF001FDDB0 /* DFA.hpp */,
 				FE29B5D01D3272CF001FDDB0 /* DFA.cpp */,
+				FEE621891D367E55006D3C6C /* SLR_Table.hpp */,
+				FEE621881D367E55006D3C6C /* SLR_Table.cpp */,
 			);
 			name = parser;
 			sourceTree = "<group>";
@@ -166,6 +171,7 @@
 				FEE621871D35AAC5006D3C6C /* Grammar.cpp in Sources */,
 				FE29B5D41D328833001FDDB0 /* utils.cpp in Sources */,
 				FE29B5D21D3272CF001FDDB0 /* DFA.cpp in Sources */,
+				FEE6218A1D367E55006D3C6C /* SLR_Table.cpp in Sources */,
 				FE964BBC1D2CFE9200BA1254 /* Token.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

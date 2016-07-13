@@ -18,6 +18,8 @@ class DFA {
 public:
     DFA(NFA& nfa);
     void print();
+    
+    friend class SLR_Table;
 private:
     vector<int> accepting;
     vector<vector<int>> table;

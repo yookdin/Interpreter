@@ -35,7 +35,7 @@
 using namespace std;
 
 // EOI - end of input
-enum Symbol { REAL_START = -2, START = -1, EOI, LEFT_PAREN, RIGHT_PAREN, NUM, OP, EXP };
+enum Symbol { START = -1, LEFT_PAREN, RIGHT_PAREN, NUM, OP, EOI, EXP };
 #define NUM_TABLE_SYMBOLS 6
 #define NONTERMINALS_START 5
 

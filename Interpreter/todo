@@ -1,5 +1,5 @@
 
-- Turn DFA into SLR table (need Nullable(), First(), and Follow() of grammar rules) 
+
 - Write parser
 - Check parser on example
 

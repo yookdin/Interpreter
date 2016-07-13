@@ -7,9 +7,7 @@
 //
 
 #include "common.h"
-#include "NFA.hpp"
-#include "DFA.hpp"
-#include "Grammar.hpp"
+#include "SLR_Table.hpp"
 
 int main(int argc, const char * argv[]) {
 
@@ -22,11 +20,15 @@ int main(int argc, const char * argv[]) {
         G.calc_follow_table();
         G.print();
         
-        //NFA nfa(G);
+        NFA nfa(G);
         //nfa.print();
         
-        //    DFA dfa(nfa);
-        //    dfa.print();
+        DFA dfa(nfa);
+        dfa.print();
+        
+        SLR_Table slr_table(G, dfa);
+        slr_table.print();
+
     } catch (string err) {
         cout << "Error: " << err << endl;
     }
