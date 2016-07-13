@@ -34,10 +34,12 @@
 
 using namespace std;
 
-enum Symbol { LEFT_PAREN, RIGHT_PAREN, NUM, OP, EXP };
-#define NUM_SYMBOLS 5
+enum Symbol { START = -1, LEFT_PAREN, RIGHT_PAREN, NUM, OP, EXP };
+#define NUM_TABLE_SYMBOLS 5
+#define NONTERMINALS_START 4
 
 string symbol_to_string(int sym);
+bool is_nonterminal(Symbol sym);
 
 
 #endif /* common_h */

@@ -9,10 +9,11 @@
 #include "common.h"
 
 string symbol_to_string(int sym) {
-    if(sym == NUM_SYMBOLS)
+    if(sym == NUM_TABLE_SYMBOLS)
         return "EPSILON";
     
     switch (sym) {
+        case START: return "START";
         case LEFT_PAREN: return "(";
         case RIGHT_PAREN: return ")";
         case NUM: return "NUM";
@@ -20,4 +21,8 @@ string symbol_to_string(int sym) {
         case EXP: return "EXP";
         default: throw string("Value of symbol out of bounds");
     }
+}
+
+bool is_nonterminal(Symbol sym) {
+    return (sym < 0 or sym >= NONTERMINALS_START);
 }

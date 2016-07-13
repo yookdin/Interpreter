@@ -1,12 +1,8 @@
 
-- DFA minimization
-- Maybe move EPSILON out of normal symbols enum; only NFA needs it
+- Turn DFA into SLR table (need Nullable(), First(), and Follow() of grammar rules) 
+- Write parser
+- Check parser on example
 
-o Parser should be generated half-automatically from grammer
-For this need:
-    - Read grammar and automatically create SLR table
-    - Compute First(), Nullable(), Follow()
-    - Complete initial DFA with using Follow() to create final SLR table  
 
 
 o A possible optimization of DFA minimization:

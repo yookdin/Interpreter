@@ -13,6 +13,7 @@
 		FE964BB41D2CFDA500BA1254 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FE964BB31D2CFDA500BA1254 /* main.cpp */; };
 		FE964BBC1D2CFE9200BA1254 /* Token.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FE964BBA1D2CFE9200BA1254 /* Token.cpp */; };
 		FE964BC01D2D042800BA1254 /* Lexer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FE964BBE1D2D042800BA1254 /* Lexer.cpp */; };
+		FEE621871D35AAC5006D3C6C /* Grammar.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FEE621851D35AAC5006D3C6C /* Grammar.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -42,6 +43,8 @@
 		FE964BBD1D2CFEB500BA1254 /* common.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = common.h; sourceTree = "<group>"; };
 		FE964BBE1D2D042800BA1254 /* Lexer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Lexer.cpp; sourceTree = "<group>"; };
 		FE964BBF1D2D042800BA1254 /* Lexer.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Lexer.hpp; sourceTree = "<group>"; };
+		FEE621851D35AAC5006D3C6C /* Grammar.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Grammar.cpp; sourceTree = "<group>"; };
+		FEE621861D35AAC5006D3C6C /* Grammar.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Grammar.hpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -80,15 +83,25 @@
 				FE964BBE1D2D042800BA1254 /* Lexer.cpp */,
 				FE964BBB1D2CFE9200BA1254 /* Token.hpp */,
 				FE964BBA1D2CFE9200BA1254 /* Token.cpp */,
-				FE29B5CD1D326677001FDDB0 /* NFA.hpp */,
-				FE29B5CC1D326677001FDDB0 /* NFA.cpp */,
-				FE29B5D11D3272CF001FDDB0 /* DFA.hpp */,
-				FE29B5D01D3272CF001FDDB0 /* DFA.cpp */,
+				FEE621811D35A92E006D3C6C /* parser */,
 				FE29B5D31D328833001FDDB0 /* utils.cpp */,
 				FE29B5CF1D3267F2001FDDB0 /* grammar */,
 				FE29B5CB1D325DBC001FDDB0 /* todo */,
 			);
 			path = Interpreter;
+			sourceTree = "<group>";
+		};
+		FEE621811D35A92E006D3C6C /* parser */ = {
+			isa = PBXGroup;
+			children = (
+				FEE621861D35AAC5006D3C6C /* Grammar.hpp */,
+				FEE621851D35AAC5006D3C6C /* Grammar.cpp */,
+				FE29B5CD1D326677001FDDB0 /* NFA.hpp */,
+				FE29B5CC1D326677001FDDB0 /* NFA.cpp */,
+				FE29B5D11D3272CF001FDDB0 /* DFA.hpp */,
+				FE29B5D01D3272CF001FDDB0 /* DFA.cpp */,
+			);
+			name = parser;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -150,6 +163,7 @@
 				FE964BC01D2D042800BA1254 /* Lexer.cpp in Sources */,
 				FE29B5CE1D326677001FDDB0 /* NFA.cpp in Sources */,
 				FE964BB41D2CFDA500BA1254 /* main.cpp in Sources */,
+				FEE621871D35AAC5006D3C6C /* Grammar.cpp in Sources */,
 				FE29B5D41D328833001FDDB0 /* utils.cpp in Sources */,
 				FE29B5D21D3272CF001FDDB0 /* DFA.cpp in Sources */,
 				FE964BBC1D2CFE9200BA1254 /* Token.cpp in Sources */,
