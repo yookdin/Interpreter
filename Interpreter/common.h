@@ -34,12 +34,41 @@
 
 using namespace std;
 
-enum Symbol { START = -1, LEFT_PAREN, RIGHT_PAREN, NUM, OP, EXP };
-#define NUM_TABLE_SYMBOLS 5
-#define NONTERMINALS_START 4
+// EOI - end of input
+enum Symbol { REAL_START = -2, START = -1, EOI, LEFT_PAREN, RIGHT_PAREN, NUM, OP, EXP };
+#define NUM_TABLE_SYMBOLS 6
+#define NONTERMINALS_START 5
 
 string symbol_to_string(int sym);
 bool is_nonterminal(Symbol sym);
+bool is_terminal(Symbol sym);
+
+
+//==========================================================================================================
+//==========================================================================================================
+template<class T>
+class Set: public set<T> {
+public:
+    Set(){}
+    Set(initializer_list<T> il): set<T>(il) {}
+    
+    void insert(set<T>& other) {
+        set<T>::insert(other.begin(), other.end());
+    }
+    
+    void insert(Set<T>& other) {
+        set<T>::insert(other.begin(), other.end());
+    }
+    
+    void insert(Set<T>&& other) {
+        set<T>::insert(other.begin(), other.end());
+    }
+
+    
+    void insert(T value) {
+        set<T>::insert(value);
+    }
+};
 
 
 #endif /* common_h */

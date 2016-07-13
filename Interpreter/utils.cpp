@@ -13,9 +13,11 @@ string symbol_to_string(int sym) {
         return "EPSILON";
     
     switch (sym) {
+        case REAL_START: return "REAL_START";
         case START: return "START";
-        case LEFT_PAREN: return "(";
-        case RIGHT_PAREN: return ")";
+        case EOI: return "$";
+        case LEFT_PAREN: return "'('";
+        case RIGHT_PAREN: return "')'";
         case NUM: return "NUM";
         case OP: return "OP";
         case EXP: return "EXP";
@@ -23,6 +25,5 @@ string symbol_to_string(int sym) {
     }
 }
 
-bool is_nonterminal(Symbol sym) {
-    return (sym < 0 or sym >= NONTERMINALS_START);
-}
+bool is_nonterminal(Symbol sym) { return (sym < 0 or sym >= NONTERMINALS_START); }
+bool is_terminal(Symbol sym) { return not is_nonterminal(sym); }

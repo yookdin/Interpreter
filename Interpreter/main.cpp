@@ -19,9 +19,11 @@ int main(int argc, const char * argv[]) {
         G.add_production({EXP, NUM});
         G.add_production({EXP, LEFT_PAREN, EXP, RIGHT_PAREN});
         G.add_production({EXP, EXP, OP, EXP});
+        G.calc_follow_table();
+        G.print();
         
-        NFA nfa(G);
-        nfa.print();
+        //NFA nfa(G);
+        //nfa.print();
         
         //    DFA dfa(nfa);
         //    dfa.print();
