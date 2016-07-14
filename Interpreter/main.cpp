@@ -10,9 +10,12 @@
 
 int main(int argc, const char * argv[]) {
 
+    vector<Token> tokens = {{NUM}, {OP}, {LEFT_PAREN}, {NUM}, {OP}, {NUM}, {RIGHT_PAREN}, {EOI}};
+    
     try {
         Parser parser("/Users/ydinari/src/Interpreter/Interpreter/grammar_definition");
-
+        parser.parse(tokens);
+        
     } catch (string err) {
         cout << "Error: " << err << endl;
     }

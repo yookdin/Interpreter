@@ -17,7 +17,7 @@
 class SLR_Table {
 public:
     SLR_Table(){}
-    SLR_Table(Grammar& grammar, DFA& dfa);
+    SLR_Table(Grammar& grammar, DFA dfa);
     void print();
     
     struct Action {
@@ -27,7 +27,11 @@ public:
         
         string to_string();
     };
+
+    Action& get_action(int state, Symbol sym);
+
     
+    friend class Parser;
 private:
     vector<vector<Action>> table;
 };

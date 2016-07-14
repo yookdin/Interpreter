@@ -16,7 +16,7 @@
 //==========================================================================================================
 class DFA {
 public:
-    DFA(NFA& nfa);
+    DFA(NFA nfa);    
     void print();
     
     friend class SLR_Table;

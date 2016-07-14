@@ -11,6 +11,7 @@
 
 
 #include "common.h"
+#include "Token.hpp"
 #include "SLR_Table.hpp"
 
 //==========================================================================================================
@@ -18,9 +19,14 @@
 class Parser {
 public:
     Parser(string grammar_file);
+    void parse(vector<Token> tokens);
     
 private:
+    Grammar grammar;
     SLR_Table table;
+    
+    Symbol get_nonterminal_of_production(int p);
+    int get_production_rhs_size(int p);
 };
 
 

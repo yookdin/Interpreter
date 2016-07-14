@@ -18,7 +18,7 @@ Grammar::Grammar(string grammar_file) {
 
 
 //==========================================================================================================
-// Create grammar from definitions in input file. No checking for validity are done.
+// Create grammar from definitions in input file.
 //==========================================================================================================
 void Grammar::read_grammar_file(string grammar_file) {
     ifstream file = ifstream(grammar_file);
@@ -38,7 +38,12 @@ void Grammar::read_grammar_file(string grammar_file) {
         
         if(regex_match(line, match_res, production_line_re)) {
             production.clear();
-            production.push_back(string_to_symbol(match_res[1]));
+            
+            Symbol N = string_to_symbol(match_res[1]);
+            if(not is_nonterminal(N))
+                throw string("Expected left hand side of a production to be a nonterminal");
+            
+            production.push_back(N);
             
             stringstream sts(match_res[2]);
             string symbol_str;
@@ -58,8 +63,15 @@ void Grammar::read_grammar_file(string grammar_file) {
     // First production nonterminal considered the start symbol. If it is not START, add a production:
     // START -> FIRST-NONTERMINAL
     //------------------------------------------------------------------------------------------------------
-    if(productions[0][0] != START)
+    if(productions[0][0] == START) {
+        if(productions[0].size() != 2)
+            throw string("Expected production for START to have just one symbol on right hand side");
+        if(not is_nonterminal(productions[0][1]))
+            throw string("Expected production for START to have a nonterminal on the right hand side");
+    }
+    else {
         productions.insert(productions.begin(), vector<Symbol>({START, productions[0][0]}));
+    }
 
 } // read_grammar_file()
 
@@ -79,9 +91,12 @@ void Grammar::add_production(vector<Symbol> production) {
 
 //==========================================================================================================
 //==========================================================================================================
-Symbol Grammar::get_nonterminal_of_production(int p) {
-    return productions[p][0];
-}
+Symbol Grammar::get_nonterminal_of_production(int p) { return productions[p][0]; }
+
+
+//==========================================================================================================
+//==========================================================================================================
+int Grammar::get_production_rhs_size(int p) { return productions[p].size() - 1; }
 
 
 //==========================================================================================================

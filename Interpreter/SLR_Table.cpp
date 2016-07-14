@@ -11,7 +11,7 @@
 
 //==========================================================================================================
 //==========================================================================================================
-SLR_Table::SLR_Table(Grammar& grammar, DFA& dfa): table(vector<vector<Action>>(dfa.get_num_states(), vector<Action>(NUM_TABLE_SYMBOLS))) {
+SLR_Table::SLR_Table(Grammar& grammar, DFA dfa): table(vector<vector<Action>>(dfa.get_num_states(), vector<Action>(NUM_TABLE_SYMBOLS))) {
     
     //------------------------------------------------------------------------------------------------------
     // Add the SHIFT and GO actions. SHIFT are for terminals symbols, GO for nonterminals. The value is the
@@ -43,6 +43,8 @@ SLR_Table::SLR_Table(Grammar& grammar, DFA& dfa): table(vector<vector<Action>>(d
                 table[i][s].kind = Action::REDUCE;
                 table[i][s].val = p;
             } else {
+                if(s != EOI)
+                    throw string("ACCEPT action should be only for end-of-input symbol");
                 table[i][s].kind = Action::ACCEPT;
             }
         } // for each symbol in Follow(N)
@@ -92,7 +94,15 @@ void SLR_Table::print() {
             else
                 cout << endl;
         }
-     }
+    }
+    cout << endl;
+}
+
+
+//==========================================================================================================
+//==========================================================================================================
+SLR_Table::Action& SLR_Table::get_action(int state, Symbol sym) {
+    return table[state][sym];
 }
 
 
@@ -108,7 +118,6 @@ string SLR_Table::Action::to_string() {
         case ERROR: return "";
     }
 }
-
 
 
 

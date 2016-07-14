@@ -18,6 +18,7 @@ public:
     Grammar(string grammar_file);
     void add_production(vector<Symbol> production);
     Symbol get_nonterminal_of_production(int p);
+    int get_production_rhs_size(int p);
     void print();
     Set<Symbol> get_follow_set(Symbol sym);
     
