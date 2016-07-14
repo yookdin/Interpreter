@@ -18,6 +18,7 @@ Grammar::Grammar(string grammar_file) {
 
 
 //==========================================================================================================
+// Create grammar from definitions in input file. No checking for validity are done.
 //==========================================================================================================
 void Grammar::read_grammar_file(string grammar_file) {
     ifstream file = ifstream(grammar_file);
@@ -25,13 +26,42 @@ void Grammar::read_grammar_file(string grammar_file) {
     if(!file.is_open())
         throw string("File " + grammar_file + " not found");
     
+    regex production_line_re("(\\w+)\\s*->\\s*(.*)"); // Note: the RHS needs to parsed word by word
+    vector<Symbol> production;
+    smatch match_res;
+    
     //------------------------------------------------------------------------------------------------------
+    // For each production line extract the symbols and add a production
     //------------------------------------------------------------------------------------------------------
     for(string line; getline(file, line);) {
-        if(trim(line).empty()) continue;
+        if(trim(line).empty()) continue; // Ignore comments and empty lines
         
+        if(regex_match(line, match_res, production_line_re)) {
+            production.clear();
+            production.push_back(string_to_symbol(match_res[1]));
+            
+            stringstream sts(match_res[2]);
+            string symbol_str;
+            
+            while(!sts.eof()) { // Extract the symbol names
+                 sts >> symbol_str;
+                production.push_back(string_to_symbol(symbol_str));
+            } 
+            
+            add_production(production);
+        } else {
+            throw string("Unkown line in grammar file:\n" + line);
+        }
     }
-}
+
+    //------------------------------------------------------------------------------------------------------
+    // First production nonterminal considered the start symbol. If it is not START, add a production:
+    // START -> FIRST-NONTERMINAL
+    //------------------------------------------------------------------------------------------------------
+    if(productions[0][0] != START)
+        productions.insert(productions.begin(), vector<Symbol>({START, productions[0][0]}));
+
+} // read_grammar_file()
 
 
 //==========================================================================================================
@@ -102,8 +132,10 @@ void Grammar::calc_follow_table() {
     calc_first_table();
     
     //------------------------------------------------------------------------------------------------------
-    // To handle end-of-input correctly, add the EOI symbol to the follow of the start symbol, and the rest
-    // will follow...
+    // To handle end-of-input correctly, add the EOI (= $) symbol to the follow of the start symbol.
+    // This is instead of add another symbol to be the new start and a production: START' -> START $
+    // That will have the same effect but causes some overhead of needing to deal with the new symbol and
+    // production.
     //------------------------------------------------------------------------------------------------------
     follow_table[START].insert(EOI);
     

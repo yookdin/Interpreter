@@ -10,6 +10,7 @@
 #define common_h
 
 #include <iostream>
+#include <iomanip>
 #include <fstream>
 #include <sstream>
 #include <map>
@@ -40,9 +41,11 @@ enum Symbol { START = -1, LEFT_PAREN, RIGHT_PAREN, NUM, OP, EOI, EXP };
 #define NONTERMINALS_START 5
 
 string symbol_to_string(int sym);
+Symbol string_to_symbol(string str);
 bool is_nonterminal(Symbol sym);
 bool is_terminal(Symbol sym);
 string& trim(string& line);
+
 
 //==========================================================================================================
 //==========================================================================================================

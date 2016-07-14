@@ -17,14 +17,31 @@ string symbol_to_string(int sym) {
     switch (sym) {
         case START: return "START";
         case EOI: return "$";
-        case LEFT_PAREN: return "'('";
-        case RIGHT_PAREN: return "')'";
+        case LEFT_PAREN: return "(";
+        case RIGHT_PAREN: return ")";
         case NUM: return "NUM";
         case OP: return "OP";
         case EXP: return "EXP";
         default: throw string("Value of symbol out of bounds");
     }
 }
+
+
+//==========================================================================================================
+//==========================================================================================================
+Symbol string_to_symbol(string str) {
+    if     (str == "START")         return START;
+    else if(str == "LEFT_PAREN")    return LEFT_PAREN;
+    else if(str == "(")             return LEFT_PAREN;
+    else if(str == "RIGHT_PAREN")   return RIGHT_PAREN;
+    else if(str == ")")             return RIGHT_PAREN;
+    else if(str == "NUM")           return NUM;
+    else if(str == "OP")            return OP;
+    else if(str == "EOI")           return EOI;
+    else if(str == "EXP")           return EXP;
+    else throw string("No matching symbol for string \"" + str + "\"");
+}
+
 
 //==========================================================================================================
 //==========================================================================================================
