@@ -10,12 +10,14 @@
 		FE29B5CE1D326677001FDDB0 /* NFA.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FE29B5CC1D326677001FDDB0 /* NFA.cpp */; };
 		FE29B5D21D3272CF001FDDB0 /* DFA.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FE29B5D01D3272CF001FDDB0 /* DFA.cpp */; };
 		FE29B5D41D328833001FDDB0 /* utils.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FE29B5D31D328833001FDDB0 /* utils.cpp */; };
+		FE4382FF1D3BCB5900E83863 /* AST_Factory.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FE4382FD1D3BCB5900E83863 /* AST_Factory.cpp */; };
 		FE964BB41D2CFDA500BA1254 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FE964BB31D2CFDA500BA1254 /* main.cpp */; };
 		FE964BBC1D2CFE9200BA1254 /* Token.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FE964BBA1D2CFE9200BA1254 /* Token.cpp */; };
 		FE964BC01D2D042800BA1254 /* Lexer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FE964BBE1D2D042800BA1254 /* Lexer.cpp */; };
 		FEE621871D35AAC5006D3C6C /* Grammar.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FEE621851D35AAC5006D3C6C /* Grammar.cpp */; };
 		FEE6218A1D367E55006D3C6C /* SLR_Table.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FEE621881D367E55006D3C6C /* SLR_Table.cpp */; };
 		FEE6218D1D369896006D3C6C /* Parser.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FEE6218B1D369896006D3C6C /* Parser.cpp */; };
+		FEE621971D3A29AB006D3C6C /* AST.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FEE621951D3A29AB006D3C6C /* AST.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -38,6 +40,9 @@
 		FE29B5D01D3272CF001FDDB0 /* DFA.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = DFA.cpp; sourceTree = "<group>"; };
 		FE29B5D11D3272CF001FDDB0 /* DFA.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = DFA.hpp; sourceTree = "<group>"; };
 		FE29B5D31D328833001FDDB0 /* utils.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = utils.cpp; sourceTree = "<group>"; };
+		FE4382FD1D3BCB5900E83863 /* AST_Factory.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = AST_Factory.cpp; sourceTree = "<group>"; };
+		FE4382FE1D3BCB5900E83863 /* AST_Factory.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = AST_Factory.hpp; sourceTree = "<group>"; };
+		FE4383011D3BCBF500E83863 /* ParseStackElement.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = ParseStackElement.hpp; sourceTree = "<group>"; };
 		FE964BB01D2CFDA500BA1254 /* Interpreter */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = Interpreter; sourceTree = BUILT_PRODUCTS_DIR; };
 		FE964BB31D2CFDA500BA1254 /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
 		FE964BBA1D2CFE9200BA1254 /* Token.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Token.cpp; sourceTree = "<group>"; };
@@ -51,6 +56,8 @@
 		FEE621891D367E55006D3C6C /* SLR_Table.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = SLR_Table.hpp; sourceTree = "<group>"; };
 		FEE6218B1D369896006D3C6C /* Parser.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Parser.cpp; sourceTree = "<group>"; };
 		FEE6218C1D369896006D3C6C /* Parser.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Parser.hpp; sourceTree = "<group>"; };
+		FEE621951D3A29AB006D3C6C /* AST.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = AST.cpp; sourceTree = "<group>"; };
+		FEE621961D3A29AB006D3C6C /* AST.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = AST.hpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -64,6 +71,17 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		FE4382FC1D3BB4B300E83863 /* AST */ = {
+			isa = PBXGroup;
+			children = (
+				FEE621961D3A29AB006D3C6C /* AST.hpp */,
+				FEE621951D3A29AB006D3C6C /* AST.cpp */,
+				FE4382FE1D3BCB5900E83863 /* AST_Factory.hpp */,
+				FE4382FD1D3BCB5900E83863 /* AST_Factory.cpp */,
+			);
+			name = AST;
+			sourceTree = "<group>";
+		};
 		FE964BA71D2CFDA500BA1254 = {
 			isa = PBXGroup;
 			children = (
@@ -90,6 +108,7 @@
 				FE964BBB1D2CFE9200BA1254 /* Token.hpp */,
 				FE964BBA1D2CFE9200BA1254 /* Token.cpp */,
 				FEE621811D35A92E006D3C6C /* parser */,
+				FE4382FC1D3BB4B300E83863 /* AST */,
 				FE29B5D31D328833001FDDB0 /* utils.cpp */,
 				FE29B5CF1D3267F2001FDDB0 /* grammar_definition */,
 				FE29B5CB1D325DBC001FDDB0 /* todo */,
@@ -102,6 +121,7 @@
 			children = (
 				FEE6218C1D369896006D3C6C /* Parser.hpp */,
 				FEE6218B1D369896006D3C6C /* Parser.cpp */,
+				FE4383011D3BCBF500E83863 /* ParseStackElement.hpp */,
 				FEE621891D367E55006D3C6C /* SLR_Table.hpp */,
 				FEE621881D367E55006D3C6C /* SLR_Table.cpp */,
 				FE29B5D11D3272CF001FDDB0 /* DFA.hpp */,
@@ -170,6 +190,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				FEE621971D3A29AB006D3C6C /* AST.cpp in Sources */,
+				FE4382FF1D3BCB5900E83863 /* AST_Factory.cpp in Sources */,
 				FE964BC01D2D042800BA1254 /* Lexer.cpp in Sources */,
 				FE29B5CE1D326677001FDDB0 /* NFA.cpp in Sources */,
 				FE964BB41D2CFDA500BA1254 /* main.cpp in Sources */,

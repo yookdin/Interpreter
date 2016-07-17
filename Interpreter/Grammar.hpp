@@ -11,33 +11,53 @@
 
 #include "common.h"
 
+
+//==========================================================================================================
+//==========================================================================================================
+class Production {
+public:
+    Production(vector<Symbol> _symbols, string _action_name): symbols(_symbols), action_name(_action_name) {}
+
+    Symbol operator[](int i) { return symbols[i]; }
+    int size()               { return symbols.size(); }
+    int rhs_size()           { return symbols.size() - 1; }
+    
+    const vector<Symbol> symbols;
+    const string action_name; // Name of the action associated with the production (indicating the kind of AST to build)
+};
+
+
 //==========================================================================================================
 //==========================================================================================================
 class Grammar {
 public:
     Grammar(string grammar_file);
-    void add_production(vector<Symbol> production);
-    Symbol get_nonterminal_of_production(int p);
-    int get_production_rhs_size(int p);
     void print();
     Set<Symbol> get_follow_set(Symbol sym);
     
     friend class NFA;
     friend class SLR_Table;
+    friend class Parser;
 
 private:
-    // For each production the first symbol is the lhs (must be a nonterminal) and the rest are the rhs
-    vector<vector<Symbol>> productions;
+    // This can't be vector (true to C++11) because in order to be able to add in the front, you need the push_front()
+    // member function of deque.
+    // vector::insert() and emplace() call the assignment operator that doesn't work due to the const fields
+    // (a bug in my opinion, should have been implemented the same way as deque::push_front()).
+    deque<Production> productions;
 
     map<Symbol, Set<Symbol>> first_table;
     
     // Follow(N) = {t | (t is terminal) and (START => A N t B  (A and B can be empty))}
     map<Symbol, Set<Symbol>> follow_table;
     
-    void read_grammar_file(string grammar_file);
+    void read_grammar_file(string grammar_file);    
+    void extract_symbols(string production_str, vector<Symbol>& symbols);
+    void extract_action(string action_str, string& action_name);
     void calc_follow_table();
     void calc_first_table();
     Set<Symbol> get_first_set(Symbol sym);
 };
+
 
 #endif /* Grammar_hpp */

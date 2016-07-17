@@ -33,9 +33,10 @@ SLR_Table::SLR_Table(Grammar& grammar, DFA dfa): table(vector<vector<Action>>(df
         int p = dfa.accepting[i]; 
         if(p < 0) continue;
         
-        Symbol N = grammar.get_nonterminal_of_production(p);
+        Symbol N = grammar.productions[p][0];
         
         for(auto s: grammar.get_follow_set(N)) {
+            // TODO: add conflict resolution using external operator table
 //            if(table[i][s].kind != Action::ERROR)
 //                throw string("Trying to add REDUCE action where action " + table[i][s].to_string() + " already exists");
             

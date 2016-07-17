@@ -1,3 +1,3 @@
-EXP -> NUM
-EXP -> ( EXP )
-EXP -> EXP OP EXP
+EXP  ->  NUM         #  Num
+EXP  ->  ( EXP )
+EXP  ->  EXP OP EXP  #  Op

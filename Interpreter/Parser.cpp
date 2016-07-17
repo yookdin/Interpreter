@@ -7,6 +7,7 @@
 //
 
 #include "Parser.hpp"
+#include "ParseStackElement.hpp"
 
 typedef SLR_Table::Action Action; 
 
@@ -14,29 +15,29 @@ typedef SLR_Table::Action Action;
 // Build internal table from DFA, which is built from NFA, which is built from the grammar, which is built
 // from definitions in the input file.
 //==========================================================================================================
-Parser::Parser(string grammar_file): grammar(grammar_file), table(grammar, DFA(NFA(grammar))) {}
+Parser::Parser(string grammar_file): grammar(grammar_file), table(grammar, DFA(NFA(grammar))) {table.print();}
 
 
 //==========================================================================================================
 //==========================================================================================================
-void Parser::parse(vector<Token> tokens) {
+void Parser::parse(vector<Token*> tokens) {
     for(int i = 0; i < tokens.size(); ++i) {
-        if(is_nonterminal(tokens[i].kind))
+        if(is_nonterminal(tokens[i]->kind))
             throw string("Token kind for parsing should be a terminal");
     }
 
-    stack<int> stack;
+    stack<ParseStackElement> stack;
     stack.push(0);
 
     //------------------------------------------------------------------------------------------------------
     //------------------------------------------------------------------------------------------------------
     for(int i = 0; i < tokens.size();) {
-        Token token = tokens[i];
-        Action action = table.get_action(stack.top(), token.kind); 
+        Token* token = tokens[i];
+        Action action = table.get_action(stack.top().state, token->kind); 
         
         switch(action.kind) {
             case Action::SHIFT: {
-                stack.push(action.val);
+                stack.push(ParseStackElement(action.val, token));
                 ++i;
                 break;
             }
@@ -45,16 +46,26 @@ void Parser::parse(vector<Token> tokens) {
                 break;
             }
             case Action::REDUCE: { // Perform the REDUCE and GO action that immediately follows it
-                Symbol N = get_nonterminal_of_production(action.val);
-                int rhs_size = get_production_rhs_size(action.val);
-                while(rhs_size-- > 0) stack.pop();
                 
-                action = table.get_action(stack.top(), N);
+                Production& p = grammar.productions[action.val]; 
+                Symbol N = p[0];
+                int rhs_size = p.rhs_size();
+                string action_name = p.action_name;
+                vector<TokenOrAST> elements;
+                
+                while(rhs_size-- > 0) { 
+                    elements.push_back(stack.top().get_token_or_ast());
+                    stack.pop();
+                }
+                
+                AST* ast = ast_factory.gen_ast(action_name, elements);
+                
+                action = table.get_action(stack.top().state, N);
                 
                 if(action.kind != Action::GO)
-                    throw string("Expected action for [" + to_string(stack.top()) + "," + symbol_to_string(N) + "] to be GO but found: " + action.to_string());
+                    throw string("Expected action for [" + to_string(stack.top().state) + "," + symbol_to_string(N) + "] to be GO but found: " + action.to_string());
                 
-                stack.push(action.val);
+                stack.push(ParseStackElement(action.val, ast));
                 break;
             }
             case Action::ACCEPT: {
@@ -62,43 +73,21 @@ void Parser::parse(vector<Token> tokens) {
                     throw string("ACCEPT reached before end of input");
                 
                 stack.pop(); // ACCEPT is REDUCE for producation 0, which always has just one symbol on right-hand-side
-                if(stack.top() != 0 or stack.size() != 1)
+                if(stack.top().state != 0 or stack.size() != 1)
                     throw string("Expected stack to contain just the start state after ACCEPT");
                 
                 cout << "Success!" << endl;
                 return;
             }
             case Action::ERROR: {
-                cout << "Error on [" << to_string(stack.top()) << "," << symbol_to_string(token.kind) << "]" << endl;
+                cout << "Error on [" << to_string(stack.top().state) << "," << symbol_to_string(token->kind) << "]" << endl;
                 return;
             }
         }
     }
     
-    cout << "Error: end of input reached. Current state is " << stack.top() << endl; 
+    cout << "Error: end of input reached. Current state is " << stack.top().state << endl; 
 }
-
-
-//==========================================================================================================
-//==========================================================================================================
-Symbol Parser::get_nonterminal_of_production(int p) {
-    return grammar.get_nonterminal_of_production(p);
-}
-
-
-//==========================================================================================================
-//==========================================================================================================
-int Parser::get_production_rhs_size(int p) {
-    return grammar.get_production_rhs_size(p);
-}
-
-
-
-
-
-
-
-
 
 
 

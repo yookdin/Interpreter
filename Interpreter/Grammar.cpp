@@ -19,46 +19,34 @@ Grammar::Grammar(string grammar_file) {
 
 //==========================================================================================================
 // Create grammar from definitions in input file.
+// Production are of the form:
+// N -> A B C ...
 //==========================================================================================================
 void Grammar::read_grammar_file(string grammar_file) {
     ifstream file = ifstream(grammar_file);
     
     if(!file.is_open())
         throw string("File " + grammar_file + " not found");
-    
-    regex production_line_re("(\\w+)\\s*->\\s*(.*)"); // Note: the RHS needs to parsed word by word
-    vector<Symbol> production;
-    smatch match_res;
-    
+        
     //------------------------------------------------------------------------------------------------------
     // For each production line extract the symbols and add a production
     //------------------------------------------------------------------------------------------------------
     for(string line; getline(file, line);) {
         if(trim(line).empty()) continue; // Ignore comments and empty lines
         
-        if(regex_match(line, match_res, production_line_re)) {
-            production.clear();
-            
-            Symbol N = string_to_symbol(match_res[1]);
-            if(not is_nonterminal(N))
-                throw string("Expected left hand side of a production to be a nonterminal");
-            
-            production.push_back(N);
-            
-            stringstream sts(match_res[2]);
-            string symbol_str;
-            
-            while(!sts.eof()) { // Extract the symbol names
-                 sts >> symbol_str;
-                production.push_back(string_to_symbol(symbol_str));
-            } 
-            
-            add_production(production);
-        } else {
-            throw string("Unkown line in grammar file:\n" + line);
-        }
+        vector<Symbol> symbols;
+        string action_name;
+        
+        // If an action is specified, a number sign will serve to separate between the production and it
+        int split_pos = line.find_first_of('#');        
+        extract_symbols(line.substr(0, split_pos), symbols);
+                
+        if(split_pos != string::npos)
+            extract_action(line.substr(split_pos + 1), action_name);
+        
+        productions.push_back(Production(symbols, action_name));
     }
-
+    
     //------------------------------------------------------------------------------------------------------
     // First production nonterminal considered the start symbol. If it is not START, add a production:
     // START -> FIRST-NONTERMINAL
@@ -70,7 +58,7 @@ void Grammar::read_grammar_file(string grammar_file) {
             throw string("Expected production for START to have a nonterminal on the right hand side");
     }
     else {
-        productions.insert(productions.begin(), vector<Symbol>({START, productions[0][0]}));
+        productions.push_front(Production({START, productions[0][0]}, ""));
     }
 
 } // read_grammar_file()
@@ -78,25 +66,46 @@ void Grammar::read_grammar_file(string grammar_file) {
 
 //==========================================================================================================
 //==========================================================================================================
-void Grammar::add_production(vector<Symbol> production) {
-    if(production.size() < 2)
+void Grammar::extract_symbols(string production_str, vector<Symbol>& symbols) {
+    
+    trim(production_str); // Must trim! o/w stringstream gets confused!
+    regex production_re("(\\w+)\\s*->\\s*(.*)"); // Note: the RHS needs to parsed word by word
+    smatch match_res;
+    
+    if(not regex_match(production_str, match_res, production_re))
+        throw string("Unkown production in line:\n" + production_str);
+    
+    Symbol N = string_to_symbol(match_res[1]);
+    if(not is_nonterminal(N))
+        throw string("Expected left hand side of a production to be a nonterminal");
+    
+    symbols.push_back(N);
+    
+    stringstream sts(match_res[2]);
+    string symbol_str;
+    
+    while(!sts.eof()) { // Extract the symbol names
+        sts >> symbol_str;
+        symbols.push_back(string_to_symbol(symbol_str));
+    } 
+    
+    if(symbols.size() < 2)
         throw string("Production must have at least two symbols"); // TODO: what about production of the empty string?
-    
-    if(not is_nonterminal(production[0]))
-        throw string("Production must have a nonterminal on the left-hand-side");
-    
-    productions.push_back(production);
 }
 
 
 //==========================================================================================================
 //==========================================================================================================
-Symbol Grammar::get_nonterminal_of_production(int p) { return productions[p][0]; }
+void Grammar::extract_action(string action_str, string& action_name) {
+    regex action_re("\\w+");
+    smatch match_res;
 
+    if(not regex_search(action_str, match_res, action_re))
+        throw string("Unkown action in line:\n" + action_str);
+    
+    action_name = match_res[0];
+}
 
-//==========================================================================================================
-//==========================================================================================================
-int Grammar::get_production_rhs_size(int p) { return productions[p].size() - 1; }
 
 
 //==========================================================================================================
