@@ -75,7 +75,7 @@ void Parser::parse(vector<Token> tokens) {
         }
     }
     
-    cout << "Error: end of input reached. Current state is " << symbol_to_string(stack.top()) << endl; 
+    cout << "Error: end of input reached. Current state is " << stack.top() << endl; 
 }
 
 
