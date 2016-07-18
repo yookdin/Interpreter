@@ -43,6 +43,8 @@
 		FE4382FD1D3BCB5900E83863 /* AST_Factory.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = AST_Factory.cpp; sourceTree = "<group>"; };
 		FE4382FE1D3BCB5900E83863 /* AST_Factory.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = AST_Factory.hpp; sourceTree = "<group>"; };
 		FE4383011D3BCBF500E83863 /* ParseStackElement.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = ParseStackElement.hpp; sourceTree = "<group>"; };
+		FE4383061D3CC63300E83863 /* Value.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Value.h; sourceTree = "<group>"; };
+		FE4383071D3CED2F00E83863 /* try.scr */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = try.scr; sourceTree = "<group>"; };
 		FE964BB01D2CFDA500BA1254 /* Interpreter */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = Interpreter; sourceTree = BUILT_PRODUCTS_DIR; };
 		FE964BB31D2CFDA500BA1254 /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
 		FE964BBA1D2CFE9200BA1254 /* Token.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Token.cpp; sourceTree = "<group>"; };
@@ -82,6 +84,18 @@
 			name = AST;
 			sourceTree = "<group>";
 		};
+		FE4383031D3BE41700E83863 /* Lexer */ = {
+			isa = PBXGroup;
+			children = (
+				FE4383061D3CC63300E83863 /* Value.h */,
+				FE964BBB1D2CFE9200BA1254 /* Token.hpp */,
+				FE964BBA1D2CFE9200BA1254 /* Token.cpp */,
+				FE964BBF1D2D042800BA1254 /* Lexer.hpp */,
+				FE964BBE1D2D042800BA1254 /* Lexer.cpp */,
+			);
+			name = Lexer;
+			sourceTree = "<group>";
+		};
 		FE964BA71D2CFDA500BA1254 = {
 			isa = PBXGroup;
 			children = (
@@ -103,14 +117,12 @@
 			children = (
 				FE964BBD1D2CFEB500BA1254 /* common.h */,
 				FE964BB31D2CFDA500BA1254 /* main.cpp */,
-				FE964BBF1D2D042800BA1254 /* Lexer.hpp */,
-				FE964BBE1D2D042800BA1254 /* Lexer.cpp */,
-				FE964BBB1D2CFE9200BA1254 /* Token.hpp */,
-				FE964BBA1D2CFE9200BA1254 /* Token.cpp */,
+				FE4383031D3BE41700E83863 /* Lexer */,
 				FEE621811D35A92E006D3C6C /* parser */,
 				FE4382FC1D3BB4B300E83863 /* AST */,
 				FE29B5D31D328833001FDDB0 /* utils.cpp */,
 				FE29B5CF1D3267F2001FDDB0 /* grammar_definition */,
+				FE4383071D3CED2F00E83863 /* try.scr */,
 				FE29B5CB1D325DBC001FDDB0 /* todo */,
 			);
 			path = Interpreter;

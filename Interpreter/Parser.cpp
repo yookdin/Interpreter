@@ -15,12 +15,15 @@ typedef SLR_Table::Action Action;
 // Build internal table from DFA, which is built from NFA, which is built from the grammar, which is built
 // from definitions in the input file.
 //==========================================================================================================
-Parser::Parser(string grammar_file): grammar(grammar_file), table(grammar, DFA(NFA(grammar))) {table.print();}
+Parser::Parser(string grammar_file): grammar(grammar_file), table(grammar, DFA(NFA(grammar))) {}
 
 
 //==========================================================================================================
 //==========================================================================================================
-void Parser::parse(vector<Token*> tokens) {
+AST* Parser::parse(vector<Token*> tokens) {
+    if(tokens.empty() or tokens[0]->kind == EOI)
+        return nullptr;
+    
     for(int i = 0; i < tokens.size(); ++i) {
         if(is_nonterminal(tokens[i]->kind))
             throw string("Token kind for parsing should be a terminal");
@@ -50,7 +53,6 @@ void Parser::parse(vector<Token*> tokens) {
                 Production& p = grammar.productions[action.val]; 
                 Symbol N = p[0];
                 int rhs_size = p.rhs_size();
-                string action_name = p.action_name;
                 vector<TokenOrAST> elements;
                 
                 while(rhs_size-- > 0) { 
@@ -58,8 +60,8 @@ void Parser::parse(vector<Token*> tokens) {
                     stack.pop();
                 }
                 
-                AST* ast = ast_factory.gen_ast(action_name, elements);
-                
+                AST* ast = p.ast_generator(elements);
+
                 action = table.get_action(stack.top().state, N);
                 
                 if(action.kind != Action::GO)
@@ -72,21 +74,23 @@ void Parser::parse(vector<Token*> tokens) {
                 if(i < tokens.size() - 1)
                     throw string("ACCEPT reached before end of input");
                 
+                AST* res = stack.top().get_token_or_ast().get_ast();
                 stack.pop(); // ACCEPT is REDUCE for producation 0, which always has just one symbol on right-hand-side
                 if(stack.top().state != 0 or stack.size() != 1)
                     throw string("Expected stack to contain just the start state after ACCEPT");
                 
                 cout << "Success!" << endl;
-                return;
+                return res;
             }
             case Action::ERROR: {
                 cout << "Error on [" << to_string(stack.top().state) << "," << symbol_to_string(token->kind) << "]" << endl;
-                return;
+                return nullptr;
             }
         }
     }
     
     cout << "Error: end of input reached. Current state is " << stack.top().state << endl; 
+    return nullptr;
 }
 
 

@@ -11,8 +11,9 @@
 
 #include "common.h"
 #include "Token.hpp"
-#include "AST.hpp"
 
+
+class AST;
 
 //======================================================================================================
 //======================================================================================================
@@ -50,6 +51,7 @@ public:
     ParseStackElement(int s, Token* token): state(s), token_or_ast(token) {}
     ParseStackElement(int s, AST* ast): state(s), token_or_ast(ast) {}
 
+    AST* get_ast() { return token_or_ast.get_ast(); }
     TokenOrAST get_token_or_ast() { return token_or_ast; }
     
     const int state;

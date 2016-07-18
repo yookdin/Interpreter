@@ -20,7 +20,7 @@
 class Parser {
 public:
     Parser(string grammar_file);
-    void parse(vector<Token*> tokens);
+    AST* parse(vector<Token*> tokens);
     
 private:
     Grammar grammar;

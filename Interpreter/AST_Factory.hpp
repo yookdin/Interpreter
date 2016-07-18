@@ -18,9 +18,16 @@
 //==========================================================================================================
 class AST_Factory {
 public:
-    AST* gen_ast(string ast_name, vector<TokenOrAST> elements);
+    // Type of pointer to static function (that's why there's no class scope in the definition)
+    typedef AST*(*ast_generator)(vector<TokenOrAST>& elements);
+
+    static ast_generator get_ast_generator(string action_name);
 private:
+    static map<string, ast_generator> generators_map;
     
+    static AST* extract_ast(vector<TokenOrAST>& elements);
+    static AST* gen_num(vector<TokenOrAST>& elements);
+    static AST* gen_op(vector<TokenOrAST>& elements);
 };
 
 

@@ -14,14 +14,28 @@
 
 //==========================================================================================================
 //==========================================================================================================
-//class Lexer {
-//public:
-//    Lexer();
-//    void lex(vector<Token>& tokens);
-//    
-//private:
-//    vector<pair<regex, TokenKind>> matchers;
-//};
+class Lexer {
+public:
+    void lex(string filename, vector<Token*>& tokens);
+    
+private:
+    typedef Token*(Lexer::*token_matcher)(smatch& match);
+    static vector<token_matcher> matchers;
+    static regex num_re, op_re;
+    
+    string input;
+    string::const_iterator pos;
+    
+    Token* try_match();
+    Token* match_num(smatch& match);
+    Token* match_op(smatch& match);
+    Token* match_left_paren(smatch& match);
+    Token* match_right_paren(smatch& match);
+    
+    void skip_irrelevant();
+    bool skip_spaces();
+    bool skip_comment();
+};
 
 
 #endif /* Lexer_hpp */
