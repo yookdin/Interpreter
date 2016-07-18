@@ -21,11 +21,11 @@ Parser::Parser(string grammar_file): grammar(grammar_file), table(grammar, DFA(N
 //==========================================================================================================
 //==========================================================================================================
 AST* Parser::parse(vector<Token*> tokens) {
-    if(tokens.empty() or tokens[0]->kind == EOI)
+    if(tokens.empty() or tokens[0]->sym == EOI)
         return nullptr;
     
     for(int i = 0; i < tokens.size(); ++i) {
-        if(is_nonterminal(tokens[i]->kind))
+        if(is_nonterminal(tokens[i]->sym))
             throw string("Token kind for parsing should be a terminal");
     }
 
@@ -36,7 +36,7 @@ AST* Parser::parse(vector<Token*> tokens) {
     //------------------------------------------------------------------------------------------------------
     for(int i = 0; i < tokens.size();) {
         Token* token = tokens[i];
-        Action action = table.get_action(stack.top().state, token->kind); 
+        Action action = table.get_action(stack.top().state, token->sym); 
         
         switch(action.kind) {
             case Action::SHIFT: {
@@ -65,7 +65,7 @@ AST* Parser::parse(vector<Token*> tokens) {
                 action = table.get_action(stack.top().state, N);
                 
                 if(action.kind != Action::GO)
-                    throw string("Expected action for [" + to_string(stack.top().state) + "," + symbol_to_string(N) + "] to be GO but found: " + action.to_string());
+                    throw string("Expected action for [" + to_string(stack.top().state) + "," + symbol_str_map[N] + "] to be GO but found: " + action.to_string());
                 
                 stack.push(ParseStackElement(action.val, ast));
                 break;
@@ -83,7 +83,7 @@ AST* Parser::parse(vector<Token*> tokens) {
                 return res;
             }
             case Action::ERROR: {
-                cout << "Error on [" << to_string(stack.top().state) << "," << symbol_to_string(token->kind) << "]" << endl;
+                cout << "Error on [" << to_string(stack.top().state) << "," << symbol_str_map[token->sym] << "]" << endl;
                 return nullptr;
             }
         }

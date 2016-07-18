@@ -68,7 +68,7 @@ void NumAST::execute() {}
 //==========================================================================================================
 //==========================================================================================================
 void NumAST::print_node() {
-    cout << symbol_to_string(NUM) << "(" << num << ")" << endl; 
+    cout << num << endl; 
 }
 
 
@@ -87,10 +87,9 @@ void NumAST::print_node() {
 
 //==========================================================================================================
 //==========================================================================================================
-OpAST::OpAST(vector<TokenOrAST>& elements): AST(OP) {
+OpAST::OpAST(vector<TokenOrAST>& elements): AST(elements[1].get_token()->sym), op(sym_op_map[sym]) {
     children.push_back(elements[0].get_ast());
-    children.push_back(elements[2].get_ast());    
-    op = ((OpToken*)elements[1].get_token())->op;
+    children.push_back(elements[2].get_ast());
 }
 
 
@@ -102,6 +101,6 @@ void OpAST::execute() {}
 //==========================================================================================================
 //==========================================================================================================
 void OpAST::print_node() {
-    cout << symbol_to_string(OP) << "(" << op << ")" << endl; 
+    cout << symbol_str_map[sym] << endl; 
 }
 

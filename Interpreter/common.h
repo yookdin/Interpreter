@@ -35,43 +35,7 @@
 
 using namespace std;
 
-// EOI - end of input
-enum Symbol { START = -1, LEFT_PAREN, RIGHT_PAREN, NUM, OP, EOI, EXP };
-#define NUM_TABLE_SYMBOLS 6
-#define NONTERMINALS_START 5
-
-string symbol_to_string(int sym);
-Symbol string_to_symbol(string str);
-bool is_nonterminal(Symbol sym);
-bool is_terminal(Symbol sym);
-string& trim(string& line);
-
-
-//==========================================================================================================
-//==========================================================================================================
-template<class T>
-class Set: public set<T> {
-public:
-    Set(){}
-    Set(initializer_list<T> il): set<T>(il) {}
-    
-    void insert(set<T>& other) {
-        set<T>::insert(other.begin(), other.end());
-    }
-    
-    void insert(Set<T>& other) {
-        set<T>::insert(other.begin(), other.end());
-    }
-    
-    void insert(Set<T>&& other) {
-        set<T>::insert(other.begin(), other.end());
-    }
-
-    
-    void insert(T value) {
-        set<T>::insert(value);
-    }
-};
+#include "utils.h"
 
 
 #endif /* common_h */

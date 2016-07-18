@@ -1,3 +1,7 @@
-EXP  ->  NUM         #  Num
-EXP  ->  ( EXP )
-EXP  ->  EXP OP EXP  #  Op
+EXP  ->  NUM        #  Num
+EXP  ->  ( EXP )    #
+EXP  ->  EXP + EXP  #  Op
+EXP  ->  EXP - EXP  #  Op
+EXP  ->  EXP * EXP  #  Op
+EXP  ->  EXP / EXP  #  Op
+EXP  ->  EXP % EXP  #  Op

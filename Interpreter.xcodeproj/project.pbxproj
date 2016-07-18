@@ -11,6 +11,7 @@
 		FE29B5D21D3272CF001FDDB0 /* DFA.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FE29B5D01D3272CF001FDDB0 /* DFA.cpp */; };
 		FE29B5D41D328833001FDDB0 /* utils.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FE29B5D31D328833001FDDB0 /* utils.cpp */; };
 		FE4382FF1D3BCB5900E83863 /* AST_Factory.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FE4382FD1D3BCB5900E83863 /* AST_Factory.cpp */; };
+		FE43830B1D3D0A4400E83863 /* Operator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FE4383091D3D0A4400E83863 /* Operator.cpp */; };
 		FE964BB41D2CFDA500BA1254 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FE964BB31D2CFDA500BA1254 /* main.cpp */; };
 		FE964BBC1D2CFE9200BA1254 /* Token.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FE964BBA1D2CFE9200BA1254 /* Token.cpp */; };
 		FE964BC01D2D042800BA1254 /* Lexer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FE964BBE1D2D042800BA1254 /* Lexer.cpp */; };
@@ -45,6 +46,9 @@
 		FE4383011D3BCBF500E83863 /* ParseStackElement.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = ParseStackElement.hpp; sourceTree = "<group>"; };
 		FE4383061D3CC63300E83863 /* Value.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Value.h; sourceTree = "<group>"; };
 		FE4383071D3CED2F00E83863 /* try.scr */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = try.scr; sourceTree = "<group>"; };
+		FE4383091D3D0A4400E83863 /* Operator.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Operator.cpp; sourceTree = "<group>"; };
+		FE43830A1D3D0A4400E83863 /* Operator.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Operator.hpp; sourceTree = "<group>"; };
+		FE43830C1D3D1F3F00E83863 /* utils.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = utils.h; sourceTree = "<group>"; };
 		FE964BB01D2CFDA500BA1254 /* Interpreter */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = Interpreter; sourceTree = BUILT_PRODUCTS_DIR; };
 		FE964BB31D2CFDA500BA1254 /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
 		FE964BBA1D2CFE9200BA1254 /* Token.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Token.cpp; sourceTree = "<group>"; };
@@ -87,13 +91,25 @@
 		FE4383031D3BE41700E83863 /* Lexer */ = {
 			isa = PBXGroup;
 			children = (
-				FE4383061D3CC63300E83863 /* Value.h */,
 				FE964BBB1D2CFE9200BA1254 /* Token.hpp */,
 				FE964BBA1D2CFE9200BA1254 /* Token.cpp */,
 				FE964BBF1D2D042800BA1254 /* Lexer.hpp */,
 				FE964BBE1D2D042800BA1254 /* Lexer.cpp */,
 			);
 			name = Lexer;
+			sourceTree = "<group>";
+		};
+		FE4383081D3D005B00E83863 /* Common */ = {
+			isa = PBXGroup;
+			children = (
+				FE964BBD1D2CFEB500BA1254 /* common.h */,
+				FE4383061D3CC63300E83863 /* Value.h */,
+				FE43830A1D3D0A4400E83863 /* Operator.hpp */,
+				FE4383091D3D0A4400E83863 /* Operator.cpp */,
+				FE43830C1D3D1F3F00E83863 /* utils.h */,
+				FE29B5D31D328833001FDDB0 /* utils.cpp */,
+			);
+			name = Common;
 			sourceTree = "<group>";
 		};
 		FE964BA71D2CFDA500BA1254 = {
@@ -115,12 +131,11 @@
 		FE964BB21D2CFDA500BA1254 /* Interpreter */ = {
 			isa = PBXGroup;
 			children = (
-				FE964BBD1D2CFEB500BA1254 /* common.h */,
 				FE964BB31D2CFDA500BA1254 /* main.cpp */,
+				FE4383081D3D005B00E83863 /* Common */,
 				FE4383031D3BE41700E83863 /* Lexer */,
 				FEE621811D35A92E006D3C6C /* parser */,
 				FE4382FC1D3BB4B300E83863 /* AST */,
-				FE29B5D31D328833001FDDB0 /* utils.cpp */,
 				FE29B5CF1D3267F2001FDDB0 /* grammar_definition */,
 				FE4383071D3CED2F00E83863 /* try.scr */,
 				FE29B5CB1D325DBC001FDDB0 /* todo */,
@@ -211,6 +226,7 @@
 				FEE6218D1D369896006D3C6C /* Parser.cpp in Sources */,
 				FE29B5D41D328833001FDDB0 /* utils.cpp in Sources */,
 				FE29B5D21D3272CF001FDDB0 /* DFA.cpp in Sources */,
+				FE43830B1D3D0A4400E83863 /* Operator.cpp in Sources */,
 				FEE6218A1D367E55006D3C6C /* SLR_Table.cpp in Sources */,
 				FE964BBC1D2CFE9200BA1254 /* Token.cpp in Sources */,
 			);

@@ -234,7 +234,7 @@ void DFA::print() {
 
         for(int sym = 0; sym < NUM_TABLE_SYMBOLS; ++sym) {
             if(table[i][sym] >= 0)
-                cout << "Transition for symbol " << symbol_to_string(Symbol(sym)) << ": " << table[i][sym] << endl;
+                cout << "Transition for symbol " << symbol_str_map[Symbol(sym)] << ": " << table[i][sym] << endl;
         }
         cout << endl;
     }

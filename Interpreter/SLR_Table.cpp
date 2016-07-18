@@ -37,8 +37,9 @@ SLR_Table::SLR_Table(Grammar& grammar, DFA dfa): table(vector<vector<Action>>(df
         
         for(auto s: grammar.get_follow_set(N)) {
             // TODO: add conflict resolution using external operator table
-//            if(table[i][s].kind != Action::ERROR)
-//                throw string("Trying to add REDUCE action where action " + table[i][s].to_string() + " already exists");
+            if(table[i][s].kind != Action::ERROR)
+                //throw string("Trying to add REDUCE action where action " + table[i][s].to_string() + " already exists");
+                cout << "Warning: " << "adding REDUCE action r" << p << " for (" << i << "," << symbol_str_map[s] << ") where action " << table[i][s].to_string() << " already exists" << endl; 
             
             if(p > 0) {
                 table[i][s].kind = Action::REDUCE;
@@ -61,7 +62,7 @@ void SLR_Table::print() {
     cout << "   |";
     vector<int> col_widths;
     for(int sym = 0; sym < NUM_TABLE_SYMBOLS; ++sym) {
-        string name = symbol_to_string(Symbol(sym));
+        string name = symbol_str_map[Symbol(sym)];
         col_widths.push_back(max(5, int(name.length()) + 2));
         
         int leading_spaces = (col_widths.back() - name.length()) / 2;

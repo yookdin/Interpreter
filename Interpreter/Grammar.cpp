@@ -73,11 +73,11 @@ void Grammar::extract_symbols(string production_str, vector<Symbol>& symbols) {
     smatch match_res;
     
     if(not regex_match(production_str, match_res, production_re))
-        throw string("Unkown production in line:\n" + production_str);
+        throw string("Unknown production in line:\n" + production_str);
     
-    Symbol N = string_to_symbol(match_res[1]);
+    Symbol N = symbol_str_map[match_res[1]];
     if(not is_nonterminal(N))
-        throw string("Expected left hand side of a production to be a nonterminal");
+        throw string("Expected left hand side of a production to be a nonterminal but received:\n" + production_str);
     
     symbols.push_back(N);
     
@@ -86,7 +86,7 @@ void Grammar::extract_symbols(string production_str, vector<Symbol>& symbols) {
     
     while(!sts.eof()) { // Extract the symbol names
         sts >> symbol_str;
-        symbols.push_back(string_to_symbol(symbol_str));
+        symbols.push_back(symbol_str_map[symbol_str]);
     } 
     
     if(symbols.size() < 2)
@@ -97,11 +97,14 @@ void Grammar::extract_symbols(string production_str, vector<Symbol>& symbols) {
 //==========================================================================================================
 //==========================================================================================================
 void Grammar::extract_action(string action_str, string& action_name) {
+    trim(action_str);
+    if(action_str.empty()) return;
+    
     regex action_re("\\w+");
     smatch match_res;
 
     if(not regex_search(action_str, match_res, action_re))
-        throw string("Unkown action in line:\n" + action_str);
+        throw string("Unknown action in line:\n" + action_str);
     
     action_name = match_res[0];
 }
@@ -219,23 +222,23 @@ Set<Symbol> Grammar::get_follow_set(Symbol sym) {
 void Grammar::print() {
     cout << "Grammar:" << endl;
     for(int i = 0; i < productions.size(); ++i) {
-        cout << i << ": " << symbol_to_string(productions[i][0]) << " --> ";
+        cout << i << ": " << symbol_str_map[productions[i][0]] << " --> ";
         for(int j = 1; j < productions[i].size(); ++j)
-            cout << symbol_to_string(productions[i][j]) << " ";
+            cout << symbol_str_map[productions[i][j]] << " ";
         cout << endl;
     }
     
     for(auto& p: first_table) {
-        cout << "First(" << symbol_to_string(p.first) << ") = { ";
+        cout << "First(" << symbol_str_map[p.first] << ") = { ";
         for(auto s: p.second)
-            cout << symbol_to_string(s) << " ";
+            cout << symbol_str_map[s] << " ";
         cout << "}" << endl;
     }
 
     for(auto& p: follow_table) {
-        cout << "Follow(" << symbol_to_string(p.first) << ") = { ";
+        cout << "Follow(" << symbol_str_map[p.first] << ") = { ";
         for(auto s: p.second)
-            cout << symbol_to_string(s) << " ";
+            cout << symbol_str_map[s] << " ";
         cout << "}" << endl;
     }
     cout << endl;

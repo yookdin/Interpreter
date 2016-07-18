@@ -118,7 +118,7 @@ void NFA::print() {
         
         for(int sym = 0; sym < state_entry.size(); ++sym) {
             if(not state_entry[sym].empty()) {
-                cout << "Transitions for symbol " << symbol_to_string(Symbol(sym)) << ": ";
+                cout << "Transitions for symbol " << symbol_str_map[Symbol(sym)] << ": ";
                 for(auto& state: state_entry[sym])
                     cout << state << " ";
                 cout << endl;

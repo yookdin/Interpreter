@@ -12,6 +12,7 @@
 #include "common.h"
 #include "Token.hpp"
 #include "ParseStackElement.hpp"
+#include "Operator.hpp"
 
 //==========================================================================================================
 //==========================================================================================================
@@ -22,7 +23,7 @@ public:
     void print();
     
 protected:
-    Symbol sym;
+    const Symbol sym;
     vector<AST*> children;
     
     virtual void print_node() = 0;
@@ -52,7 +53,7 @@ public:
     void print_node();
     void execute();
 private:
-    string op;
+    Operator* op;
 };
 
 

@@ -7,40 +7,13 @@
 //
 
 #include "common.h"
+#include "utils.h"
 
-//==========================================================================================================
-//==========================================================================================================
-string symbol_to_string(int sym) {
-    if(sym == NUM_TABLE_SYMBOLS)
-        return "EPSILON";
-    
-    switch (sym) {
-        case START: return "START";
-        case EOI: return "$";
-        case LEFT_PAREN: return "(";
-        case RIGHT_PAREN: return ")";
-        case NUM: return "NUM";
-        case OP: return "OP";
-        case EXP: return "EXP";
-        default: throw string("Value of symbol out of bounds");
-    }
-}
-
-
-//==========================================================================================================
-//==========================================================================================================
-Symbol string_to_symbol(string str) {
-    if     (str == "START")         return START;
-    else if(str == "LEFT_PAREN")    return LEFT_PAREN;
-    else if(str == "(")             return LEFT_PAREN;
-    else if(str == "RIGHT_PAREN")   return RIGHT_PAREN;
-    else if(str == ")")             return RIGHT_PAREN;
-    else if(str == "NUM")           return NUM;
-    else if(str == "OP")            return OP;
-    else if(str == "EOI")           return EOI;
-    else if(str == "EXP")           return EXP;
-    else throw string("No matching symbol for string \"" + str + "\"");
-}
+bimap<Symbol, string> symbol_str_map = {
+    {LEFT_PAREN, "("}, {RIGHT_PAREN, ")"}, {NUM, "NUM"}, {ADD, "+"}, {SUB, "-"}, {MUL, "*"}, {DIV, "/"}, {MOD, "%"},
+    {NOT, "not"}, {OR, "or"}, {AND, "and"}, {EQ, "=="}, {NE, "!="}, {GT, ">"}, {LT, "<"}, {GE, ">="}, {LE, "<="}, 
+    {STR_MATCH, "~"}, {NO_STR_MATCH, "!="}, {QUESTION_MARK, "?"}, {COLON, ":"}, {EOI, "$"}, {EXP, "EXP"}
+};
 
 
 //==========================================================================================================

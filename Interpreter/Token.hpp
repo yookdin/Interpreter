@@ -10,16 +10,18 @@
 #define Token_hpp
 
 #include "common.h"
+#include "Operator.hpp"
+
 
 //==========================================================================================================
 //==========================================================================================================
 class Token
 {
 public:
-    Token(Symbol sym): kind(sym) {}
-    virtual void print() { cout << symbol_to_string(kind) << endl; }
+    Token(Symbol _sym): sym(_sym) {}
+    virtual void print() { cout << symbol_str_map[sym] << endl; }
     
-    const Symbol kind;
+    const Symbol sym;
 };
 
 
@@ -28,7 +30,7 @@ public:
 class NumToken: public Token {
 public:
     NumToken(string n): Token(NUM), val(stoi(n)) {}
-    void print() { cout << symbol_to_string(NUM) << "(" << to_string(val) << ")" << endl; }
+    void print() { cout << to_string(val) << endl; }
     const int val;
 };
 
@@ -37,10 +39,10 @@ public:
 //==========================================================================================================
 class OpToken: public Token {
 public:
-    OpToken(string _op): Token(OP), op(_op) {}
-    void print() { cout << symbol_to_string(OP) << "(" << op << ")" << endl; }
+    OpToken(string _op);
+    void print();
     
-    string op;
+    Operator* op;
 };
 
 
