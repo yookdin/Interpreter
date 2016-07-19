@@ -3,8 +3,10 @@ STATEMENTS  ->  STATEMENT               #  Statements
 STATEMENTS  ->  STATEMENT STATEMENTS    #  Statements
 STATEMENTS  ->  STATEMENT ; STATEMENTS  #  Statements
 STATEMENT   ->  ID = EXP                #  Assignment
-//BLOCK       ->  { STATEMENTS } 
-//STATEMENT   ->  if EXP BLOCK
+STATEMENT   ->  BLOCK                   #  Statements
+BLOCK       ->  { STATEMENTS }          #  Statements
+STATEMENT   ->  if EXP STATEMENT        #  If
+//STATEMENT   ->  if EXP STATEMENT else STATEMENT     #  IfElseStatement
 
 EXP  ->  NUM            #  Num
 EXP  ->  ID             #  Var

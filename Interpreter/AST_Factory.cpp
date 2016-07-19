@@ -19,7 +19,8 @@ map<string, AST_Factory::ast_generator> AST_Factory::generators_map = {
     {"CondExp",     &AST_Factory::gen_cond_exp_op},
     {"Assignment",  &AST_Factory::gen_assignment},
     {"Statements",  &AST_Factory::gen_statements},
-    {"Var",         &AST_Factory::gen_var}
+    {"Var",         &AST_Factory::gen_var},
+    {"If",          &AST_Factory::gen_if}
 };
 
 
@@ -56,6 +57,7 @@ AST* AST_Factory::gen_cond_exp_op(vector<TokenOrAST>& elements) { return new Con
 AST* AST_Factory::gen_assignment(vector<TokenOrAST>& elements) { return new AssignmentAST(elements); }
 AST* AST_Factory::gen_statements(vector<TokenOrAST>& elements) { return new StatementsAST(elements); }
 AST* AST_Factory::gen_var(vector<TokenOrAST>& elements) { return new VarAST(elements); }
+AST* AST_Factory::gen_if(vector<TokenOrAST>& elements) { return new IfAST(elements); }
 
 
 

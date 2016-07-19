@@ -33,6 +33,7 @@ private:
     static AST* gen_assignment(vector<TokenOrAST>& elements);
     static AST* gen_statements(vector<TokenOrAST>& elements);
     static AST* gen_var(vector<TokenOrAST>& elements);
+    static AST* gen_if(vector<TokenOrAST>& elements);
 };
 
 

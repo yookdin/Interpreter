@@ -59,9 +59,9 @@ public:
 
 //==========================================================================================================
 //==========================================================================================================
-class PunctuationToken: public Token {
+class KeywordToken: public Token {
 public:
-    PunctuationToken(Symbol sym): Token(sym) {} 
+    KeywordToken(Symbol sym): Token(sym) {} 
 };
 
 

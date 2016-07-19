@@ -21,7 +21,7 @@ public:
 private:
     typedef Token*(Lexer::*token_matcher)(smatch& match);
     static vector<token_matcher> matchers;
-    static regex num_re, op_re, id_re, punc_re;
+    static regex num_re, op_re, id_re, keyword_re;
     
     string input;
     string::const_iterator pos;
@@ -30,7 +30,7 @@ private:
     Token* match_num(smatch& match);
     Token* match_op(smatch& match);
     Token* match_id(smatch& match);
-    Token* match_punctuation(smatch& match);
+    Token* match_keyword(smatch& match);
     
     void skip_irrelevant();
     bool skip_spaces();

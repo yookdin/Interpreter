@@ -99,7 +99,7 @@ void AssignmentAST::execute() {}
 StatementsAST::StatementsAST(vector<TokenOrAST>& elements): AST(STATEMENTS) {
     // Make children "flat", each shall be an actual statemet and statements nodes will be discarded
     for(auto& e: elements) {
-        if(e.is_token) continue; // Probably a semi colon
+        if(e.is_token) continue; // Probably a semi colon or curly brace
         
         AST* ast = e.get_ast();
         
@@ -115,6 +115,27 @@ StatementsAST::StatementsAST(vector<TokenOrAST>& elements): AST(STATEMENTS) {
 //==========================================================================================================
 //==========================================================================================================
 void StatementsAST::execute() {}
+
+
+//==========================================================================================================
+// First child will be the expression to evaluate. Rest will be the statements in the body
+//==========================================================================================================
+IfAST::IfAST(vector<TokenOrAST>& elements): AST(IF) {
+    for(int i = 1; i < elements.size(); ++i) { // Skip first element which is the if keyword token
+        AST* ast = elements[i].get_ast();
+        
+        if(ast->sym == STATEMENTS)
+            for(auto c: ast->children)
+                add_child(c);
+        else
+            add_child(ast);
+    }
+}
+
+
+//==========================================================================================================
+//==========================================================================================================
+void IfAST::execute() {}
 
 
 

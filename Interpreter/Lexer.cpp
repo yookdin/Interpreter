@@ -23,9 +23,10 @@
 
 
 //==========================================================================================================
+// Must try to match keywords before identifiers
 //==========================================================================================================
 vector<Lexer::token_matcher> Lexer::matchers = { 
-    &Lexer::match_id, &Lexer::match_num, &Lexer::match_op, &Lexer::match_punctuation
+    &Lexer::match_keyword, &Lexer::match_id, &Lexer::match_num, &Lexer::match_op
 };
 
 
@@ -34,7 +35,7 @@ vector<Lexer::token_matcher> Lexer::matchers = {
 regex Lexer::num_re("^-?\\d+\\b");
 regex Lexer::op_re("^(\\+|-|\\*|/|%|not|or|and|==|!=|<=|>=|<|>|~|!~|\\?|:)");
 regex Lexer::id_re("^[_[:alpha:]]\\w*");
-regex Lexer::punc_re("^(\\(|\\)|=|;)"); // One char punctuation
+regex Lexer::keyword_re("^(\\(|\\)|=|\\{|\\}|;|if)");
 
 //==========================================================================================================
 //==========================================================================================================
@@ -58,7 +59,7 @@ void Lexer::lex(string filename, vector<Token*>& tokens) {
         tokens.push_back(token);
     }
 
-    tokens.push_back(new PunctuationToken(EOI));
+    tokens.push_back(new KeywordToken(EOI));
     input.clear();
 }
 
@@ -114,9 +115,9 @@ Token* Lexer::match_id(smatch& match) {
 
 //==========================================================================================================
 //==========================================================================================================
-Token* Lexer::match_punctuation(smatch& match) {
-    if(regex_search(pos, input.cend(), match, punc_re))
-        return new PunctuationToken(symbol_str_map[match[0]]);
+Token* Lexer::match_keyword(smatch& match) {
+    if(regex_search(pos, input.cend(), match, keyword_re))
+        return new KeywordToken(symbol_str_map[match[0]]);
     
     return nullptr;
 }

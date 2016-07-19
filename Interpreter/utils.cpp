@@ -12,12 +12,13 @@
 bimap<Symbol, string> symbol_str_map = {
     {COND_EXP, "?:"},  {VAR, "VAR"},
     {START, "START"},
-    {LEFT_PAREN, "("}, {RIGHT_PAREN, ")"}, {EOI, "$"}, {ASSIGN, "="}, {SEMI_COLON, ";"},
+    {LEFT_PAREN, "("}, {RIGHT_PAREN, ")"}, {EOI, "$"}, {ASSIGN, "="}, {SEMI_COLON, ";"}, {LEFT_CURLY, "{"}, {RIGHT_CURLY, "}"},
+    {IF, "if"},
     {NUM, "NUM"}, {ID, "ID"},
     {ADD, "+"}, {SUB, "-"}, {MUL, "*"}, {DIV, "/"}, {MOD, "%"}, {NOT, "not"}, {OR, "or"}, {AND, "and"},
     {EQ, "=="}, {NE, "!="}, {GT, ">"}, {LT, "<"}, {GE, ">="}, {LE, "<="}, {STR_MATCH, "~"}, {NO_STR_MATCH, "!~"},
     {QUESTION_MARK, "?"}, {COLON, ":"},
-    {EXP, "EXP"}, {STATEMENT, "STATEMENT"}, {STATEMENTS, "STATEMENTS"}
+    {EXP, "EXP"}, {BLOCK, "BLOCK"}, {STATEMENT, "STATEMENT"}, {STATEMENTS, "STATEMENTS"}
 };
 
 
