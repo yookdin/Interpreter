@@ -81,8 +81,16 @@ private:
 //==========================================================================================================
 // The symbols of the language
 //==========================================================================================================
-enum Symbol { COND_EXP =-2, START = -1, LEFT_PAREN, RIGHT_PAREN, NUM, ADD, SUB, MUL, DIV, MOD, NOT, OR, AND, EQ, NE, GT, LT, GE, LE, STR_MATCH, NO_STR_MATCH, QUESTION_MARK, COLON, EOI, EXP };
-#define NUM_TABLE_SYMBOLS 23
+enum Symbol {
+    COND_EXP = -3, VAR = -2,
+    START = -1,
+    LEFT_PAREN = 0, RIGHT_PAREN, EOI, ASSIGN, SEMI_COLON,
+    NUM, ID,
+    ADD, SUB, MUL, DIV, MOD, NOT, OR, AND, EQ, NE, GT, LT, GE, LE, STR_MATCH, NO_STR_MATCH, QUESTION_MARK, COLON,
+    EXP, STATEMENT, STATEMENTS
+};
+
+#define NUM_TABLE_SYMBOLS (Symbol::STATEMENTS + 1)
 #define NONTERMINALS_START (Symbol::EXP)
 
 extern bimap<Symbol, string> symbol_str_map;
@@ -93,6 +101,7 @@ bool is_terminal(Symbol sym);
 bool is_op(Symbol sym);
 
 string& trim(string& line);
+
 
 
 #endif /* utils_h */

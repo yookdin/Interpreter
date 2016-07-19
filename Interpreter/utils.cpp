@@ -10,15 +10,20 @@
 #include "utils.h"
 
 bimap<Symbol, string> symbol_str_map = {
-    {LEFT_PAREN, "("}, {RIGHT_PAREN, ")"}, {NUM, "NUM"}, {ADD, "+"}, {SUB, "-"}, {MUL, "*"}, {DIV, "/"}, {MOD, "%"},
-    {NOT, "not"}, {OR, "or"}, {AND, "and"}, {EQ, "=="}, {NE, "!="}, {GT, ">"}, {LT, "<"}, {GE, ">="}, {LE, "<="}, 
-    {STR_MATCH, "~"}, {NO_STR_MATCH, "!~"}, {QUESTION_MARK, "?"}, {COLON, ":"}, {COND_EXP, "?:"}, {EOI, "$"}, {EXP, "EXP"}
+    {COND_EXP, "?:"},  {VAR, "VAR"},
+    {START, "START"},
+    {LEFT_PAREN, "("}, {RIGHT_PAREN, ")"}, {EOI, "$"}, {ASSIGN, "="}, {SEMI_COLON, ";"},
+    {NUM, "NUM"}, {ID, "ID"},
+    {ADD, "+"}, {SUB, "-"}, {MUL, "*"}, {DIV, "/"}, {MOD, "%"}, {NOT, "not"}, {OR, "or"}, {AND, "and"},
+    {EQ, "=="}, {NE, "!="}, {GT, ">"}, {LT, "<"}, {GE, ">="}, {LE, "<="}, {STR_MATCH, "~"}, {NO_STR_MATCH, "!~"},
+    {QUESTION_MARK, "?"}, {COLON, ":"},
+    {EXP, "EXP"}, {STATEMENT, "STATEMENT"}, {STATEMENTS, "STATEMENTS"}
 };
 
 
 //==========================================================================================================
 //==========================================================================================================
-bool is_nonterminal(Symbol sym) { return (sym < 0 or sym >= NONTERMINALS_START); }
+bool is_nonterminal(Symbol sym) { return (sym == START or sym >= NONTERMINALS_START); }
 
 //==========================================================================================================
 //==========================================================================================================
@@ -26,7 +31,7 @@ bool is_terminal(Symbol sym) { return not is_nonterminal(sym); }
 
 //==========================================================================================================
 //==========================================================================================================
-bool is_op(Symbol sym) { return sym >= ADD and sym < EOI; }
+bool is_op(Symbol sym) { return sym >= ADD and sym < EXP; }
 
 //==========================================================================================================
 // Remove leading and trailing spaces and comment (//...)

@@ -37,10 +37,21 @@ public:
 
 //==========================================================================================================
 //==========================================================================================================
+class IdentifierToken: public Token {
+public:
+    IdentifierToken(string _name): Token(ID), name(_name) {}
+    void print() { cout << name << endl; }
+    const string name;
+};
+
+
+
+//==========================================================================================================
+//==========================================================================================================
 class OpToken: public Token {
 public:
-    OpToken(string _op);
-    void print();
+    OpToken(string op): Token(symbol_str_map[op]), op(sym_op_map[sym]) {}
+    void print() { cout << symbol_str_map[sym] << endl; }
     
     Operator* op;
 };

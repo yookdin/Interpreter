@@ -13,7 +13,6 @@
 		FE4382FF1D3BCB5900E83863 /* AST_Factory.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FE4382FD1D3BCB5900E83863 /* AST_Factory.cpp */; };
 		FE43830B1D3D0A4400E83863 /* Operator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FE4383091D3D0A4400E83863 /* Operator.cpp */; };
 		FE964BB41D2CFDA500BA1254 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FE964BB31D2CFDA500BA1254 /* main.cpp */; };
-		FE964BBC1D2CFE9200BA1254 /* Token.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FE964BBA1D2CFE9200BA1254 /* Token.cpp */; };
 		FE964BC01D2D042800BA1254 /* Lexer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FE964BBE1D2D042800BA1254 /* Lexer.cpp */; };
 		FEE621871D35AAC5006D3C6C /* Grammar.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FEE621851D35AAC5006D3C6C /* Grammar.cpp */; };
 		FEE6218A1D367E55006D3C6C /* SLR_Table.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FEE621881D367E55006D3C6C /* SLR_Table.cpp */; };
@@ -51,7 +50,6 @@
 		FE43830C1D3D1F3F00E83863 /* utils.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = utils.h; sourceTree = "<group>"; };
 		FE964BB01D2CFDA500BA1254 /* Interpreter */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = Interpreter; sourceTree = BUILT_PRODUCTS_DIR; };
 		FE964BB31D2CFDA500BA1254 /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
-		FE964BBA1D2CFE9200BA1254 /* Token.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Token.cpp; sourceTree = "<group>"; };
 		FE964BBB1D2CFE9200BA1254 /* Token.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Token.hpp; sourceTree = "<group>"; };
 		FE964BBD1D2CFEB500BA1254 /* common.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = common.h; sourceTree = "<group>"; };
 		FE964BBE1D2D042800BA1254 /* Lexer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Lexer.cpp; sourceTree = "<group>"; };
@@ -92,7 +90,6 @@
 			isa = PBXGroup;
 			children = (
 				FE964BBB1D2CFE9200BA1254 /* Token.hpp */,
-				FE964BBA1D2CFE9200BA1254 /* Token.cpp */,
 				FE964BBF1D2D042800BA1254 /* Lexer.hpp */,
 				FE964BBE1D2D042800BA1254 /* Lexer.cpp */,
 			);
@@ -228,7 +225,6 @@
 				FE29B5D21D3272CF001FDDB0 /* DFA.cpp in Sources */,
 				FE43830B1D3D0A4400E83863 /* Operator.cpp in Sources */,
 				FEE6218A1D367E55006D3C6C /* SLR_Table.cpp in Sources */,
-				FE964BBC1D2CFE9200BA1254 /* Token.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

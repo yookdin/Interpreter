@@ -21,12 +21,16 @@ public:
     AST(Symbol _sym): sym(_sym) {}
     virtual void execute() = 0;
     void print();
-    
-protected:
+    void add_child(AST* ast) {
+        if(ast == nullptr) throw string("Trying to add null child");
+        children.push_back(ast);
+    }
+
     const Symbol sym;
     vector<AST*> children;
     
-    virtual void print_node() = 0;
+protected:
+    virtual void print_node() { cout << symbol_str_map[sym] << endl; }
     void recursive_print(int indentation_level);
 };
 
@@ -35,12 +39,12 @@ protected:
 //==========================================================================================================
 class NumAST: public AST {
 public:
-    NumAST(vector<TokenOrAST>& elements);
-    void print_node();
+    NumAST(vector<TokenOrAST>& elements): AST(NUM), num(extract_num(elements)) {}
     void execute();
     const int num;
     
 private:
+    void print_node() { cout << num << endl; }
     int extract_num(vector<TokenOrAST>& elements);
 };
 
@@ -50,7 +54,6 @@ private:
 class OpAST: public AST {
 public:
     OpAST(Symbol sym, Operator* _op): AST(sym), op(_op){}
-    void print_node() { cout << symbol_str_map[sym] << endl; }
     virtual void execute() = 0;
 protected:
     const Operator* op;
@@ -84,4 +87,64 @@ public:
 };
 
 
+//==========================================================================================================
+//==========================================================================================================
+class VarAST: public AST {
+public:
+    VarAST(string _name): AST(VAR), name(_name) {}
+    VarAST(vector<TokenOrAST>& elements): AST(VAR), name(((IdentifierToken*)elements[0].get_token())->name) {} 
+    void execute();
+    const string name;
+    
+private:
+    virtual void print_node() { cout << name << endl; }
+};
+
+
+//==========================================================================================================
+//==========================================================================================================
+class AssignmentAST: public AST {
+public:
+    AssignmentAST(vector<TokenOrAST>& elements);
+    void execute();
+};
+
+
+//==========================================================================================================
+//==========================================================================================================
+class StatementsAST: public AST {
+public:
+    StatementsAST(vector<TokenOrAST>& elements);
+    void execute();
+};
+
+
 #endif /* AST_hpp */
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -23,11 +23,11 @@ public:
     TokenOrAST(Token* _token): is_token(true), token(_token) {}
     TokenOrAST(AST* _ast): is_token(false), ast(_ast) {}
     
+    bool is_token;
     Token* get_token() { return is_token ? token : nullptr; }
     AST* get_ast()     { return is_token ? nullptr : ast; }
-
+    
 private:
-    bool is_token;
     union {
         Token *token;
         AST* ast;

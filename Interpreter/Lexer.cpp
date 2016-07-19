@@ -25,15 +25,16 @@
 //==========================================================================================================
 //==========================================================================================================
 vector<Lexer::token_matcher> Lexer::matchers = { 
-    &Lexer::match_num, &Lexer::match_op, &Lexer::match_left_paren, &Lexer::match_right_paren
+    &Lexer::match_id, &Lexer::match_num, &Lexer::match_op, &Lexer::match_punctuation
 };
 
 
 //==========================================================================================================
 //==========================================================================================================
-regex Lexer::num_re("^-?\\d+");
+regex Lexer::num_re("^-?\\d+\\b");
 regex Lexer::op_re("^(\\+|-|\\*|/|%|not|or|and|==|!=|<=|>=|<|>|~|!~|\\?|:)");
-
+regex Lexer::id_re("^[_[:alpha:]]\\w*");
+regex Lexer::punc_re("^(\\(|\\)|=|;)"); // One char punctuation
 
 //==========================================================================================================
 //==========================================================================================================
@@ -103,22 +104,20 @@ Token* Lexer::match_op(smatch& match) {
 
 //==========================================================================================================
 //==========================================================================================================
-Token* Lexer::match_left_paren(smatch& match) {
-    if(*pos == '(') {
-        ++pos;
-        return new PunctuationToken(LEFT_PAREN);
-    }
+Token* Lexer::match_id(smatch& match) {
+    if(regex_search(pos, input.cend(), match, id_re))
+        return new IdentifierToken(match[0]);
+    
     return nullptr;
 }
 
 
 //==========================================================================================================
 //==========================================================================================================
-Token* Lexer::match_right_paren(smatch& match) {
-    if(*pos == ')') {
-        ++pos;
-        return new PunctuationToken(RIGHT_PAREN);
-    }
+Token* Lexer::match_punctuation(smatch& match) {
+    if(regex_search(pos, input.cend(), match, punc_re))
+        return new PunctuationToken(symbol_str_map[match[0]]);
+    
     return nullptr;
 }
 
