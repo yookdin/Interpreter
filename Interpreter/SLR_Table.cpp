@@ -37,28 +37,25 @@ SLR_Table::SLR_Table(Grammar& grammar, DFA dfa): table(vector<vector<Action>>(df
         
         for(auto s: grammar.get_follow_set(N)) {
             
+            if(table[i][s].kind == Action::ERROR and table[i][s].val == 0)
+                throw string("Unexpected explicit error in [" + to_string(i) + "," + symbol_str_map[s] + "]");
+            
             if(table[i][s].kind != Action::ERROR) {
                 if(table[i][s].kind != Action::SHIFT)
                     throw string("Can't resolve conflict between reduce and " + table[i][s].to_string());
+
+                ResolutionResult res = resolve_conflict(grammar.productions[p], s, table[i][s].message);
                 
-                if(not is_op(s))
-                    throw string("Can't resolve conflict, current symbol is " + symbol_str_map[s] + " which isn't an operator");
-                    
-                if(grammar.productions[p].op == nullptr)
-                    throw string("Can't resolve conflict, production doesn't have an operator associated with it");
-                
-                Operator *left_op = grammar.productions[p].op, *right_op = sym_op_map[s];
-                
-                if(left_op->precedence == right_op->precedence and left_op->associativity == Operator::NONE) {                    
+                if(res == NOT_ALLOWED) {
                     table[i][s].kind = Action::ERROR; // This sequence is not allowed
-                    table[i][s].message = "Sequence: \"EXP " + symbol_str_map[left_op->sym] + " EXP " + symbol_str_map[right_op->sym] + " EXP\" not allowed";
+                    table[i][s].val = 0;
+                    continue;
+                } else if(res == SHIFT_WIN) {
                     continue;
                 }
-                
-                if(not reduce_should_override_shift(left_op, right_op))
-                    continue; // Shift action will remain
             }
             
+            // No action yet, or reduce won
             if(p > 0) {
                 table[i][s].kind = Action::REDUCE;
                 table[i][s].val = p;
@@ -73,11 +70,31 @@ SLR_Table::SLR_Table(Grammar& grammar, DFA dfa): table(vector<vector<Action>>(df
 
 
 //==========================================================================================================
-// If the left (first) operator should precede the right one, than the answer is yes. This because reduce
-// means that operator will be evaluated first (appear higher in the AST).
 //==========================================================================================================
-bool SLR_Table::reduce_should_override_shift(Operator* left_op, Operator* right_op) {
-    return left_op->should_precede(*right_op);
+SLR_Table::ResolutionResult SLR_Table::resolve_conflict(Production& production, Symbol sym, string& msg) {
+    if(sym == ELSE) {
+        return SHIFT_WIN;
+    }
+    
+    if(not is_op(sym))
+        throw string("Can't resolve conflict, current symbol is " + symbol_str_map[sym] + " which isn't an operator");
+    
+    if(production.op == nullptr)
+        throw string("Can't resolve conflict, production doesn't have an operator associated with it");
+    
+    Operator *left_op = production.op, *right_op = sym_op_map[sym];
+    
+    if(left_op->precedence == right_op->precedence and left_op->associativity == Operator::NONE) {                    
+        msg = "Sequence: \"EXP " + symbol_str_map[left_op->sym] + " EXP " + symbol_str_map[right_op->sym] + " EXP\" not allowed";
+        return NOT_ALLOWED;
+    }
+    
+    // If the left (first) operator should precede the right one, reduce should be performed. This is because reduce
+    // means that operator will be evaluated first (appear higher in the AST).
+    if(left_op->should_precede(*right_op))
+        return REDUCE_WIN;
+    else
+        return SHIFT_WIN;
 }
 
 

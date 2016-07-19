@@ -120,22 +120,37 @@ void StatementsAST::execute() {}
 //==========================================================================================================
 // First child will be the expression to evaluate. Rest will be the statements in the body
 //==========================================================================================================
-IfAST::IfAST(vector<TokenOrAST>& elements): AST(IF) {
-    for(int i = 1; i < elements.size(); ++i) { // Skip first element which is the if keyword token
-        AST* ast = elements[i].get_ast();
-        
-        if(ast->sym == STATEMENTS)
-            for(auto c: ast->children)
-                add_child(c);
-        else
-            add_child(ast);
-    }
+IfAST::IfAST(vector<TokenOrAST>& elements): AST(IF_STATEMENT) {
+    add_child(elements[1].get_ast());
+    
+    AST* ast = elements[2].get_ast();
+
+    if(ast->sym == STATEMENTS)
+        for(auto c: ast->children)
+            add_child(c);
+    else
+        add_child(ast);
 }
 
 
 //==========================================================================================================
 //==========================================================================================================
 void IfAST::execute() {}
+
+
+
+//==========================================================================================================
+//==========================================================================================================
+IfElseAST::IfElseAST(vector<TokenOrAST>& elements): AST(IF_ELSE_STATEMENT) {
+    add_child(elements[1].get_ast());
+    add_child(elements[2].get_ast());
+    add_child(elements[4].get_ast());
+}
+
+
+//==========================================================================================================
+//==========================================================================================================
+void IfElseAST::execute() {}
 
 
 

@@ -34,6 +34,7 @@ private:
     static AST* gen_statements(vector<TokenOrAST>& elements);
     static AST* gen_var(vector<TokenOrAST>& elements);
     static AST* gen_if(vector<TokenOrAST>& elements);
+    static AST* gen_if_else(vector<TokenOrAST>& elements);
 };
 
 

@@ -23,10 +23,10 @@
 
 
 //==========================================================================================================
-// Must try to match keywords before identifiers
+// Must try to match keywords and ops before identifiers
 //==========================================================================================================
 vector<Lexer::token_matcher> Lexer::matchers = { 
-    &Lexer::match_keyword, &Lexer::match_id, &Lexer::match_num, &Lexer::match_op
+    &Lexer::match_keyword, &Lexer::match_op, &Lexer::match_id, &Lexer::match_num
 };
 
 
@@ -35,7 +35,7 @@ vector<Lexer::token_matcher> Lexer::matchers = {
 regex Lexer::num_re("^-?\\d+\\b");
 regex Lexer::op_re("^(\\+|-|\\*|/|%|not|or|and|==|!=|<=|>=|<|>|~|!~|\\?|:)");
 regex Lexer::id_re("^[_[:alpha:]]\\w*");
-regex Lexer::keyword_re("^(\\(|\\)|=|\\{|\\}|;|if)");
+regex Lexer::keyword_re("^(\\(|\\)|=|\\{|\\}|;|if|else)");
 
 //==========================================================================================================
 //==========================================================================================================

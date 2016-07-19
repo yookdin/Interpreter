@@ -10,10 +10,10 @@
 #include "utils.h"
 
 bimap<Symbol, string> symbol_str_map = {
-    {COND_EXP, "?:"},  {VAR, "VAR"},
+    {IF_STATEMENT, "IF"}, {IF_ELSE_STATEMENT, "IF_ELSE"}, {COND_EXP, "?:"},  {VAR, "VAR"},
     {START, "START"},
     {LEFT_PAREN, "("}, {RIGHT_PAREN, ")"}, {EOI, "$"}, {ASSIGN, "="}, {SEMI_COLON, ";"}, {LEFT_CURLY, "{"}, {RIGHT_CURLY, "}"},
-    {IF, "if"},
+    {IF, "if"}, {ELSE, "else"},
     {NUM, "NUM"}, {ID, "ID"},
     {ADD, "+"}, {SUB, "-"}, {MUL, "*"}, {DIV, "/"}, {MOD, "%"}, {NOT, "not"}, {OR, "or"}, {AND, "and"},
     {EQ, "=="}, {NE, "!="}, {GT, ">"}, {LT, "<"}, {GE, ">="}, {LE, "<="}, {STR_MATCH, "~"}, {NO_STR_MATCH, "!~"},

@@ -20,7 +20,8 @@ map<string, AST_Factory::ast_generator> AST_Factory::generators_map = {
     {"Assignment",  &AST_Factory::gen_assignment},
     {"Statements",  &AST_Factory::gen_statements},
     {"Var",         &AST_Factory::gen_var},
-    {"If",          &AST_Factory::gen_if}
+    {"If",          &AST_Factory::gen_if},
+    {"IfElse",      &AST_Factory::gen_if_else}
 };
 
 
@@ -58,6 +59,7 @@ AST* AST_Factory::gen_assignment(vector<TokenOrAST>& elements) { return new Assi
 AST* AST_Factory::gen_statements(vector<TokenOrAST>& elements) { return new StatementsAST(elements); }
 AST* AST_Factory::gen_var(vector<TokenOrAST>& elements) { return new VarAST(elements); }
 AST* AST_Factory::gen_if(vector<TokenOrAST>& elements) { return new IfAST(elements); }
+AST* AST_Factory::gen_if_else(vector<TokenOrAST>& elements) { return new IfElseAST(elements); }
 
 
 

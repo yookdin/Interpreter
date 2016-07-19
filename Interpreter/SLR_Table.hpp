@@ -38,7 +38,8 @@ public:
 private:
     vector<vector<Action>> table;
     
-    bool reduce_should_override_shift(Operator* left_op, Operator* right_op);
+    enum ResolutionResult {SHIFT_WIN, REDUCE_WIN, NOT_ALLOWED};
+    ResolutionResult resolve_conflict(Production& production, Symbol sym, string& msg);
 };
 
 

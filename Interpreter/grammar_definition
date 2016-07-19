@@ -1,4 +1,3 @@
-
 STATEMENTS  ->  STATEMENT               #  Statements
 STATEMENTS  ->  STATEMENT STATEMENTS    #  Statements
 STATEMENTS  ->  STATEMENT ; STATEMENTS  #  Statements
@@ -6,8 +5,7 @@ STATEMENT   ->  ID = EXP                #  Assignment
 STATEMENT   ->  BLOCK                   #  Statements
 BLOCK       ->  { STATEMENTS }          #  Statements
 STATEMENT   ->  if EXP STATEMENT        #  If
-//STATEMENT   ->  if EXP STATEMENT else STATEMENT     #  IfElseStatement
-
+STATEMENT   ->  if EXP STATEMENT else STATEMENT     #  IfElse
 EXP  ->  NUM            #  Num
 EXP  ->  ID             #  Var
 EXP  ->  ( EXP )        #
