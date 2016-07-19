@@ -266,19 +266,36 @@ public:
 //    }
 };
 
+//==========================================================================================================
+// This is needed just for parsing, won't appear in the AST
+//==========================================================================================================
+class QuestionMark: public Operator {
+public:
+    QuestionMark(): Operator(QUESTION_MARK, 0, 9, RIGHT) {}
+};
+
+
+//==========================================================================================================
+// This is needed just for parsing, won't appear in the AST
+//==========================================================================================================
+class Colon: public Operator {
+public:
+    Colon(): Operator(COLON, 0, 10, LEFT) {}
+};
+
 
 //==========================================================================================================
 //==========================================================================================================
-//class CondExp: public Operator {
-//public:
-//    CondExp(): Operator(3, 9, RIGHT) {}
-//    
+class CondExp: public Operator {
+public:
+    CondExp(): Operator(COND_EXP, 3, -1, NONE) {}
+    
 //protected:
 //    Value* execute(vector<Value*> operands)
 //    {
 //        throw string("TernaryOpenIf::execute() should never be called!");
 //    }
-//};
+};
 
 
 

@@ -29,6 +29,7 @@ private:
     static AST* gen_num(vector<TokenOrAST>& elements);
     static AST* gen_bop(vector<TokenOrAST>& elements);
     static AST* gen_uop(vector<TokenOrAST>& elements);
+    static AST* gen_cond_exp_op(vector<TokenOrAST>& elements);
 };
 
 

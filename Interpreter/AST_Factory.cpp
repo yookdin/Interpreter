@@ -12,10 +12,11 @@
 //==========================================================================================================
 //==========================================================================================================
 map<string, AST_Factory::ast_generator> AST_Factory::generators_map = {
-    {"",        &AST_Factory::extract_ast},
-    {"Num",     &AST_Factory::gen_num},
+    {"",         &AST_Factory::extract_ast},
+    {"Num",      &AST_Factory::gen_num},
     {"Bop",      &AST_Factory::gen_bop},
-    {"Uop",      &AST_Factory::gen_uop}
+    {"Uop",      &AST_Factory::gen_uop},
+    {"CondExp",  &AST_Factory::gen_cond_exp_op}
 };
 
 
@@ -61,4 +62,11 @@ AST* AST_Factory::gen_bop(vector<TokenOrAST>& elements) {
 //==========================================================================================================
 AST* AST_Factory::gen_uop(vector<TokenOrAST>& elements) {
     return new UopAST(elements);
+}
+
+
+//==========================================================================================================
+//==========================================================================================================
+AST* AST_Factory::gen_cond_exp_op(vector<TokenOrAST>& elements) {
+    return new CondExpAST(elements);
 }

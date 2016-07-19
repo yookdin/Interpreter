@@ -26,6 +26,7 @@ public:
         Action(): kind(ERROR), val(-1) {}
         enum {SHIFT, GO, REDUCE, ACCEPT, ERROR} kind;
         int val;
+        string message;
         
         string to_string();
     };

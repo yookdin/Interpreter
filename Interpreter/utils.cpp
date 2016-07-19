@@ -12,7 +12,7 @@
 bimap<Symbol, string> symbol_str_map = {
     {LEFT_PAREN, "("}, {RIGHT_PAREN, ")"}, {NUM, "NUM"}, {ADD, "+"}, {SUB, "-"}, {MUL, "*"}, {DIV, "/"}, {MOD, "%"},
     {NOT, "not"}, {OR, "or"}, {AND, "and"}, {EQ, "=="}, {NE, "!="}, {GT, ">"}, {LT, "<"}, {GE, ">="}, {LE, "<="}, 
-    {STR_MATCH, "~"}, {NO_STR_MATCH, "!~"}, {QUESTION_MARK, "?"}, {COLON, ":"}, {EOI, "$"}, {EXP, "EXP"}
+    {STR_MATCH, "~"}, {NO_STR_MATCH, "!~"}, {QUESTION_MARK, "?"}, {COLON, ":"}, {COND_EXP, "?:"}, {EOI, "$"}, {EXP, "EXP"}
 };
 
 
@@ -26,7 +26,7 @@ bool is_terminal(Symbol sym) { return not is_nonterminal(sym); }
 
 //==========================================================================================================
 //==========================================================================================================
-bool is_op(Symbol sym) { return sym >= ADD and sym <= COLON; }
+bool is_op(Symbol sym) { return sym >= ADD and sym < EOI; }
 
 //==========================================================================================================
 // Remove leading and trailing spaces and comment (//...)

@@ -47,7 +47,15 @@ SLR_Table::SLR_Table(Grammar& grammar, DFA dfa): table(vector<vector<Action>>(df
                 if(grammar.productions[p].op == nullptr)
                     throw string("Can't resolve conflict, production doesn't have an operator associated with it");
                 
-                if(not reduce_should_override_shift(grammar.productions[p].op, sym_op_map[s]))
+                Operator *left_op = grammar.productions[p].op, *right_op = sym_op_map[s];
+                
+                if(left_op->precedence == right_op->precedence and left_op->associativity == Operator::NONE) {                    
+                    table[i][s].kind = Action::ERROR; // This sequence is not allowed
+                    table[i][s].message = "Sequence: \"EXP " + symbol_str_map[left_op->sym] + " EXP " + symbol_str_map[right_op->sym] + " EXP\" not allowed";
+                    continue;
+                }
+                
+                if(not reduce_should_override_shift(left_op, right_op))
                     continue; // Shift action will remain
             }
             

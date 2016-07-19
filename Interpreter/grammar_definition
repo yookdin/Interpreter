@@ -16,3 +16,4 @@ EXP  ->  EXP !~ EXP     #  Bop
 EXP  ->  EXP or EXP     #  Bop
 EXP  ->  EXP and EXP    #  Bop
 EXP  ->  not EXP        #  Uop
+EXP  ->  EXP ? EXP : EXP    #  CondExp
