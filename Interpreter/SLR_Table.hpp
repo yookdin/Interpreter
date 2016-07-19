@@ -36,6 +36,8 @@ public:
     friend class Parser;
 private:
     vector<vector<Action>> table;
+    
+    bool reduce_should_override_shift(Operator* left_op, Operator* right_op);
 };
 
 

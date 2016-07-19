@@ -1,7 +1,18 @@
-EXP  ->  NUM        #  Num
-EXP  ->  ( EXP )    #
-EXP  ->  EXP + EXP  #  Op
-EXP  ->  EXP - EXP  #  Op
-EXP  ->  EXP * EXP  #  Op
-EXP  ->  EXP / EXP  #  Op
-EXP  ->  EXP % EXP  #  Op
+EXP  ->  NUM            #  Num
+EXP  ->  ( EXP )        #
+EXP  ->  EXP + EXP      #  Bop
+EXP  ->  EXP - EXP      #  Bop
+EXP  ->  EXP * EXP      #  Bop
+EXP  ->  EXP / EXP      #  Bop
+EXP  ->  EXP % EXP      #  Bop 
+EXP  ->  EXP == EXP     #  Bop  
+EXP  ->  EXP != EXP     #  Bop
+EXP  ->  EXP < EXP      #  Bop
+EXP  ->  EXP > EXP      #  Bop
+EXP  ->  EXP <= EXP     #  Bop
+EXP  ->  EXP >= EXP     #  Bop
+EXP  ->  EXP ~ EXP      #  Bop
+EXP  ->  EXP !~ EXP     #  Bop
+EXP  ->  EXP or EXP     #  Bop
+EXP  ->  EXP and EXP    #  Bop
+EXP  ->  not EXP        #  Uop

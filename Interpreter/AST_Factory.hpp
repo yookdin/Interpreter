@@ -27,7 +27,8 @@ private:
     
     static AST* extract_ast(vector<TokenOrAST>& elements);
     static AST* gen_num(vector<TokenOrAST>& elements);
-    static AST* gen_op(vector<TokenOrAST>& elements);
+    static AST* gen_bop(vector<TokenOrAST>& elements);
+    static AST* gen_uop(vector<TokenOrAST>& elements);
 };
 
 

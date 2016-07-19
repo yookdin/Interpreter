@@ -16,16 +16,15 @@
 //==========================================================================================================
 class Production {
 public:
-    Production(vector<Symbol> _symbols, string _action_name):
-        symbols(_symbols),
-        ast_generator(AST_Factory::get_ast_generator(_action_name)) {}
-
+    Production(vector<Symbol> _symbols, string _action_name);
+    
     Symbol operator[](int i) { return symbols[i]; }
     int size()               { return symbols.size(); }
     int rhs_size()           { return symbols.size() - 1; }
     
     const vector<Symbol> symbols;
-    const AST_Factory::ast_generator ast_generator; 
+    const AST_Factory::ast_generator ast_generator;
+    Operator* op; // The last op (if any) in the production
 };
 
 

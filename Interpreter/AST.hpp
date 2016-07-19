@@ -49,11 +49,29 @@ private:
 //==========================================================================================================
 class OpAST: public AST {
 public:
-    OpAST(vector<TokenOrAST>& elements);
-    void print_node();
+    OpAST(Symbol sym, Operator* _op): AST(sym), op(_op){}
+    void print_node() { cout << symbol_str_map[sym] << endl; }
+    virtual void execute() = 0;
+protected:
+    const Operator* op;
+};
+
+
+//==========================================================================================================
+//==========================================================================================================
+class BopAST: public OpAST {
+public:
+    BopAST(vector<TokenOrAST>& elements);
     void execute();
-private:
-    Operator* op;
+};
+
+
+//==========================================================================================================
+//==========================================================================================================
+class UopAST: public OpAST {
+public:
+    UopAST(vector<TokenOrAST>& elements);
+    void execute();
 };
 
 

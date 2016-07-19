@@ -14,7 +14,8 @@
 map<string, AST_Factory::ast_generator> AST_Factory::generators_map = {
     {"",        &AST_Factory::extract_ast},
     {"Num",     &AST_Factory::gen_num},
-    {"Op",      &AST_Factory::gen_op}
+    {"Bop",      &AST_Factory::gen_bop},
+    {"Uop",      &AST_Factory::gen_uop}
 };
 
 
@@ -51,6 +52,13 @@ AST* AST_Factory::gen_num(vector<TokenOrAST>& elements) {
 
 //==========================================================================================================
 //==========================================================================================================
-AST* AST_Factory::gen_op(vector<TokenOrAST>& elements) {
-    return new OpAST(elements);
+AST* AST_Factory::gen_bop(vector<TokenOrAST>& elements) {
+    return new BopAST(elements);
+}
+
+
+//==========================================================================================================
+//==========================================================================================================
+AST* AST_Factory::gen_uop(vector<TokenOrAST>& elements) {
+    return new UopAST(elements);
 }

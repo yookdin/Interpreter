@@ -90,6 +90,8 @@ extern bimap<Symbol, string> symbol_str_map;
 
 bool is_nonterminal(Symbol sym);
 bool is_terminal(Symbol sym);
+bool is_op(Symbol sym);
+
 string& trim(string& line);
 
 

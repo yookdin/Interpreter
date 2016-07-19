@@ -10,7 +10,8 @@
 #include "Parser.hpp"
 
 int main(int argc, const char * argv[]) {
-    try {
+  
+    //try {
         vector<Token*> tokens;
         Lexer lex;
         lex.lex("/Users/ydinari/src/Interpreter/Interpreter/try.scr", tokens);
@@ -19,9 +20,9 @@ int main(int argc, const char * argv[]) {
         if(ast != nullptr)
             ast->print();
         
-    } catch (string err) {
-        cout << "Error: " << err << endl;
-    }
+    //} catch (string err) {
+    //    cout << "Error: " << err << endl;
+    //}
     
     return 0;
 }

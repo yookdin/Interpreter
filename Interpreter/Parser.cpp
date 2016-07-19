@@ -60,6 +60,7 @@ AST* Parser::parse(vector<Token*> tokens) {
                     stack.pop();
                 }
                 
+                reverse(elements.begin(), elements.end());
                 AST* ast = p.ast_generator(elements);
 
                 action = table.get_action(stack.top().state, N);

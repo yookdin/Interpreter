@@ -8,7 +8,22 @@
 
 #include "Grammar.hpp"
 
+//==========================================================================================================
+//==========================================================================================================
+Production::Production(vector<Symbol> _symbols, string _action_name):
+    symbols(_symbols),
+    ast_generator(AST_Factory::get_ast_generator(_action_name))
+{
+    // Find the last symbol that is an operator
+    auto iter = find_if(symbols.rbegin(), symbols.rend(), [](Symbol sym){ return is_op(sym); });
+    
+    if(iter != symbols.rend())
+        op = sym_op_map[*iter];
+    else
+        op = nullptr;
+}
 
+    
 //==========================================================================================================
 //==========================================================================================================
 Grammar::Grammar(string grammar_file) {

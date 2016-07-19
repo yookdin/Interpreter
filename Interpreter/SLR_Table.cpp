@@ -36,10 +36,20 @@ SLR_Table::SLR_Table(Grammar& grammar, DFA dfa): table(vector<vector<Action>>(df
         Symbol N = grammar.productions[p][0];
         
         for(auto s: grammar.get_follow_set(N)) {
-            // TODO: add conflict resolution using external operator table
-            if(table[i][s].kind != Action::ERROR)
-                //throw string("Trying to add REDUCE action where action " + table[i][s].to_string() + " already exists");
-                cout << "Warning: " << "adding REDUCE action r" << p << " for (" << i << "," << symbol_str_map[s] << ") where action " << table[i][s].to_string() << " already exists" << endl; 
+            
+            if(table[i][s].kind != Action::ERROR) {
+                if(table[i][s].kind != Action::SHIFT)
+                    throw string("Can't resolve conflict between reduce and " + table[i][s].to_string());
+                
+                if(not is_op(s))
+                    throw string("Can't resolve conflict, current symbol is " + symbol_str_map[s] + " which isn't an operator");
+                    
+                if(grammar.productions[p].op == nullptr)
+                    throw string("Can't resolve conflict, production doesn't have an operator associated with it");
+                
+                if(not reduce_should_override_shift(grammar.productions[p].op, sym_op_map[s]))
+                    continue; // Shift action will remain
+            }
             
             if(p > 0) {
                 table[i][s].kind = Action::REDUCE;
@@ -51,6 +61,15 @@ SLR_Table::SLR_Table(Grammar& grammar, DFA dfa): table(vector<vector<Action>>(df
             }
         } // for each symbol in Follow(N)
     } // for each state
+}
+
+
+//==========================================================================================================
+// If the left (first) operator should precede the right one, than the answer is yes. This because reduce
+// means that operator will be evaluated first (appear higher in the AST).
+//==========================================================================================================
+bool SLR_Table::reduce_should_override_shift(Operator* left_op, Operator* right_op) {
+    return left_op->should_precede(*right_op);
 }
 
 
