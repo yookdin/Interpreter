@@ -18,7 +18,7 @@ Production::Production(vector<Symbol> _symbols, string _action_name):
     auto iter = find_if(symbols.rbegin(), symbols.rend(), [](Symbol sym){ return is_op(sym); });
     
     if(iter != symbols.rend())
-        op = sym_op_map[*iter];
+        op = get_op(*iter);
     else
         op = nullptr;
 }

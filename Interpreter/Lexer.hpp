@@ -21,16 +21,15 @@ public:
 private:
     typedef Token*(Lexer::*token_matcher)(smatch& match);
     static vector<token_matcher> matchers;
-    static regex num_re, op_re, id_re, keyword_re;
+    static regex keyword_re, num_re, id_re;
     
     string input;
     string::const_iterator pos;
     
     Token* try_match();
-    Token* match_num(smatch& match);
-    Token* match_op(smatch& match);
-    Token* match_id(smatch& match);
     Token* match_keyword(smatch& match);
+    Token* match_num(smatch& match);
+    Token* match_id(smatch& match);
     
     void skip_irrelevant();
     bool skip_spaces();

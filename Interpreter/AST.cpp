@@ -38,7 +38,8 @@ void NumAST::execute() {}
 
 //==========================================================================================================
 //==========================================================================================================
-BopAST::BopAST(vector<TokenOrAST>& elements): OpAST(elements[1].get_token()->sym, sym_op_map[sym]) {
+BopAST::BopAST(vector<TokenOrAST>& elements): OpAST(get_op(elements[1].get_token()->sym)) {
+
     add_child(elements[0].get_ast());
     add_child(elements[2].get_ast());
 }
@@ -51,7 +52,7 @@ void BopAST::execute() {}
 
 //==========================================================================================================
 //==========================================================================================================
-UopAST::UopAST(vector<TokenOrAST>& elements): OpAST(elements[0].get_token()->sym, sym_op_map[sym]) {
+UopAST::UopAST(vector<TokenOrAST>& elements): OpAST(get_op(elements[0].get_token()->sym)) {
     add_child(elements[1].get_ast());
 }
 
@@ -63,7 +64,7 @@ void UopAST::execute() {}
 
 //==========================================================================================================
 //==========================================================================================================
-CondExpAST::CondExpAST(vector<TokenOrAST>& elements): OpAST(COND_EXP, sym_op_map[COND_EXP]) {
+CondExpAST::CondExpAST(vector<TokenOrAST>& elements): OpAST(get_op("?:")) {
     add_child(elements[0].get_ast());
     add_child(elements[2].get_ast());
     add_child(elements[4].get_ast());
@@ -82,7 +83,7 @@ void VarAST::execute() {}
 
 //==========================================================================================================
 //==========================================================================================================
-AssignmentAST::AssignmentAST(vector<TokenOrAST>& elements): AST(ASSIGN) {
+AssignmentAST::AssignmentAST(vector<TokenOrAST>& elements) {
     string id = ((IdentifierToken*)elements[0].get_token())->name;
     add_child(new VarAST(id));
     add_child(elements[2].get_ast());
@@ -96,14 +97,14 @@ void AssignmentAST::execute() {}
 
 //==========================================================================================================
 //==========================================================================================================
-StatementsAST::StatementsAST(vector<TokenOrAST>& elements): AST(STATEMENTS) {
+StatementsAST::StatementsAST(vector<TokenOrAST>& elements) {
     // Make children "flat", each shall be an actual statemet and statements nodes will be discarded
     for(auto& e: elements) {
         if(e.is_token) continue; // Probably a semi colon or curly brace
         
         AST* ast = e.get_ast();
         
-        if(ast->sym == STATEMENTS)
+        if(typeid(*ast) == typeid(StatementsAST))
             for(auto c: ast->children)
                 add_child(c);
         else
@@ -120,12 +121,12 @@ void StatementsAST::execute() {}
 //==========================================================================================================
 // First child will be the expression to evaluate. Rest will be the statements in the body
 //==========================================================================================================
-IfAST::IfAST(vector<TokenOrAST>& elements): AST(IF_STATEMENT) {
+IfAST::IfAST(vector<TokenOrAST>& elements) {
     add_child(elements[1].get_ast());
     
     AST* ast = elements[2].get_ast();
 
-    if(ast->sym == STATEMENTS)
+    if(typeid(*ast) == typeid(StatementsAST))
         for(auto c: ast->children)
             add_child(c);
     else
@@ -141,7 +142,7 @@ void IfAST::execute() {}
 
 //==========================================================================================================
 //==========================================================================================================
-IfElseAST::IfElseAST(vector<TokenOrAST>& elements): AST(IF_ELSE_STATEMENT) {
+IfElseAST::IfElseAST(vector<TokenOrAST>& elements) {
     add_child(elements[1].get_ast());
     add_child(elements[2].get_ast());
     add_child(elements[4].get_ast());

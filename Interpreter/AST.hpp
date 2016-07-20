@@ -18,7 +18,6 @@
 //==========================================================================================================
 class AST {
 public:
-    AST(Symbol _sym): sym(_sym) {}
     virtual void execute() = 0;
     void print();
     void add_child(AST* ast) {
@@ -26,11 +25,11 @@ public:
         children.push_back(ast);
     }
 
-    const Symbol sym;
     vector<AST*> children;
     
+    
 protected:
-    virtual void print_node() { cout << symbol_str_map[sym] << endl; }
+    virtual void print_node() = 0;
     void recursive_print(int indentation_level);
 };
 
@@ -39,7 +38,7 @@ protected:
 //==========================================================================================================
 class NumAST: public AST {
 public:
-    NumAST(vector<TokenOrAST>& elements): AST(NUM), num(extract_num(elements)) {}
+    NumAST(vector<TokenOrAST>& elements): num(extract_num(elements)) {}
     void execute();
     const int num;
     
@@ -53,9 +52,10 @@ private:
 //==========================================================================================================
 class OpAST: public AST {
 public:
-    OpAST(Symbol sym, Operator* _op): AST(sym), op(_op){}
+    OpAST(Operator* _op): op(_op){}
     virtual void execute() = 0;
 protected:
+    void print_node() { op->print(); }
     const Operator* op;
 };
 
@@ -91,8 +91,8 @@ public:
 //==========================================================================================================
 class VarAST: public AST {
 public:
-    VarAST(string _name): AST(VAR), name(_name) {}
-    VarAST(vector<TokenOrAST>& elements): AST(VAR), name(((IdentifierToken*)elements[0].get_token())->name) {} 
+    VarAST(string _name): name(_name) {}
+    VarAST(vector<TokenOrAST>& elements): name(((IdentifierToken*)elements[0].get_token())->name) {} 
     void execute();
     const string name;
     
@@ -107,6 +107,8 @@ class AssignmentAST: public AST {
 public:
     AssignmentAST(vector<TokenOrAST>& elements);
     void execute();
+private:
+    virtual void print_node() { cout << '=' << endl; }
 };
 
 
@@ -116,6 +118,8 @@ class StatementsAST: public AST {
 public:
     StatementsAST(vector<TokenOrAST>& elements);
     void execute();
+private:
+    virtual void print_node() { cout << "Statements" << endl; }
 };
 
 
@@ -125,6 +129,8 @@ class IfAST: public AST {
 public:
     IfAST(vector<TokenOrAST>& elements);
     void execute();
+private:
+    virtual void print_node() { cout << "if" << endl; }
 };
 
 
@@ -134,6 +140,8 @@ class IfElseAST: public AST {
 public:
     IfElseAST(vector<TokenOrAST>& elements);
     void execute();
+private:
+    virtual void print_node() { cout << "if-else" << endl; }
 };
 
 #endif /* AST_hpp */

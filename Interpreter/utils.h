@@ -9,6 +9,7 @@
 #ifndef utils_h
 #define utils_h
 
+class Operator;
 
 //==========================================================================================================
 // Set that support insert(another-set) operation
@@ -83,14 +84,9 @@ private:
 //==========================================================================================================
 enum Symbol {
     //------------------------------------------------------------------------------------------------------
-    // These aren't terminals or nonterminals, but types of nodes in the AST
-    //------------------------------------------------------------------------------------------------------
-    IF_STATEMENT = 10000, IF_ELSE_STATEMENT, COND_EXP, VAR,
-    
-    //------------------------------------------------------------------------------------------------------
     // The start symbol. It is a nonterminal but shouldn't appear in internal DFA
     //------------------------------------------------------------------------------------------------------
-    START,
+    START = -1,
     
     //------------------------------------------------------------------------------------------------------
     // Punctuations and keywords (actually it's the same thing)
@@ -106,8 +102,7 @@ enum Symbol {
     //------------------------------------------------------------------------------------------------------    
     // Operators
     //------------------------------------------------------------------------------------------------------    
-    ADD, SUB, MUL, DIV, MOD, NOT, OR, AND, EQ, NE, GT, LT, GE, LE, STR_MATCH, NO_STR_MATCH, QUESTION_MARK, COLON,
-    
+    ADD, SUB, MUL, DIV, MOD, NOT, OR, AND, EQ, NE, GT, LT, GE, LE, STR_MATCH, NO_STR_MATCH, QUESTION_MARK, COLON,    
     
     //------------------------------------------------------------------------------------------------------
     // Nonterminals
@@ -124,6 +119,8 @@ extern bimap<Symbol, string> symbol_str_map;
 bool is_nonterminal(Symbol sym);
 bool is_terminal(Symbol sym);
 bool is_op(Symbol sym);
+Operator* get_op(Symbol sym);
+Operator* get_op(string name);
 
 string& trim(string& line);
 

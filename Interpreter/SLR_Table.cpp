@@ -82,10 +82,10 @@ SLR_Table::ResolutionResult SLR_Table::resolve_conflict(Production& production, 
     if(production.op == nullptr)
         throw string("Can't resolve conflict, production doesn't have an operator associated with it");
     
-    Operator *left_op = production.op, *right_op = sym_op_map[sym];
+    Operator *left_op = production.op, *right_op = get_op(sym);
     
     if(left_op->precedence == right_op->precedence and left_op->associativity == Operator::NONE) {                    
-        msg = "Sequence: \"EXP " + symbol_str_map[left_op->sym] + " EXP " + symbol_str_map[right_op->sym] + " EXP\" not allowed";
+        msg = "Sequence: \"EXP " + left_op->name + " EXP " + right_op->name + " EXP\" not allowed";
         return NOT_ALLOWED;
     }
     
