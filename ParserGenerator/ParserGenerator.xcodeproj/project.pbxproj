@@ -8,6 +8,8 @@
 
 /* Begin PBXBuildFile section */
 		FE1EE3BA1D40B6EF006A721A /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FE1EE3B91D40B6EF006A721A /* main.cpp */; };
+		FE1EE4041D40C1D6006A721A /* Symbol.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FE1EE4021D40C1D6006A721A /* Symbol.cpp */; };
+		FE1EE4091D40C9BE006A721A /* Grammar.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FE1EE4071D40C9BE006A721A /* Grammar.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -25,6 +27,13 @@
 /* Begin PBXFileReference section */
 		FE1EE3B61D40B6EF006A721A /* ParserGenerator */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = ParserGenerator; sourceTree = BUILT_PRODUCTS_DIR; };
 		FE1EE3B91D40B6EF006A721A /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
+		FE1EE4021D40C1D6006A721A /* Symbol.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Symbol.cpp; sourceTree = "<group>"; };
+		FE1EE4031D40C1D6006A721A /* Symbol.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Symbol.hpp; sourceTree = "<group>"; };
+		FE1EE4061D40C8A8006A721A /* bimap.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = bimap.h; path = ../../InterpreterRuntime/InterpreterRuntime/bimap.h; sourceTree = "<group>"; };
+		FE1EE4071D40C9BE006A721A /* Grammar.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Grammar.cpp; sourceTree = "<group>"; };
+		FE1EE4081D40C9BE006A721A /* Grammar.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Grammar.hpp; sourceTree = "<group>"; };
+		FE1EE40A1D40C9E2006A721A /* common.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = common.h; sourceTree = "<group>"; };
+		FE1EE40B1D40CCCD006A721A /* Operator.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = Operator.hpp; path = ../../InterpreterRuntime/InterpreterRuntime/Operator.hpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -57,6 +66,13 @@
 		FE1EE3B81D40B6EF006A721A /* ParserGenerator */ = {
 			isa = PBXGroup;
 			children = (
+				FE1EE40B1D40CCCD006A721A /* Operator.hpp */,
+				FE1EE40A1D40C9E2006A721A /* common.h */,
+				FE1EE4061D40C8A8006A721A /* bimap.h */,
+				FE1EE4031D40C1D6006A721A /* Symbol.hpp */,
+				FE1EE4021D40C1D6006A721A /* Symbol.cpp */,
+				FE1EE4081D40C9BE006A721A /* Grammar.hpp */,
+				FE1EE4071D40C9BE006A721A /* Grammar.cpp */,
 				FE1EE3B91D40B6EF006A721A /* main.cpp */,
 			);
 			path = ParserGenerator;
@@ -118,7 +134,9 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				FE1EE4091D40C9BE006A721A /* Grammar.cpp in Sources */,
 				FE1EE3BA1D40B6EF006A721A /* main.cpp in Sources */,
+				FE1EE4041D40C1D6006A721A /* Symbol.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -209,6 +227,7 @@
 		FE1EE3BE1D40B6EF006A721A /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				GCC_WARN_64_TO_32_BIT_CONVERSION = NO;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Debug;
@@ -216,6 +235,7 @@
 		FE1EE3BF1D40B6EF006A721A /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				GCC_WARN_64_TO_32_BIT_CONVERSION = NO;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Release;

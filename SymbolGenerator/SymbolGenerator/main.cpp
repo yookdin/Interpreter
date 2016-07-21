@@ -6,10 +6,13 @@
 //  Copyright © 2016 Vonage. All rights reserved.
 //
 
-#include <iostream>
+#include "SymbolGenerator.hpp"
 
 int main(int argc, const char * argv[]) {
-    // insert code here...
-    std::cout << "Hello, World!\n";
+
+    SymbolGenerator sg("/Users/ydinari/src/Interpreter/grammar_definition",
+                       "/Users/ydinari/src/Interpreter/ParserGenerator/ParserGenerator/Symbol.hpp",
+                       "/Users/ydinari/src/Interpreter/ParserGenerator/ParserGenerator/Symbol.cpp");
+    
     return 0;
 }

@@ -43,7 +43,6 @@
 		FE1EE3D71D40BB11006A721A /* common.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = common.h; sourceTree = "<group>"; };
 		FE1EE3D81D40BB11006A721A /* DFA.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = DFA.cpp; sourceTree = "<group>"; };
 		FE1EE3D91D40BB11006A721A /* DFA.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = DFA.hpp; sourceTree = "<group>"; };
-		FE1EE3DA1D40BB11006A721A /* grammar_definition */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = grammar_definition; sourceTree = "<group>"; };
 		FE1EE3DB1D40BB11006A721A /* Grammar.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Grammar.cpp; sourceTree = "<group>"; };
 		FE1EE3DC1D40BB11006A721A /* Grammar.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Grammar.hpp; sourceTree = "<group>"; };
 		FE1EE3DD1D40BB11006A721A /* Lexer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Lexer.cpp; sourceTree = "<group>"; };
@@ -67,6 +66,7 @@
 		FE1EE3EF1D40BB11006A721A /* utils.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = utils.cpp; sourceTree = "<group>"; };
 		FE1EE3F01D40BB11006A721A /* utils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = utils.h; sourceTree = "<group>"; };
 		FE1EE3F11D40BB11006A721A /* Value.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Value.h; sourceTree = "<group>"; };
+		FE1EE4051D40C856006A721A /* bimap.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = bimap.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -99,20 +99,22 @@
 		FE1EE3CB1D40BA93006A721A /* InterpreterRuntime */ = {
 			isa = PBXGroup;
 			children = (
-				FE1EE3DF1D40BB11006A721A /* main.cpp */,
-				FE1EE3D31D40BB11006A721A /* AST_Factory.cpp */,
-				FE1EE3D41D40BB11006A721A /* AST_Factory.hpp */,
-				FE1EE3D51D40BB11006A721A /* AST.cpp */,
-				FE1EE3D61D40BB11006A721A /* AST.hpp */,
+				FE1EE4051D40C856006A721A /* bimap.h */,
 				FE1EE3D71D40BB11006A721A /* common.h */,
+				FE1EE3F01D40BB11006A721A /* utils.h */,
+				FE1EE3EF1D40BB11006A721A /* utils.cpp */,
+				FE1EE3DE1D40BB11006A721A /* Lexer.hpp */,
+				FE1EE3DD1D40BB11006A721A /* Lexer.cpp */,
+				FE1EE3E01D40BB11006A721A /* NFA.cpp */,
+				FE1EE3DF1D40BB11006A721A /* main.cpp */,
+				FE1EE3D61D40BB11006A721A /* AST.hpp */,
+				FE1EE3D51D40BB11006A721A /* AST.cpp */,
+				FE1EE3D41D40BB11006A721A /* AST_Factory.hpp */,
+				FE1EE3D31D40BB11006A721A /* AST_Factory.cpp */,
 				FE1EE3D81D40BB11006A721A /* DFA.cpp */,
 				FE1EE3D91D40BB11006A721A /* DFA.hpp */,
-				FE1EE3DA1D40BB11006A721A /* grammar_definition */,
 				FE1EE3DB1D40BB11006A721A /* Grammar.cpp */,
 				FE1EE3DC1D40BB11006A721A /* Grammar.hpp */,
-				FE1EE3DD1D40BB11006A721A /* Lexer.cpp */,
-				FE1EE3DE1D40BB11006A721A /* Lexer.hpp */,
-				FE1EE3E01D40BB11006A721A /* NFA.cpp */,
 				FE1EE3E11D40BB11006A721A /* NFA.hpp */,
 				FE1EE3E21D40BB11006A721A /* Operator.cpp */,
 				FE1EE3E31D40BB11006A721A /* Operator.hpp */,
@@ -127,8 +129,6 @@
 				FE1EE3EC1D40BB11006A721A /* Token.cpp */,
 				FE1EE3ED1D40BB11006A721A /* Token.hpp */,
 				FE1EE3EE1D40BB11006A721A /* try.scr */,
-				FE1EE3EF1D40BB11006A721A /* utils.cpp */,
-				FE1EE3F01D40BB11006A721A /* utils.h */,
 				FE1EE3F11D40BB11006A721A /* Value.h */,
 			);
 			path = InterpreterRuntime;
