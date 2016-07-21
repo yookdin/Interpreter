@@ -123,12 +123,10 @@ void StatementsAST::execute() {}
 //==========================================================================================================
 IfAST::IfAST(vector<TokenOrAST>& elements) {
     add_child(elements[1].get_ast());
-    
     AST* ast = elements[2].get_ast();
 
     if(typeid(*ast) == typeid(StatementsAST))
-        for(auto c: ast->children)
-            add_child(c);
+        for(auto c: ast->children) add_child(c);
     else
         add_child(ast);
 }
@@ -154,9 +152,50 @@ IfElseAST::IfElseAST(vector<TokenOrAST>& elements) {
 void IfElseAST::execute() {}
 
 
+//==========================================================================================================
+//==========================================================================================================
+WhileAST::WhileAST(vector<TokenOrAST>& elements) {
+    add_child(elements[1].get_ast());
+    AST* ast = elements[2].get_ast();
+    
+    if(typeid(*ast) == typeid(StatementsAST))
+        for(auto c: ast->children) add_child(c);
+    else
+        add_child(ast);
+}
 
 
+//==========================================================================================================
+// Each time this tree is executed, it will evaluate the expression (first child), then repeat the body that
+// number of times. However, the next time the tree is evaluated the 'times' expression can have another
+// value
+//==========================================================================================================
+RepeatAST::RepeatAST(vector<TokenOrAST>& elements) {
+    add_child(elements[1].get_ast());
+    AST* ast = elements[3].get_ast();
+    
+    if(typeid(*ast) == typeid(StatementsAST))
+        for(auto c: ast->children) add_child(c);
+    else
+        add_child(ast);
+}
 
+
+//==========================================================================================================
+// This won't appear in final AST
+//==========================================================================================================
+ParamsAST::ParamsAST(vector<TokenOrAST>& elements) {
+    for(auto& e: elements)
+        if(not e.is_token) // Skip commas, add everything else
+            add_child(e.get_ast());
+}
+
+
+//==========================================================================================================
+//==========================================================================================================
+FuncAST::FuncAST(vector<TokenOrAST>& elements) {
+    
+}
 
 
 

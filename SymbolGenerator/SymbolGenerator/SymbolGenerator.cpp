@@ -28,7 +28,7 @@ SymbolGenerator::SymbolGenerator(string grammar_file, string header_file, string
 	string_symbol_map["?"] = "QUESTION_MARK";
     string_symbol_map[":"] = "COLON";
     string_symbol_map["$"] = "EOI";
-    
+    string_symbol_map[","] = "COMMA";
 
 	read_file(grammar_file);
 	write_header_file(header_file);
@@ -45,6 +45,8 @@ void SymbolGenerator::read_file(string filename) {
 
 	for(string line; getline(file, line);) {
 		trim(line); // Must trim! o/w stringstream gets confused!
+        if(line.empty()) continue;
+        
 		line = line.substr(0, line.find_first_of('#'));
 		regex production_re("(\\w+)\\s*->\\s*(.*)"); // Note: the RHS needs to parsed word by word
 		smatch match_res;

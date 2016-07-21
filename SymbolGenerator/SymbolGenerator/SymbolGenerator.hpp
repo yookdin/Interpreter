@@ -1,6 +1,7 @@
 #ifndef _SYMBOL_GENERATOR_HPP_
 #define  _SYMBOL_GENERATOR_HPP_
 
+#include <iostream>
 #include <map>
 #include <string>
 #include <set>

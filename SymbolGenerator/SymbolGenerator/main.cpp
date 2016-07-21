@@ -10,9 +10,13 @@
 
 int main(int argc, const char * argv[]) {
 
-    SymbolGenerator sg("/Users/ydinari/src/Interpreter/grammar_definition",
-                       "/Users/ydinari/src/Interpreter/InterpreterRuntime/InterpreterRuntime/Symbol.hpp",
-                       "/Users/ydinari/src/Interpreter/InterpreterRuntime/InterpreterRuntime/Symbol.cpp");
+    try {
+        SymbolGenerator sg("/Users/ydinari/src/Interpreter/grammar_definition",
+                           "/Users/ydinari/src/Interpreter/InterpreterRuntime/InterpreterRuntime/Symbol.hpp",
+                           "/Users/ydinari/src/Interpreter/InterpreterRuntime/InterpreterRuntime/Symbol.cpp");
+    } catch (string err) {
+        cout << "Caught exception: " << err << endl;
+    }
     
     return 0;
 }

@@ -7,7 +7,8 @@ bool is_terminal(Symbol s) { return not is_nonterminal(s); }
 
 bimap<Symbol, string> symbol_str_map = {
     {START, "START"}, {BLOCK, "BLOCK"}, {EXP, "EXP"}, {STATEMENT, "STATEMENT"}, {STATEMENTS, "STATEMENTS"}, 
-    {NE, "!="}, {NO_STR_MATCH, "!~"}, {EOI, "$"}, {MOD, "%"}, {LEFT_PAREN, "("}, {RIGHT_PAREN, ")"}, {MUL, "*"}, {ADD, "+"}, {SUB, "-"}, {DIV, "/"}, 
-    {COLON, ":"}, {SEMI_COLON, ";"}, {LT, "<"}, {LE, "<="}, {ASSIGN, "="}, {EQ, "=="}, {GT, ">"}, {GE, ">="}, {QUESTION_MARK, "?"}, {LEFT_CURLY, "{"}, 
-    {RIGHT_CURLY, "}"}, {STR_MATCH, "~"}, {ID, "ID"}, {NUM, "NUM"}, {AND, "and"}, {ELSE, "else"}, {IF, "if"}, {NOT, "not"}, {OR, "or"}, 
+    {NE, "!="}, {NO_STR_MATCH, "!~"}, {EOI, "$"}, {MOD, "%"}, {LEFT_PAREN, "("}, {RIGHT_PAREN, ")"}, {MUL, "*"}, {ADD, "+"}, {COMMA, ","}, {SUB, "-"}, 
+    {DIV, "/"}, {COLON, ":"}, {SEMI_COLON, ";"}, {LT, "<"}, {LE, "<="}, {ASSIGN, "="}, {EQ, "=="}, {GT, ">"}, {GE, ">="}, {QUESTION_MARK, "?"}, 
+    {LEFT_CURLY, "{"}, {RIGHT_CURLY, "}"}, {STR_MATCH, "~"}, {ID, "ID"}, {NUM, "NUM"}, {AND, "and"}, {ELSE, "else"}, {IF, "if"}, {NOT, "not"}, {OR, "or"}, 
+    {REPEAT, "repeat"}, {TIMES, "times"}, {WHILE, "while"}, 
 };
