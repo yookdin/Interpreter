@@ -1,21 +1,20 @@
 //
 //  Parser.cpp
-//  Interpreter
+//  InterpreterRuntime
 //
-//  Created by Yuval Dinari on 7/13/16.
+//  Created by Yuval Dinari on 7/21/16.
 //  Copyright © 2016 Vonage. All rights reserved.
 //
 
+#include "utils.hpp"
 #include "Parser.hpp"
 #include "ParseStackElement.hpp"
 
-typedef SLR_Table::Action Action; 
-
-//==========================================================================================================
-// Build internal table from DFA, which is built from NFA, which is built from the grammar, which is built
-// from definitions in the input file.
-//==========================================================================================================
-Parser::Parser(string grammar_file): grammar(grammar_file), table(grammar, DFA(NFA(grammar))) {}
+//Parser::Parser() {
+//    for(auto& v: table)
+//        for(auto& a: v)
+//            cout << a.to_string() << endl;
+//}
 
 
 //==========================================================================================================
@@ -28,31 +27,30 @@ AST* Parser::parse(vector<Token*> tokens) {
         if(is_nonterminal(tokens[i]->sym))
             throw string("Token kind for parsing should be a terminal");
     }
-
+    
     stack<ParseStackElement> stack;
     stack.push(0);
-
+    
     //------------------------------------------------------------------------------------------------------
     //------------------------------------------------------------------------------------------------------
     for(int i = 0; i < tokens.size();) {
         Token* token = tokens[i];
-        Action action = table.get_action(stack.top().state, token->sym); 
+        Action action = table[stack.top().state][token->sym]; 
         
         switch(action.kind) {
-            case Action::SHIFT: {
+            case SHIFT: {
                 stack.push(ParseStackElement(action.val, token));
                 ++i;
                 break;
             }
-            case Action::GO: { // Should never be reached because tokens list received from lexer should contain only terminals
+            case GO: { // Should never be reached because tokens list received from lexer should contain only terminals
                 throw string("GO action should never be reached directly");
                 break;
             }
-            case Action::REDUCE: { // Perform the REDUCE and GO action that immediately follows it
+            case REDUCE: { // Perform the REDUCE and GO action that immediately follows it
                 
-                Production& p = grammar.productions[action.val]; 
-                Symbol N = p[0];
-                int rhs_size = p.rhs_size();
+                Symbol N = production_infos[action.val].lhs;
+                int rhs_size = production_infos[action.val].rhs_size; 
                 vector<TokenOrAST> elements;
                 
                 while(rhs_size-- > 0) { 
@@ -61,17 +59,17 @@ AST* Parser::parse(vector<Token*> tokens) {
                 }
                 
                 reverse(elements.begin(), elements.end());
-                AST* ast = p.ast_generator(elements);
-
-                action = table.get_action(stack.top().state, N);
+                AST* ast = gen_ast(action.val, elements);
                 
-                if(action.kind != Action::GO)
+                action = table[stack.top().state][N];
+                
+                if(action.kind != GO)
                     throw string("Expected action for [" + to_string(stack.top().state) + "," + symbol_str_map[N] + "] to be GO but found: " + action.to_string());
                 
                 stack.push(ParseStackElement(action.val, ast));
                 break;
             }
-            case Action::ACCEPT: {
+            case ACCEPT: {
                 if(i < tokens.size() - 1)
                     throw string("ACCEPT reached before end of input");
                 
@@ -83,7 +81,7 @@ AST* Parser::parse(vector<Token*> tokens) {
                 cout << "Success!" << endl;
                 return res;
             }
-            case Action::ERROR: {
+            case ERROR: {
                 cout << "Error on [" << to_string(stack.top().state) << "," << symbol_str_map[token->sym] << "]" << endl;
                 return nullptr;
             }
@@ -95,8 +93,16 @@ AST* Parser::parse(vector<Token*> tokens) {
 }
 
 
-
-
-
-
-
+//==========================================================================================================
+// Sometimes nothing new should be done, just return the only AST in the list of elements. The other are
+// tokens that aren't needed in the AST (like parentheses).
+//==========================================================================================================
+AST* Parser::extract_ast(vector<TokenOrAST>& elements) {
+    for(auto& elem: elements) {
+        AST* ast;
+        if((ast = elem.get_ast()) != nullptr)
+            return ast;
+    }
+    
+    throw string("No AST found in elements received by AST factory");
+}

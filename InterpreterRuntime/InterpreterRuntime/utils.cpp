@@ -1,52 +1,28 @@
 //
 //  utils.cpp
-//  Interpreter
+//  SymbolGenerator
 //
-//  Created by Yuval Dinari on 7/10/16.
+//  Created by Yuval Dinari on 7/21/16.
 //  Copyright © 2016 Vonage. All rights reserved.
 //
 
-#include "common.h"
-#include "utils.h"
-#include "Operator.hpp"
+#include "utils.hpp"
 
-bimap<Symbol, string> symbol_str_map = {
-    {START, "START"},
-    {LEFT_PAREN, "("}, {RIGHT_PAREN, ")"}, {EOI, "$"}, {ASSIGN, "="}, {SEMI_COLON, ";"}, {LEFT_CURLY, "{"}, {RIGHT_CURLY, "}"},
-    {IF, "if"}, {ELSE, "else"},
-    {NUM, "NUM"}, {ID, "ID"},
-    {ADD, "+"}, {SUB, "-"}, {MUL, "*"}, {DIV, "/"}, {MOD, "%"}, {NOT, "not"}, {OR, "or"}, {AND, "and"},
-    {EQ, "=="}, {NE, "!="}, {GT, ">"}, {LT, "<"}, {GE, ">="}, {LE, "<="}, {STR_MATCH, "~"}, {NO_STR_MATCH, "!~"},
-    {QUESTION_MARK, "?"}, {COLON, ":"},
-    {EXP, "EXP"}, {BLOCK, "BLOCK"}, {STATEMENT, "STATEMENT"}, {STATEMENTS, "STATEMENTS"}
-};
+string action_kind_to_string(ParserActionKind kind) {
+    switch (kind) {
+        case SHIFT: return "SHIFT";
+        case GO: return "GO";
+        case REDUCE: return "REDUCE";
+        case ACCEPT: return "ACCEPT";
+        case ERROR: return "ERROR";
+    }
+}
 
 
 //==========================================================================================================
+// Remove leading and trailing spaces and comment
 //==========================================================================================================
-bool is_nonterminal(Symbol sym) { return (sym == START or sym >= NONTERMINALS_START); }
-
-//==========================================================================================================
-//==========================================================================================================
-bool is_terminal(Symbol sym) { return not is_nonterminal(sym); }
-
-//==========================================================================================================
-//==========================================================================================================
-bool is_op(Symbol sym) { return sym >= ADD and sym < EXP; }
-
-//==========================================================================================================
-//==========================================================================================================
-Operator* get_op(Symbol sym) { return get_op(symbol_str_map[sym]); }
-
-//==========================================================================================================
-//==========================================================================================================
-Operator* get_op(string name) { return name_op_map[name]; }
-
-//==========================================================================================================
-// Remove leading and trailing spaces and comment (//...)
-//==========================================================================================================
-string& trim(string& line)
-{
+string& trim(string& line, string comment_start) {
     if(line.empty())
     {
         return line;
@@ -55,12 +31,12 @@ string& trim(string& line)
     string spaces = " \t\n\r";
     line.erase(0, line.find_first_not_of(spaces));
     
-    size_t pos = line.find("//");
-    if(pos != string::npos)
-    {
-        line.erase(pos);
+    if(not comment_start.empty()) {
+        size_t pos = line.find(comment_start);
+        if(pos != string::npos)
+            line.erase(pos);
     }
     
     line.erase(line.find_last_not_of(spaces) + 1);
-    return line;
+    return line;    
 }

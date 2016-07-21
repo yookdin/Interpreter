@@ -9,7 +9,7 @@
 #ifndef AST_hpp
 #define AST_hpp
 
-#include "common.h"
+#include "common_headers.h"
 #include "Token.hpp"
 #include "ParseStackElement.hpp"
 #include "Operator.hpp"
@@ -80,10 +80,13 @@ public:
 
 //==========================================================================================================
 //==========================================================================================================
-class CondExpAST: public OpAST {
+class CondExpAST: public AST {
 public:
     CondExpAST(vector<TokenOrAST>& elements);
     void execute();
+    
+private:
+    void print_node() { cout << "?:" << endl; }
 };
 
 

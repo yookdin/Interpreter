@@ -64,7 +64,7 @@ void UopAST::execute() {}
 
 //==========================================================================================================
 //==========================================================================================================
-CondExpAST::CondExpAST(vector<TokenOrAST>& elements): OpAST(get_op("?:")) {
+CondExpAST::CondExpAST(vector<TokenOrAST>& elements) {
     add_child(elements[0].get_ast());
     add_child(elements[2].get_ast());
     add_child(elements[4].get_ast());

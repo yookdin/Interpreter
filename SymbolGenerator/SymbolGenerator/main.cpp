@@ -11,8 +11,8 @@
 int main(int argc, const char * argv[]) {
 
     SymbolGenerator sg("/Users/ydinari/src/Interpreter/grammar_definition",
-                       "/Users/ydinari/src/Interpreter/ParserGenerator/ParserGenerator/Symbol.hpp",
-                       "/Users/ydinari/src/Interpreter/ParserGenerator/ParserGenerator/Symbol.cpp");
+                       "/Users/ydinari/src/Interpreter/InterpreterRuntime/InterpreterRuntime/Symbol.hpp",
+                       "/Users/ydinari/src/Interpreter/InterpreterRuntime/InterpreterRuntime/Symbol.cpp");
     
     return 0;
 }

@@ -2,6 +2,7 @@
 
 #include "SymbolGenerator.hpp"
 
+
 //==========================================================================================================
 //==========================================================================================================
 SymbolGenerator::SymbolGenerator(string grammar_file, string header_file, string source_file) {
@@ -21,8 +22,8 @@ SymbolGenerator::SymbolGenerator(string grammar_file, string header_file, string
 	string_symbol_map[")"] = "RIGHT_PAREN";
 	string_symbol_map["{"] = "LEFT_CURLY";
 	string_symbol_map["}"] = "RIGHT_CURLY";
-	string_symbol_map["~"] = "STRING_MATCH";
-	string_symbol_map["!~"] = "NO_STRING_MATCH";
+	string_symbol_map["~"] = "STR_MATCH";
+	string_symbol_map["!~"] = "NO_STR_MATCH";
 	string_symbol_map[";"] = "SEMI_COLON";
 	string_symbol_map["?"] = "QUESTION_MARK";
     string_symbol_map[":"] = "COLON";
@@ -81,6 +82,9 @@ void SymbolGenerator::write_header_file(string filename) {
     string tab = "    ";
     
     file << "// Generated Symbol header file" << endl << endl;
+    
+    file << "#ifndef symbol_hpp" << endl;
+    file << "#define symbol_hpp" << endl << endl;
     file << "#include \"bimap.h\"" << endl << endl;
  
     
@@ -127,8 +131,8 @@ void SymbolGenerator::write_header_file(string filename) {
     // Symbol string map declaration
     file << "// A bidirectional map of Symbols and their string representation" << endl;
     file << "extern bimap<Symbol, string> symbol_str_map;" << endl;
-    
-    
+
+    file << endl << "#endif // symbol_hpp" << endl;
 	file.close();
 }
 
@@ -155,6 +159,7 @@ void SymbolGenerator::write_source_file(string src_filename, string header_filen
     //------------------------------------------------------------------------------------------------------
     file << "bimap<Symbol, string> symbol_str_map = {" << endl << tab; 
     
+    file << "{START, \"START\"}, ";
     int n = 0;
     for(auto& nt: nonterminals) {
         file << "{" << nt << ", \"" << nt << "\"}, ";
@@ -183,8 +188,17 @@ void SymbolGenerator::write_source_file(string src_filename, string header_filen
 }
     
     
+//======================================================================================================================
+// Return the file name part of a path
+//======================================================================================================================
+string SymbolGenerator::basename(string path)
+{
+    // This works even if no / in path, becaue string::npos + 1 = 0
+    return path.substr(path.find_last_of('/') + 1);
+}
+
 //==========================================================================================================
-// Remove leading and trailing spaces and comment (//...)
+// Remove leading and trailing spaces and comment
 //==========================================================================================================
 string& SymbolGenerator::trim(string& line) {
     if(line.empty())
@@ -197,25 +211,11 @@ string& SymbolGenerator::trim(string& line) {
     
     size_t pos = line.find("//");
     if(pos != string::npos)
-    {
         line.erase(pos);
-    }
     
     line.erase(line.find_last_not_of(spaces) + 1);
     return line;
 }
-
-
-//======================================================================================================================
-// Return the file name part of a path
-//======================================================================================================================
-string SymbolGenerator::basename(string path)
-{
-    // This works even if no / in path, becaue string::npos + 1 = 0
-    return path.substr(path.find_last_of('/') + 1);
-}
-
-
 
 
 

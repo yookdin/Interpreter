@@ -10,16 +10,16 @@
 #include "Parser.hpp"
 
 int main(int argc, const char * argv[]) {
-  
+      
     //try {
         vector<Token*> tokens;
         Lexer lex;
-        lex.lex("/Users/ydinari/src/Interpreter/Interpreter/try.scr", tokens);
-        Parser parser("/Users/ydinari/src/Interpreter/Interpreter/grammar_definition");
+        lex.lex("/Users/ydinari/src/Interpreter/InterpreterRuntime/InterpreterRuntime/try.scr", tokens);
+        Parser parser;
         AST* ast = parser.parse(tokens);
         if(ast != nullptr)
             ast->print();
-        
+    
     //} catch (string err) {
     //    cout << "Error: " << err << endl;
     //}

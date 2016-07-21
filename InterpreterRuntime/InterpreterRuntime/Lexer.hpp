@@ -9,7 +9,7 @@
 #ifndef Lexer_hpp
 #define Lexer_hpp
 
-#include "common.h"
+#include "common_headers.h"
 #include "Token.hpp"
 
 //==========================================================================================================

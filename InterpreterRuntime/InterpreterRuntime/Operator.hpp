@@ -9,7 +9,8 @@
 #ifndef Operator_hpp
 #define Operator_hpp
 
-#include "common.h"
+#include "common_headers.h"
+#include "Symbol.hpp"
 
 //==========================================================================================================
 //==========================================================================================================
@@ -18,12 +19,13 @@ public:
     enum Associativity {LEFT, RIGHT, NONE};
     typedef Operator::Associativity Associativity;
     
-    Operator(string name, int num_operands, int precedence, Associativity associativity);
-    virtual void print() const { cout << name << endl; }
-    
+    Operator(Symbol sym, int num_operands, int precedence, Associativity associativity);
+    string get_name() const;
+    void print() const;
+
     bool should_precede(const Operator& other);
     
-    const string name;
+    const Symbol sym;
     const int num_operands;
     const int precedence;
     const Associativity associativity;
@@ -32,14 +34,17 @@ public:
 
 //==========================================================================================================
 //==========================================================================================================
-extern map<string, Operator*> name_op_map;
+extern map<Symbol, Operator*> sym_op_map;
+bool is_op(Symbol); 
+Operator* get_op(Symbol); 
+
 
 
 //==========================================================================================================
 //==========================================================================================================
 class Add: public Operator {
 public:
-    Add(): Operator("+", 2, 3, LEFT) {}
+    Add(): Operator(ADD, 2, 3, LEFT) {}
 };
 
 
@@ -47,7 +52,7 @@ public:
 //==========================================================================================================
 class Subtract: public Operator {
 public:
-    Subtract(): Operator("-", 2, 3, LEFT) {}
+    Subtract(): Operator(SUB, 2, 3, LEFT) {}
     
 //protected:
 //    Value* execute(vector<Value*> operands)
@@ -61,7 +66,7 @@ public:
 //==========================================================================================================
 class Mul: public Operator {
 public:
-    Mul(): Operator("*", 2, 2, LEFT) {}
+    Mul(): Operator(MUL, 2, 2, LEFT) {}
     
 //protected:
 //    Value* execute(vector<Value*> operands)
@@ -75,7 +80,7 @@ public:
 //==========================================================================================================
 class Div: public Operator {
 public:
-    Div(): Operator("/", 2, 2, LEFT) {}
+    Div(): Operator(DIV, 2, 2, LEFT) {}
     
 //protected:
 //    Value* execute(vector<Value*> operands)
@@ -91,7 +96,7 @@ class Mod: public Operator {
 public:
     static const string str;
     
-    Mod(): Operator("%", 2, 2, LEFT) {}
+    Mod(): Operator(MOD, 2, 2, LEFT) {}
     
 //protected:
 //    Value* execute(vector<Value*> operands)
@@ -107,7 +112,7 @@ class Or: public Operator {
 public:
     static const string str;
     
-    Or(): Operator("or", 2, 8, LEFT) {}
+    Or(): Operator(OR, 2, 8, LEFT) {}
     
 //protected:
 //    Value* execute(vector<Value*> operands)
@@ -123,7 +128,7 @@ class And: public Operator {
 public:
     static const string str;
     
-    And(): Operator("and", 2, 7, LEFT) {}
+    And(): Operator(AND, 2, 7, LEFT) {}
     
 //protected:
 //    Value* execute(vector<Value*> operands)
@@ -139,7 +144,7 @@ class Not: public Operator {
 public:
     static const string str;
     
-    Not(): Operator("not", 1, 1, RIGHT) {}
+    Not(): Operator(NOT, 1, 1, RIGHT) {}
     
 //protected:
 //    Value* execute(vector<Value*> operands)
@@ -153,7 +158,7 @@ public:
 //==========================================================================================================
 class Equal: public Operator {
 public:
-    Equal(): Operator("==", 2, 6, LEFT) {}
+    Equal(): Operator(EQ, 2, 6, LEFT) {}
     
 //protected:
 //    Value* execute(vector<Value*> operands)
@@ -167,7 +172,7 @@ public:
 //==========================================================================================================
 class NotEqual: public Operator {
 public:
-    NotEqual(): Operator("!=", 2, 6, LEFT) {}
+    NotEqual(): Operator(NE, 2, 6, LEFT) {}
     
 //protected:
 //    Value* execute(vector<Value*> operands)
@@ -183,7 +188,7 @@ class LessThan: public Operator {
 public:
     static const string str;
     
-    LessThan(): Operator("<", 2, 5, NONE) {}
+    LessThan(): Operator(LT, 2, 5, NONE) {}
     
 //protected:
 //    Value* execute(vector<Value*> operands)
@@ -199,7 +204,7 @@ class GreaterThan: public Operator {
 public:
     static const string str;
     
-    GreaterThan(): Operator(">", 2, 5, NONE) {}
+    GreaterThan(): Operator(GT, 2, 5, NONE) {}
     
 //protected:
 //    Value* execute(vector<Value*> operands)
@@ -213,7 +218,7 @@ public:
 //==========================================================================================================
 class LessThanEqual: public Operator {
 public:
-    LessThanEqual(): Operator("<=", 2, 5, NONE) {}
+    LessThanEqual(): Operator(LE, 2, 5, NONE) {}
     
 //protected:
 //    Value* execute(vector<Value*> operands)
@@ -229,7 +234,7 @@ class GreaterThanEqual: public Operator {
 public:
     static const string str;
     
-    GreaterThanEqual(): Operator(">=", 2, 5, NONE) {}
+    GreaterThanEqual(): Operator(GT, 2, 5, NONE) {}
     
 //protected:
 //    Value* execute(vector<Value*> operands)
@@ -244,7 +249,7 @@ public:
 //==========================================================================================================
 class StringMatch: public Operator {
 public:
-    StringMatch(): Operator("~", 2, 4, NONE) {}
+    StringMatch(): Operator(STR_MATCH, 2, 4, NONE) {}
     
 //protected:
 //    Value* execute(vector<Value*> operands)
@@ -259,7 +264,7 @@ public:
 //==========================================================================================================
 class NoStringtMatch: public Operator {
 public:
-    NoStringtMatch(): Operator("!~", 2, 4, NONE) {}
+    NoStringtMatch(): Operator(NO_STR_MATCH, 2, 4, NONE) {}
     
 //protected:
 //    Value* execute(vector<Value*> operands)
@@ -273,7 +278,7 @@ public:
 //==========================================================================================================
 class QuestionMark: public Operator {
 public:
-    QuestionMark(): Operator("?", 0, 9, RIGHT) {}
+    QuestionMark(): Operator(QUESTION_MARK, 0, 9, RIGHT) {}
 };
 
 
@@ -282,21 +287,7 @@ public:
 //==========================================================================================================
 class Colon: public Operator {
 public:
-    Colon(): Operator(":", 0, 10, LEFT) {}
-};
-
-
-//==========================================================================================================
-//==========================================================================================================
-class CondExp: public Operator {
-public:
-    CondExp(): Operator("?:", 3, -1, NONE) {}
-    
-//protected:
-//    Value* execute(vector<Value*> operands)
-//    {
-//        throw string("TernaryOpenIf::execute() should never be called!");
-//    }
+    Colon(): Operator(COLON, 0, 10, LEFT) {}
 };
 
 

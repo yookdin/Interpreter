@@ -9,9 +9,17 @@
 #ifndef common_h
 #define common_h
 
+#include <iostream>
 #include <map>
 #include <string>
 #include <vector>
+#include <deque>
+#include <set>
+#include <fstream>
+#include <regex>
+#include <sstream>
+#include <iomanip>
+#include <stack>
 
 using namespace std;
 

@@ -7,13 +7,11 @@
 //
 
 #include "Grammar.hpp"
+#include "utils.hpp"
 
 //==========================================================================================================
 //==========================================================================================================
-Production::Production(vector<Symbol> _symbols, string _action_name):
-    symbols(_symbols),
-    ast_generator(AST_Factory::get_ast_generator(_action_name))
-{
+Production::Production(vector<Symbol> _symbols, string _action_name): symbols(_symbols), action_name(_action_name) {
     // Find the last symbol that is an operator
     auto iter = find_if(symbols.rbegin(), symbols.rend(), [](Symbol sym){ return is_op(sym); });
     
@@ -47,7 +45,7 @@ void Grammar::read_grammar_file(string grammar_file) {
     // For each production line extract the symbols and add a production
     //------------------------------------------------------------------------------------------------------
     for(string line; getline(file, line);) {
-        if(trim(line).empty()) continue; // Ignore comments and empty lines
+        if(trim(line, "//").empty()) continue; // Ignore comments and empty lines
         
         vector<Symbol> symbols;
         string action_name;

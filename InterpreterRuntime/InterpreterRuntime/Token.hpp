@@ -9,7 +9,7 @@
 #ifndef Token_hpp
 #define Token_hpp
 
-#include "common.h"
+#include "common_headers.h"
 #include "Operator.hpp"
 
 

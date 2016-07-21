@@ -9,7 +9,7 @@
 #ifndef DFA_hpp
 #define DFA_hpp
 
-#include "common.h"
+#include "common_headers.h"
 #include "NFA.hpp"
 
 //==========================================================================================================

@@ -9,7 +9,7 @@
 #ifndef NFA_hpp
 #define NFA_hpp
 
-#include "common.h"
+#include "common_headers.h"
 #include "Grammar.hpp"
 
 //==========================================================================================================

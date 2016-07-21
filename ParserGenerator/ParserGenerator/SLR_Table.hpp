@@ -9,34 +9,27 @@
 #ifndef SLR_Table_hpp
 #define SLR_Table_hpp
 
-#include "common.h"
+#include "common_headers.h"
+#include "utils.hpp"
 #include "DFA.hpp"
 
 //==========================================================================================================
 //==========================================================================================================
 class SLR_Table {
 public:
-    SLR_Table(){}
-    SLR_Table(Grammar& grammar, DFA dfa);
+    SLR_Table(string grammar_file, string parser_tables_file); 
     void print();
-    
-    //======================================================================================================
-    //======================================================================================================
-    struct Action {
-        Action(): kind(ERROR), val(-1) {}
-        enum {SHIFT, GO, REDUCE, ACCEPT, ERROR} kind;
-        int val;
-        string message;
-        
-        string to_string();
-    };
 
-    Action& get_action(int state, Symbol sym);
-
-    
-    friend class Parser;
-private:
+private:    
     vector<vector<Action>> table;
+    Grammar grammar;
+    string tab = "    ";
+    
+    void build_slr_table(DFA& dfa);
+    void write_parser_tables_file(string filename);
+    void write_slr_table(ofstream& file);
+    void write_productions_table(ofstream& file);
+    void write_gen_ast_function(ofstream& file);
     
     enum ResolutionResult {SHIFT_WIN, REDUCE_WIN, NOT_ALLOWED};
     ResolutionResult resolve_conflict(Production& production, Symbol sym, string& msg);

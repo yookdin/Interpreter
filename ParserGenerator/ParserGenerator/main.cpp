@@ -6,10 +6,11 @@
 //  Copyright © 2016 Vonage. All rights reserved.
 //
 
-#include <iostream>
+#include "SLR_Table.hpp"
 
 int main(int argc, const char * argv[]) {
-    // insert code here...
-    std::cout << "Hello, World!\n";
+
+    SLR_Table table("/Users/ydinari/src/Interpreter/grammar_definition", "/Users/ydinari/src/Interpreter/InterpreterRuntime/InterpreterRuntime/ParserTables.cpp");
+    
     return 0;
 }

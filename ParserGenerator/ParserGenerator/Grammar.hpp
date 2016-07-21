@@ -9,8 +9,10 @@
 #ifndef Grammar_hpp
 #define Grammar_hpp
 
-#include "common.h"
+#include "common_headers.h"
 #include "Symbol.hpp"
+#include "Operator.hpp"
+#include "Set.h"
 
 //==========================================================================================================
 //==========================================================================================================
@@ -23,6 +25,7 @@ public:
     int rhs_size()           { return symbols.size() - 1; }
     
     const vector<Symbol> symbols;
+    const string action_name;
     Operator* op; // The last op (if any) in the production
 };
 
@@ -37,7 +40,6 @@ public:
     
     friend class NFA;
     friend class SLR_Table;
-    friend class Parser;
 
 private:
     // This can't be vector (true to C++11) because in order to be able to add in the front, you need the push_front()

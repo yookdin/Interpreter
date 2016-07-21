@@ -37,7 +37,7 @@ NFA::NFA(Grammar& grammar) {
     // the left-hand side
     //------------------------------------------------------------------------------------------------------
     for(int s = 0; s < table.size(); ++s) {
-        for(int sym = NONTERMINALS_START; sym < NUM_TABLE_SYMBOLS; ++sym) {
+        for(int sym = 0; sym < NUM_NON_TERMINALS; ++sym) {
             if(not table[s][sym].empty()) { // Transition is defined
                 for(auto i: nonterminals_initial_states[Symbol(sym)]) {
                     add_epsilon_transition(s, i);
@@ -59,7 +59,7 @@ void NFA::add_state(int state, int accepting_value) {
         throw string("Can only add state that is the next after the current last state");
         
     accepting.push_back(accepting_value);
-    table.push_back(vector<set<int>>(NUM_TABLE_SYMBOLS + 1)); // Add one place for epsilon transition
+    table.push_back(vector<set<int>>(NUM_SYMBOLS + 1)); // Add one place for epsilon transition
 }
 
 
@@ -78,7 +78,7 @@ void NFA::add_transition(int from_state, Symbol sym, int to_state, int to_state_
 void NFA::add_epsilon_transition(int from_state, int to_state) {
     add_state(from_state);
     add_state(to_state);
-    table[from_state][NUM_TABLE_SYMBOLS].insert(to_state);
+    table[from_state][NUM_SYMBOLS].insert(to_state);
 }
 
 
@@ -86,7 +86,7 @@ void NFA::add_epsilon_transition(int from_state, int to_state) {
 // Return all the states that can be reached directly from given state using epsilon transitions
 //==========================================================================================================
 set<int>& NFA::get_epsilon_transitions(int state) {
-    return table[state][NUM_TABLE_SYMBOLS]; // Epsilon transition are written after all the symbols transitions
+    return table[state][NUM_SYMBOLS]; // Epsilon transition are written after all the symbols transitions
 }
 
 

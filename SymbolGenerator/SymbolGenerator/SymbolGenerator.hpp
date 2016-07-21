@@ -23,8 +23,8 @@ private:
 	void write_header_file(string filename);
     void write_source_file(string src_filename, string header_filename);
     
-	string& trim(string& line);
     string basename(string path);
+    string& trim(string& line);
 };
 
 #endif // _SYMBOL_GENERATOR_HPP_

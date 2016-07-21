@@ -10,19 +10,6 @@
 
 
 //==========================================================================================================
-//==========================================================================================================
-//Lexer::Lexer() {
-//    //enum TokenKind { KEYWORD, IDENTIFIER, NUMBER, STRING, OPERATOR, PUNCTUATOR };
-//    matchers.push_back({regex("if|else|elseif|while|repeat|for|end|continue|break"), KEYWORD});
-//    matchers.push_back({regex("[_[:alpha:]]\\w*"), IDENTIFIER});
-//    matchers.push_back({regex("\\d+"), NUMBER});
-//    matchers.push_back({regex("\"((\\\\\"|[^\"])*)\""), STRING});
-//    matchers.push_back({regex("==|!=|!~|<=|>=|=|<|>|+|-|*|/|%|~|?|:"), OPERATOR});
-//    matchers.push_back({regex("(|)|,"), PUNCTUATOR});
-//}
-
-
-//==========================================================================================================
 // Must try to match keywords before identifiers
 //==========================================================================================================
 vector<Lexer::token_matcher> Lexer::matchers = { 

@@ -34,14 +34,14 @@ void DFA::nfa_to_dfa(NFA& nfa) {
     // Map between DFA state, and a set of NFA states it was constructed from (the index in the vector is the DFA state)
     vector<set<int>> nfa_states;
     nfa_states.push_back(epsilon_closures[0]); // Initial, starting state
-    table.push_back(vector<int>(NUM_TABLE_SYMBOLS, -1)); // Adding the start state
+    table.push_back(vector<int>(NUM_SYMBOLS, -1)); // Adding the start state
     
     //------------------------------------------------------------------------------------------------------
     // As long as there are new states in the DFA, calcuate the transitions for them, while creating new
     // states if needed
     //------------------------------------------------------------------------------------------------------
     for(int i = 0; i < table.size(); ++i) {
-        for(int sym = 0; sym < NUM_TABLE_SYMBOLS; ++sym) { // For each possible symbol
+        for(int sym = 0; sym < NUM_SYMBOLS; ++sym) { // For each possible symbol
             
             //----------------------------------------------------------------------------------------------
             // Get the set of reachable NFA states from the current DFA state for the current symbol
@@ -68,7 +68,7 @@ void DFA::nfa_to_dfa(NFA& nfa) {
             table[i][sym] = state; // Add this transition
             if(state == table.size()) { // New state
                 nfa_states.push_back(reachable_set);
-                table.push_back(vector<int>(NUM_TABLE_SYMBOLS, -1));
+                table.push_back(vector<int>(NUM_SYMBOLS, -1));
             }
             
         } // for each symbol
@@ -128,7 +128,7 @@ void DFA::minimize() {
             for(int j = i+1; j < num_states; ++j) {
                 if(pairs[i][j]) continue; // Pair already marked
                 
-                for(int sym = 0; sym < NUM_TABLE_SYMBOLS; ++sym) {
+                for(int sym = 0; sym < NUM_SYMBOLS; ++sym) {
                     int x = get_next_state(i, sym), y = get_next_state(j, sym);
                     if(x == y) continue;
 
@@ -181,7 +181,7 @@ void DFA::minimize() {
     // Write new transitions and mark accepting new states. Then replace the old DFA with the new one.
     //------------------------------------------------------------------------------------------------------
     vector<int> new_accepting(new_states.size(), -1);
-    vector<vector<int>> new_table(new_states.size(), vector<int>(NUM_TABLE_SYMBOLS, -1));
+    vector<vector<int>> new_table(new_states.size(), vector<int>(NUM_SYMBOLS, -1));
     
     for(int i = 0; i < new_states.size(); ++i) {
         for(auto s: new_states[i])
@@ -190,7 +190,7 @@ void DFA::minimize() {
         
         new_accepting[i] = accepting[new_states[i][0]]; // If the first is accepting they all are, and vice versa
         
-        for(int sym = 0; sym < NUM_TABLE_SYMBOLS; ++sym) {
+        for(int sym = 0; sym < NUM_SYMBOLS; ++sym) {
             // Since all old states in this new states are equivalent, need to check only one
             int old_next_state = get_next_state(new_states[i][0], sym);
             if(old_next_state != -1)
@@ -232,7 +232,7 @@ void DFA::print() {
         if(accepting[i] >= 0) cout << " (accepting = " << accepting[i] << ") ";
         cout << ":" << endl;
 
-        for(int sym = 0; sym < NUM_TABLE_SYMBOLS; ++sym) {
+        for(int sym = 0; sym < NUM_SYMBOLS; ++sym) {
             if(table[i][sym] >= 0)
                 cout << "Transition for symbol " << symbol_str_map[Symbol(sym)] << ": " << table[i][sym] << endl;
         }

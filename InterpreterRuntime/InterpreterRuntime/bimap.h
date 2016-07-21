@@ -9,7 +9,7 @@
 #ifndef bimap_h
 #define bimap_h
 
-#include "common.h"
+#include "common_headers.h"
 
 //==========================================================================================================
 // Bidirectional map, that enables retreiving value by either of the pair values

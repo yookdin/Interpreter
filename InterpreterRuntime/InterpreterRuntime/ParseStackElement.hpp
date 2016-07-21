@@ -9,7 +9,7 @@
 #ifndef ParseStackElement_hpp
 #define ParseStackElement_hpp
 
-#include "common.h"
+#include "common_headers.h"
 #include "Token.hpp"
 
 
