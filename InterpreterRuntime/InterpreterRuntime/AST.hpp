@@ -18,7 +18,6 @@
 //==========================================================================================================
 class AST {
 public:
-    virtual void execute() = 0;
     void print();
     void add_child(AST* ast) {
         if(ast == nullptr) throw string("Trying to add null child");
@@ -39,7 +38,6 @@ protected:
 class NumAST: public AST {
 public:
     NumAST(vector<TokenOrAST>& elements): num(extract_num(elements)) {}
-    void execute();
     const int num;
     void print_node() { cout << num << endl; }
     
@@ -53,7 +51,6 @@ private:
 class OpAST: public AST {
 public:
     OpAST(Operator* _op): op(_op){}
-    virtual void execute() = 0;
     void print_node() { op->print(); }
 protected:
     const Operator* op;
@@ -65,7 +62,6 @@ protected:
 class BopAST: public OpAST {
 public:
     BopAST(vector<TokenOrAST>& elements);
-    void execute();
 };
 
 
@@ -74,7 +70,6 @@ public:
 class UopAST: public OpAST {
 public:
     UopAST(vector<TokenOrAST>& elements);
-    void execute();
 };
 
 
@@ -83,7 +78,6 @@ public:
 class CondExpAST: public AST {
 public:
     CondExpAST(vector<TokenOrAST>& elements);
-    void execute();    
     void print_node() { cout << "?:" << endl; }
 };
 
@@ -94,7 +88,6 @@ class VarAST: public AST {
 public:
     VarAST(string _name): name(_name) {}
     VarAST(vector<TokenOrAST>& elements): name(((IdentifierToken*)elements[0].get_token())->name) {} 
-    void execute();
     void print_node() { cout << name << endl; }
 
     const string name;
@@ -106,7 +99,6 @@ public:
 class AssignmentAST: public AST {
 public:
     AssignmentAST(vector<TokenOrAST>& elements);
-    void execute();
     void print_node() { cout << '=' << endl; }
 };
 
@@ -116,7 +108,6 @@ public:
 class StatementsAST: public AST {
 public:
     StatementsAST(vector<TokenOrAST>& elements);
-    void execute();
     void print_node() { cout << "Statements" << endl; }
 };
 
@@ -126,8 +117,7 @@ public:
 class IfAST: public AST {
 public:
     IfAST(vector<TokenOrAST>& elements);
-    void execute();
-void print_node() { cout << "if" << endl; }
+    void print_node() { cout << "if" << endl; }
 };
 
 
@@ -136,7 +126,6 @@ void print_node() { cout << "if" << endl; }
 class IfElseAST: public AST {
 public:
     IfElseAST(vector<TokenOrAST>& elements);
-    void execute();
     void print_node() { cout << "if-else" << endl; }
 };
 
@@ -146,7 +135,6 @@ public:
 class WhileAST: public AST {
 public:
     WhileAST(vector<TokenOrAST>& elements);
-    void execute(){}
     void print_node() { cout << "while" << endl; }
 };
 
@@ -156,7 +144,6 @@ public:
 class RepeatAST: public AST {
 public:
     RepeatAST(vector<TokenOrAST>& elements);
-    void execute(){}
     void print_node() { cout << "repeat" << endl; }
     
 private:
@@ -169,8 +156,26 @@ private:
 class ParamsAST: public AST {
 public:
     ParamsAST(vector<TokenOrAST>& elements);
-    void execute(){}
     void print_node() { cout << "params-list" << endl; }
+};
+
+
+//==========================================================================================================
+//==========================================================================================================
+class NamedParamAST: public AST {
+public:
+    NamedParamAST(vector<TokenOrAST>& elements);
+    void print_node() { cout << "named-param: " << name << endl; }
+    const string name;
+};
+
+
+//==========================================================================================================
+//==========================================================================================================
+class NamedParamsAST: public AST {
+public:
+    NamedParamsAST(vector<TokenOrAST>& elements);
+    void print_node() { cout << "named-params-list" << endl; }
 };
 
 
@@ -179,10 +184,9 @@ public:
 class FuncAST: public AST {
 public:
     FuncAST(vector<TokenOrAST>& elements);
-    void execute(){}
-    void print_node() { cout << "func-call" << endl; }
+    void print_node() { cout << name << "()" << endl; }
     
-    string name;
+    const string name;
 };
 
 

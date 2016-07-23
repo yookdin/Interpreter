@@ -10,15 +10,15 @@
 //==========================================================================================================
 enum Symbol {
 	START = -1,
-    BLOCK, EXP, STATEMENT, STATEMENTS, 
+    BLOCK, EXP, FUNC_CALL, NAMED_PARAM, NAMED_PARAMS_LIST, PARAMS_LIST, STATEMENT, STATEMENTS, 
     NE, NO_STR_MATCH, EOI, MOD, LEFT_PAREN, RIGHT_PAREN, MUL, ADD, COMMA, SUB, 
     DIV, COLON, SEMI_COLON, LT, LE, ASSIGN, EQ, GT, GE, QUESTION_MARK, 
     LEFT_CURLY, RIGHT_CURLY, STR_MATCH, ID, NUM, AND, ELSE, IF, NOT, OR, 
     REPEAT, TIMES, WHILE, 
 };
 
-#define NUM_SYMBOLS 37
-#define NUM_NON_TERMINALS 4
+#define NUM_SYMBOLS 41
+#define NUM_NON_TERMINALS 8
 
 bool is_nonterminal(Symbol s);
 bool is_terminal(Symbol s);

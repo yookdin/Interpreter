@@ -29,8 +29,13 @@ EXP  ->  EXP or EXP     #  Bop
 EXP  ->  EXP and EXP    #  Bop
 EXP  ->  not EXP        #  Uop
 EXP  ->  EXP ? EXP : EXP    #  CondExp
-//EXP  ->  FUNC_CALL
-//FUNC_CALL    ->  ID ( )             # Func
-//FUNC_CALL    ->  ID ( PARAMS_LIST ) # Func
-//PARAMS_LIST  ->  EXP                # Params
-//PARAMS_LIST  ->  EXP , PARAMS_LIST  # Params
+EXP  ->  FUNC_CALL
+
+FUNC_CALL    ->  ID ( )                                  # Func
+FUNC_CALL    ->  ID ( PARAMS_LIST )                      # Func
+FUNC_CALL    ->  ID ( NAMED_PARAMS_LIST )                # Func
+PARAMS_LIST  ->  EXP                                     # Params
+PARAMS_LIST  ->  EXP , PARAMS_LIST                       # Params
+NAMED_PARAM  ->  ID = EXP                                # NamedParam
+NAMED_PARAMS_LIST   ->  NAMED_PARAM                      # NamedParams
+NAMED_PARAMS_LIST   ->  NAMED_PARAM , NAMED_PARAMS_LIST  # NamedParams
