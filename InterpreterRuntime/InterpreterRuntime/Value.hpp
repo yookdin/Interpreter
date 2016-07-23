@@ -14,13 +14,10 @@
 
 //==========================================================================================================
 //==========================================================================================================
-enum Type {BOOLEAN, NUMBER, STRING, NO_VAL};
-
-
-//==========================================================================================================
-//==========================================================================================================
 class Value {
 public:
+    enum Type {BOOL, NUMBER, STRING, NO_VAL};
+    
     Value(Type _type): type(_type) {}
     Type get_type() { return type; }
     
@@ -40,7 +37,7 @@ public:
         switch(type) {
             case STRING: return "STRING";
             case NUMBER: return "NUMBER";
-            case BOOLEAN: return "BOOLEAN";
+            case BOOL: return "BOOL";
             case NO_VAL: return "NO_VAL";
         }
     }
@@ -90,7 +87,7 @@ extern NoValue no_value;
 //==========================================================================================================
 class Bool: public Value {
 public:
-    Bool(bool _val = false): Value(BOOLEAN), val(_val) {}
+    Bool(bool _val = false): Value(BOOL), val(_val) {}
     
     operator bool() const { return val; };
     Value& operator||(Value& other) { return *(new Bool(val || bool(other))); }

@@ -10,12 +10,6 @@
 #include "Parser.hpp"
 #include "ParseStackElement.hpp"
 
-//Parser::Parser() {
-//    for(auto& v: table)
-//        for(auto& a: v)
-//            cout << a.to_string() << endl;
-//}
-
 
 //==========================================================================================================
 //==========================================================================================================
@@ -32,6 +26,7 @@ AST* Parser::parse(vector<Token*> tokens) {
     stack.push(0);
     
     //------------------------------------------------------------------------------------------------------
+    // Go over tokens. For each token perform action according to it and current state
     //------------------------------------------------------------------------------------------------------
     for(int i = 0; i < tokens.size();) {
         Token* token = tokens[i];
@@ -45,7 +40,6 @@ AST* Parser::parse(vector<Token*> tokens) {
             }
             case GO: { // Should never be reached because tokens list received from lexer should contain only terminals
                 throw string("GO action should never be reached directly");
-                break;
             }
             case REDUCE: { // Perform the REDUCE and GO action that immediately follows it
                 
@@ -58,7 +52,7 @@ AST* Parser::parse(vector<Token*> tokens) {
                     stack.pop();
                 }
                 
-                reverse(elements.begin(), elements.end());
+                reverse(elements.begin(), elements.end()); // Reverse to restore original order
                 AST* ast = gen_ast(action.val, elements);
                 
                 action = table[stack.top().state][N];
@@ -87,6 +81,8 @@ AST* Parser::parse(vector<Token*> tokens) {
             }
         }
     }
+    
+    for(auto t: tokens) delete t;
     
     cout << "Error: end of input reached. Current state is " << stack.top().state << endl; 
     return nullptr;

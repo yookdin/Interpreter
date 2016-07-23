@@ -54,11 +54,23 @@ public:
 //==========================================================================================================
 class BoolAST: public AST {
 public:
-    BoolAST(vector<TokenOrAST>& elements): val(((NumToken*)elements[0].get_token())->val) {}
+    BoolAST(vector<TokenOrAST>& elements): val(((BoolToken*)elements[0].get_token())->val) {}
     Value& eval() { return *(new Bool(val)); }
     void print_node() { cout << to_string(val) << endl; }
     
     const bool val;
+};
+
+
+//==========================================================================================================
+//==========================================================================================================
+class StringAST: public AST {
+public:
+    StringAST(vector<TokenOrAST>& elements): val(((StringToken*)elements[0].get_token())->val) {}
+    Value& eval() { return *(new String(val)); }
+    void print_node() { cout << "\"" << val << "\"" << endl; }
+    
+    const string val;
 };
 
 

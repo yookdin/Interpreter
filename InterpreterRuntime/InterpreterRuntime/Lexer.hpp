@@ -24,7 +24,7 @@ private:
     static regex keyword_re, num_re, bool_re, id_re;
     
     string input;
-    string::const_iterator pos;
+    string::const_iterator iter;
     
     Token* try_match();
     Token* match_keyword(smatch& match);
@@ -35,7 +35,10 @@ private:
     void skip_irrelevant();
     bool skip_spaces();
     bool skip_comment();
+    
+    bool try_string_char(bool& in_string, string& cur_string, int& num_open_brackets, vector<Token*>& tokens);
+    char get_next_string_char(bool& string_ended);
 };
 
-
+ 
 #endif /* Lexer_hpp */

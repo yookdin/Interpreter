@@ -12,6 +12,7 @@ STATEMENT   ->  FUNC_CALL
 
 EXP  ->  NUM            #  Num
 EXP  ->  BOOL           #  Bool
+EXP  ->  STRING         #  String
 EXP  ->  ID             #  Var
 EXP  ->  ( EXP )        #
 EXP  ->  EXP + EXP      #  Bop
