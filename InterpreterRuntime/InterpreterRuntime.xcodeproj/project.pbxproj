@@ -15,6 +15,7 @@
 		FEF4A6A81D40F12800319EC9 /* ParserTables.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FEF4A6A71D40F12800319EC9 /* ParserTables.cpp */; };
 		FEF4A6B11D41118500319EC9 /* AST.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FEF4A6B01D41118500319EC9 /* AST.cpp */; };
 		FEF4A6B31D41128600319EC9 /* Lexer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FEF4A6B21D41128600319EC9 /* Lexer.cpp */; };
+		FEF4A6FA1D436E4400319EC9 /* Value.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FEF4A6F81D436E4400319EC9 /* Value.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -51,6 +52,8 @@
 		FEF4A6B01D41118500319EC9 /* AST.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = AST.cpp; sourceTree = "<group>"; };
 		FEF4A6B21D41128600319EC9 /* Lexer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Lexer.cpp; sourceTree = "<group>"; };
 		FEF4A6F71D4112BD00319EC9 /* Lexer.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Lexer.hpp; sourceTree = "<group>"; };
+		FEF4A6F81D436E4400319EC9 /* Value.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Value.cpp; sourceTree = "<group>"; };
+		FEF4A6F91D436E4400319EC9 /* Value.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Value.hpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -84,8 +87,6 @@
 			isa = PBXGroup;
 			children = (
 				FE1EE4281D40E2A3006A721A /* main.cpp */,
-				FE1EE4261D40E292006A721A /* Operator.hpp */,
-				FE1EE4251D40E292006A721A /* Operator.cpp */,
 				FEF4A6AF1D41114500319EC9 /* Utils */,
 				FEF4A6AC1D4110F600319EC9 /* Lexer */,
 				FEF4A6AE1D41111F00319EC9 /* Parser */,
@@ -109,6 +110,10 @@
 		FEF4A6AD1D41110400319EC9 /* AST */ = {
 			isa = PBXGroup;
 			children = (
+				FEF4A6F91D436E4400319EC9 /* Value.hpp */,
+				FEF4A6F81D436E4400319EC9 /* Value.cpp */,
+				FE1EE4261D40E292006A721A /* Operator.hpp */,
+				FE1EE4251D40E292006A721A /* Operator.cpp */,
 				FEF4A6AA1D410AE900319EC9 /* AST.hpp */,
 				FEF4A6B01D41118500319EC9 /* AST.cpp */,
 			);
@@ -197,6 +202,7 @@
 			files = (
 				FE1EE4291D40E2A3006A721A /* main.cpp in Sources */,
 				FEF4A6A81D40F12800319EC9 /* ParserTables.cpp in Sources */,
+				FEF4A6FA1D436E4400319EC9 /* Value.cpp in Sources */,
 				FEF4A6B31D41128600319EC9 /* Lexer.cpp in Sources */,
 				FE1EE4271D40E292006A721A /* Operator.cpp in Sources */,
 				FEF4A6991D40E43700319EC9 /* Symbol.cpp in Sources */,

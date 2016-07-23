@@ -11,6 +11,7 @@
 
 #include "common_headers.h"
 #include "Operator.hpp"
+#include "utils.hpp"
 
 
 //==========================================================================================================
@@ -32,6 +33,16 @@ public:
     NumToken(string n): Token(NUM), val(stoi(n)) {}
     void print() { cout << to_string(val) << endl; }
     const int val;
+};
+
+
+//==========================================================================================================
+//==========================================================================================================
+class BoolToken: public Token {
+public:
+    BoolToken(string b): Token(BOOL), val(stob(b)) {}
+    void print() { cout << to_string(val) << endl; }
+    const bool val;
 };
 
 

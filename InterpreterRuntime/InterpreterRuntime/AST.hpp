@@ -12,6 +12,7 @@
 #include "common_headers.h"
 #include "Token.hpp"
 #include "ParseStackElement.hpp"
+#include "Value.hpp"
 #include "Operator.hpp"
 
 //==========================================================================================================
@@ -26,10 +27,14 @@ public:
 
     vector<AST*> children;
 
+    // When eval-ing a non-value node, no_value will be returned
+    virtual Value& eval() = 0;
     virtual void print_node() = 0;
     
 protected:
     void recursive_print(int indentation_level);
+    void eval_children(int start = 0);
+    vector<Value*> get_children_vals();
 };
 
 
@@ -37,12 +42,23 @@ protected:
 //==========================================================================================================
 class NumAST: public AST {
 public:
-    NumAST(vector<TokenOrAST>& elements): num(extract_num(elements)) {}
-    const int num;
+    NumAST(vector<TokenOrAST>& elements): num(((NumToken*)elements[0].get_token())->val) {}
+    Value& eval() { return *(new Num(num)); }
     void print_node() { cout << num << endl; }
+
+    const int num;
+};
+
+
+//==========================================================================================================
+//==========================================================================================================
+class BoolAST: public AST {
+public:
+    BoolAST(vector<TokenOrAST>& elements): val(((NumToken*)elements[0].get_token())->val) {}
+    Value& eval() { return *(new Bool(val)); }
+    void print_node() { cout << to_string(val) << endl; }
     
-private:
-    int extract_num(vector<TokenOrAST>& elements);
+    const bool val;
 };
 
 
@@ -51,7 +67,9 @@ private:
 class OpAST: public AST {
 public:
     OpAST(Operator* _op): op(_op){}
+    Value& eval() { return op->eval(get_children_vals()); }
     void print_node() { op->print(); }
+
 protected:
     const Operator* op;
 };
@@ -78,6 +96,7 @@ public:
 class CondExpAST: public AST {
 public:
     CondExpAST(vector<TokenOrAST>& elements);
+    Value& eval();
     void print_node() { cout << "?:" << endl; }
 };
 
@@ -88,6 +107,7 @@ class VarAST: public AST {
 public:
     VarAST(string _name): name(_name) {}
     VarAST(vector<TokenOrAST>& elements): name(((IdentifierToken*)elements[0].get_token())->name) {} 
+    Value& eval();
     void print_node() { cout << name << endl; }
 
     const string name;
@@ -99,6 +119,7 @@ public:
 class AssignmentAST: public AST {
 public:
     AssignmentAST(vector<TokenOrAST>& elements);
+    Value& eval();
     void print_node() { cout << '=' << endl; }
 };
 
@@ -108,6 +129,7 @@ public:
 class StatementsAST: public AST {
 public:
     StatementsAST(vector<TokenOrAST>& elements);
+    Value& eval();
     void print_node() { cout << "Statements" << endl; }
 };
 
@@ -117,6 +139,7 @@ public:
 class IfAST: public AST {
 public:
     IfAST(vector<TokenOrAST>& elements);
+    Value& eval();
     void print_node() { cout << "if" << endl; }
 };
 
@@ -126,6 +149,7 @@ public:
 class IfElseAST: public AST {
 public:
     IfElseAST(vector<TokenOrAST>& elements);
+    Value& eval();
     void print_node() { cout << "if-else" << endl; }
 };
 
@@ -135,6 +159,7 @@ public:
 class WhileAST: public AST {
 public:
     WhileAST(vector<TokenOrAST>& elements);
+    Value& eval();
     void print_node() { cout << "while" << endl; }
 };
 
@@ -144,6 +169,7 @@ public:
 class RepeatAST: public AST {
 public:
     RepeatAST(vector<TokenOrAST>& elements);
+    Value& eval();
     void print_node() { cout << "repeat" << endl; }
     
 private:
@@ -156,6 +182,7 @@ private:
 class ParamsAST: public AST {
 public:
     ParamsAST(vector<TokenOrAST>& elements);
+    Value& eval() { throw string("ParamsAST::eval() should never be called"); }
     void print_node() { cout << "params-list" << endl; }
 };
 
@@ -165,7 +192,9 @@ public:
 class NamedParamAST: public AST {
 public:
     NamedParamAST(vector<TokenOrAST>& elements);
+    Value& eval();
     void print_node() { cout << "named-param: " << name << endl; }
+
     const string name;
 };
 
@@ -175,6 +204,7 @@ public:
 class NamedParamsAST: public AST {
 public:
     NamedParamsAST(vector<TokenOrAST>& elements);
+    Value& eval() { throw string("NamedParamsAST::eval() should never be called"); }
     void print_node() { cout << "named-params-list" << endl; }
 };
 
@@ -184,6 +214,7 @@ public:
 class FuncAST: public AST {
 public:
     FuncAST(vector<TokenOrAST>& elements);
+    Value& eval();
     void print_node() { cout << name << "()" << endl; }
     
     const string name;

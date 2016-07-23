@@ -26,16 +26,23 @@ void AST::recursive_print(int indentation_level) {
 
 //==========================================================================================================
 //==========================================================================================================
-int NumAST::extract_num(vector<TokenOrAST>& elements) {
-    return ((NumToken*)elements[0].get_token())->val;
+void AST::eval_children(int start) {
+    for(int i = start; i < children.size(); ++i) children[i]->eval();
 }
 
+
+//==========================================================================================================
+//==========================================================================================================
+vector<Value*> AST::get_children_vals() {
+    vector<Value*> res;
+    for(auto c: children) res.push_back(& c->eval());
+    return res;
+}
 
 
 //==========================================================================================================
 //==========================================================================================================
 BopAST::BopAST(vector<TokenOrAST>& elements): OpAST(get_op(elements[1].get_token()->sym)) {
-
     add_child(elements[0].get_ast());
     add_child(elements[2].get_ast());
 }
@@ -46,7 +53,6 @@ BopAST::BopAST(vector<TokenOrAST>& elements): OpAST(get_op(elements[1].get_token
 UopAST::UopAST(vector<TokenOrAST>& elements): OpAST(get_op(elements[0].get_token()->sym)) {
     add_child(elements[1].get_ast());
 }
-
 
 
 //==========================================================================================================
@@ -60,12 +66,39 @@ CondExpAST::CondExpAST(vector<TokenOrAST>& elements) {
 
 //==========================================================================================================
 //==========================================================================================================
+Value& CondExpAST::eval() {
+    if(children[0]->eval())
+        return children[1]->eval();
+    else
+        return children[2]->eval();
+}
+
+
+//==========================================================================================================
+//==========================================================================================================
+Value& VarAST::eval() {
+    // TODO: return value of variable
+    return no_value;
+}
+
+
+//==========================================================================================================
+//==========================================================================================================
 AssignmentAST::AssignmentAST(vector<TokenOrAST>& elements) {
     string id = ((IdentifierToken*)elements[0].get_token())->name;
     add_child(new VarAST(id));
     add_child(elements[2].get_ast());
 }
 
+
+//==========================================================================================================
+//==========================================================================================================
+Value& AssignmentAST::eval() {
+    // TODO: assign the variable
+    Value& v = children[1]->eval();
+    cout << v.to_string() << endl;
+    return no_value;
+}
 
 
 //==========================================================================================================
@@ -86,6 +119,13 @@ StatementsAST::StatementsAST(vector<TokenOrAST>& elements) {
 }
 
 
+//==========================================================================================================
+//==========================================================================================================
+Value& StatementsAST::eval() {
+    eval_children();
+    return no_value;
+}
+
 
 //==========================================================================================================
 // First child will be the expression to evaluate. Rest will be the statements in the body
@@ -101,6 +141,15 @@ IfAST::IfAST(vector<TokenOrAST>& elements) {
 }
 
 
+//==========================================================================================================
+//==========================================================================================================
+Value& IfAST::eval() {
+    if(children[0]->eval())
+        eval_children(1);
+    
+    return no_value;
+}
+
 
 //==========================================================================================================
 //==========================================================================================================
@@ -108,6 +157,18 @@ IfElseAST::IfElseAST(vector<TokenOrAST>& elements) {
     add_child(elements[1].get_ast());
     add_child(elements[2].get_ast());
     add_child(elements[4].get_ast());
+}
+
+
+//==========================================================================================================
+//==========================================================================================================
+Value& IfElseAST::eval() {
+    if(children[0]->eval())
+        children[1]->eval();
+    else
+        children[2]->eval();
+    
+    return no_value;
 }
 
 
@@ -125,6 +186,16 @@ WhileAST::WhileAST(vector<TokenOrAST>& elements) {
 
 
 //==========================================================================================================
+//==========================================================================================================
+Value& WhileAST::eval() {
+    while(children[0]->eval())
+        eval_children(1);
+    
+    return no_value;
+}
+
+
+//==========================================================================================================
 // Each time this tree is executed, it will evaluate the expression (first child), then repeat the body that
 // number of times. However, the next time the tree is evaluated the 'times' expression can have another
 // value
@@ -137,6 +208,19 @@ RepeatAST::RepeatAST(vector<TokenOrAST>& elements) {
         for(auto c: ast->children) add_child(c);
     else
         add_child(ast);
+}
+
+
+//==========================================================================================================
+//==========================================================================================================
+Value& RepeatAST::eval() {
+    int times = children[0]->eval();
+    if(times < 0) throw string("'times' value of repeat statement must be greater or equal to 0");
+    
+    for(int i = 0; i < times; ++i)
+        eval_children(1);
+    
+    return no_value;
 }
 
 
@@ -160,6 +244,14 @@ ParamsAST::ParamsAST(vector<TokenOrAST>& elements) {
 //==========================================================================================================
 NamedParamAST::NamedParamAST(vector<TokenOrAST>& elements): name(((IdentifierToken*)elements[0].get_token())->name) {
     add_child(elements[2].get_ast());
+}
+
+
+//==========================================================================================================
+// Containing function node is responsible for taking the value and assigning it to the correct parameter
+//==========================================================================================================
+Value& NamedParamAST::eval() {
+    return children[0]->eval();
 }
 
 
@@ -188,6 +280,12 @@ FuncAST::FuncAST(vector<TokenOrAST>& elements): name(((IdentifierToken*)elements
 }
 
 
+//==========================================================================================================
+//==========================================================================================================
+Value& FuncAST::eval() {
+    // TODO: find function, build params list, invoke it, return its value
+    return no_value;
+}
 
 
 

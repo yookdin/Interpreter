@@ -13,13 +13,14 @@
 // Must try to match keywords before identifiers
 //==========================================================================================================
 vector<Lexer::token_matcher> Lexer::matchers = { 
-    &Lexer::match_keyword, &Lexer::match_id, &Lexer::match_num
+    &Lexer::match_keyword, &Lexer::match_bool, &Lexer::match_id, &Lexer::match_num
 };
 
 
 //==========================================================================================================
 //==========================================================================================================
 regex Lexer::num_re("^-?\\d+\\b");
+regex Lexer::bool_re("^(true|false)\\b");
 regex Lexer::id_re("^[_[:alpha:]]\\w*");
 regex Lexer::keyword_re("^(\\+|-|\\*|/|%|not|or|and|==|!=|<=|>=|<|>|~|!~|\\?|:|\\(|\\)|=|\\{|\\}|;|,|if|else|while|repeat|times)");
 
@@ -85,6 +86,16 @@ Token* Lexer::match_keyword(smatch& match) {
 Token* Lexer::match_num(smatch& match) {
     if(regex_search(pos, input.cend(), match, num_re))
         return new NumToken(match[0]);
+    
+    return nullptr;
+}
+
+
+//==========================================================================================================
+//==========================================================================================================
+Token* Lexer::match_bool(smatch& match) {
+    if(regex_search(pos, input.cend(), match, bool_re))
+        return new BoolToken(match[0]);
     
     return nullptr;
 }

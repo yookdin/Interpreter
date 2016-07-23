@@ -54,6 +54,7 @@ struct ProductionInfo {
 
 
 string& trim(string& line, string comment_start= "");
-
+bool stob(string);
+string to_string(bool);
 
 #endif /* utils_hpp */
