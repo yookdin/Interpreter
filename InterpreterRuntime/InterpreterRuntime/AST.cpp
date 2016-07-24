@@ -96,7 +96,7 @@ AssignmentAST::AssignmentAST(vector<TokenOrAST>& elements) {
 Value& AssignmentAST::eval() {
     // TODO: assign the variable
     Value& v = children[1]->eval();
-    cout << v.to_string() << endl;
+    v.print();
     return no_value;
 }
 

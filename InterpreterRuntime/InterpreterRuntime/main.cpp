@@ -15,13 +15,11 @@ int main(int argc, const char * argv[]) {
         vector<Token*> tokens;
         Lexer lex;
         lex.lex("/Users/ydinari/src/Interpreter/InterpreterRuntime/InterpreterRuntime/try.scr", tokens);
-        for(auto t: tokens)
-            t->print();
         Parser parser;
         AST* ast = parser.parse(tokens);
         if(ast != nullptr) {
             ast->print();
-            //ast->eval();
+            ast->eval();
         }
     } catch (string err) {
         cout << "Error: " << err << endl;

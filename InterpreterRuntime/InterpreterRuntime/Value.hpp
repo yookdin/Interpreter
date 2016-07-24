@@ -10,7 +10,7 @@
 #define Value_hpp
 
 #include "common_headers.h"
-
+#include "utils.hpp"
 
 //==========================================================================================================
 //==========================================================================================================
@@ -21,7 +21,7 @@ public:
     Value(Type _type): type(_type) {}
     Type get_type() { return type; }
     
-    virtual string to_string() const = 0;
+    virtual void print() = 0;
     
     //------------------------------------------------------------------------------------------------------
     // By default all conversion are undefined. Derived classes will override those conversion they support
@@ -77,7 +77,7 @@ public:
 class NoValue: public Value {
 public:
     NoValue(): Value(NO_VAL){}
-    string to_string() const { return get_type_name(); }
+    void print() { cout << get_type_name() << endl; }
 };
 
 extern NoValue no_value;
@@ -90,13 +90,15 @@ public:
     Bool(bool _val = false): Value(BOOL), val(_val) {}
     
     operator bool() const { return val; };
+    operator string() const { return to_string(val); }
+        
     Value& operator||(Value& other) { return *(new Bool(val || bool(other))); }
     Value& operator&&(Value& other) { return *(new Bool(val && bool(other))); }
     Value& operator!()              { return *(new Bool(!val)); }
     Value& operator==(Value& other) { return *(new Bool(val == bool(other))); }
     Value& operator!=(Value& other) { return *(new Bool(val != bool(other))); }
 
-    string to_string() const { return ::to_string(val); }
+    void print() { cout << to_string(val) << endl; }
     
 private:
     bool val;
@@ -110,6 +112,8 @@ public:
     Num(int _val = 0): Value(NUMBER), val(_val) {}
     
     operator int() const { return val; }
+    operator string() const { return to_string(val); }
+    
     Value& operator+ (Value& other) { return *(new Num(val  +  int(other))); }
     Value& operator- (Value& other) { return *(new Num(val  -  int(other))); }
     Value& operator* (Value& other) { return *(new Num(val  *  int(other))); }
@@ -121,11 +125,9 @@ public:
     Value& operator> (Value& other) { return *(new Bool(val >  int(other))); }
     Value& operator<=(Value& other) { return *(new Bool(val <= int(other))); }
     Value& operator>=(Value& other) { return *(new Bool(val >= int(other))); }
+    
+    void print() { cout << to_string(val) << endl; }
 
-    string to_string() const { return std::to_string(val); }
-    
-    Num foo() { return Num(3); }
-    
 private:
     int val;
 };
@@ -138,6 +140,9 @@ public:
     String(string _val = ""): Value(STRING), val(_val) {}
     
     operator string() const { return val; }
+    operator bool() const { return stob(val); }
+    operator int() const { return stoi(val); }
+    
     Value& operator+ (Value& other) { return *(new String(val + string(other)));}
     Value& operator==(Value& other) { return *(new Bool(val == string(other))); }
     Value& operator!=(Value& other) { return *(new Bool(val != string(other))); }
@@ -148,9 +153,9 @@ public:
 
     Value& match(Value& other) { return *(new Bool(regex_match(val, regex(string(other))))); }
     Value& not_match(Value& other) { return not match(other); }
-
-    string to_string() const { return val; }
     
+    void print() { cout << '"' << val << '"' << endl; }
+
 private:
     string val;
     
