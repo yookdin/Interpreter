@@ -48,7 +48,7 @@ public:
     const Associativity associativity;
     
 protected:
-    virtual Value& execute(vector<Value*> operands) const = 0;
+    virtual Value& execute(vector<Value*>& operands) const = 0;
 };
 
 
@@ -67,7 +67,7 @@ public:
     Add(): Operator(ADD, 2, 3, LEFT) {}
 
 protected:
-    Value& execute(vector<Value*> operands) const {
+    Value& execute(vector<Value*>& operands) const {
         return *operands[0] + *operands[1];
     }
 };
@@ -80,7 +80,7 @@ public:
     Subtract(): Operator(SUB, 2, 3, LEFT) {}
     
 protected:
-    Value& execute(vector<Value*> operands) const {
+    Value& execute(vector<Value*>& operands) const {
         return *operands[0] - *operands[1];
     }
 };
@@ -93,7 +93,7 @@ public:
     Mul(): Operator(MUL, 2, 2, LEFT) {}
     
 protected:
-    Value& execute(vector<Value*> operands) const {
+    Value& execute(vector<Value*>& operands) const {
         return *operands[0] * *operands[1];
     }
 };
@@ -106,7 +106,7 @@ public:
     Div(): Operator(DIV, 2, 2, LEFT) {}
     
 protected:
-    Value& execute(vector<Value*> operands) const {
+    Value& execute(vector<Value*>& operands) const {
         return *operands[0] / *operands[1];
     }
 };
@@ -121,7 +121,7 @@ public:
     Mod(): Operator(MOD, 2, 2, LEFT) {}
     
 protected:
-    Value& execute(vector<Value*> operands) const {
+    Value& execute(vector<Value*>& operands) const {
         return *operands[0] % *operands[1];
     }
 };
@@ -136,7 +136,7 @@ public:
     Or(): Operator(OR, 2, 8, LEFT) {}
     
 protected:
-    Value& execute(vector<Value*> operands) const {
+    Value& execute(vector<Value*>& operands) const {
         return *operands[0] || *operands[1];
     }
 };
@@ -151,7 +151,7 @@ public:
     And(): Operator(AND, 2, 7, LEFT) {}
     
 protected:
-    Value& execute(vector<Value*> operands) const {
+    Value& execute(vector<Value*>& operands) const {
         return *operands[0] && *operands[1];
     }
 };
@@ -166,7 +166,7 @@ public:
     Not(): Operator(NOT, 1, 1, RIGHT) {}
     
 protected:
-    Value& execute(vector<Value*> operands) const {
+    Value& execute(vector<Value*>& operands) const {
         return !(*operands[0]);
     }
 };
@@ -179,7 +179,7 @@ public:
     Equal(): Operator(EQ, 2, 6, LEFT) {}
     
 protected:
-    Value& execute(vector<Value*> operands) const {
+    Value& execute(vector<Value*>& operands) const {
         return *operands[0] == *operands[1];
     }
 };
@@ -192,7 +192,7 @@ public:
     NotEqual(): Operator(NE, 2, 6, LEFT) {}
     
 protected:
-    Value& execute(vector<Value*> operands) const {
+    Value& execute(vector<Value*>& operands) const {
         return *operands[0] != *operands[1];
     }
 };
@@ -207,7 +207,7 @@ public:
     LessThan(): Operator(LT, 2, 5, NONE) {}
     
 protected:
-    Value& execute(vector<Value*> operands) const {
+    Value& execute(vector<Value*>& operands) const {
         return *operands[0] < *operands[1];
     }
 };
@@ -222,7 +222,7 @@ public:
     GreaterThan(): Operator(GT, 2, 5, NONE) {}
     
 protected:
-    Value& execute(vector<Value*> operands) const {
+    Value& execute(vector<Value*>& operands) const {
         return *operands[0] > *operands[1];
     }
 };
@@ -235,7 +235,7 @@ public:
     LessThanEqual(): Operator(LE, 2, 5, NONE) {}
     
 protected:
-    Value& execute(vector<Value*> operands) const {
+    Value& execute(vector<Value*>& operands) const {
         return *operands[0] <= *operands[1];
     }
 };
@@ -250,7 +250,7 @@ public:
     GreaterThanEqual(): Operator(GT, 2, 5, NONE) {}
     
 protected:
-    Value& execute(vector<Value*> operands) const {
+    Value& execute(vector<Value*>& operands) const {
         return *operands[0] >= *operands[1];
     }
 };
@@ -264,7 +264,7 @@ public:
     StringMatch(): Operator(STR_MATCH, 2, 4, NONE) {}
     
 protected:
-    Value& execute(vector<Value*> operands) const {
+    Value& execute(vector<Value*>& operands) const {
         return operands[0]->match(*operands[1]);
     }
 };
@@ -278,7 +278,7 @@ public:
     NoStringtMatch(): Operator(NO_STR_MATCH, 2, 4, NONE) {}
     
 protected:
-    Value& execute(vector<Value*> operands) const {
+    Value& execute(vector<Value*>& operands) const {
         return operands[0]->not_match(*operands[1]);
     }
 };
@@ -289,7 +289,7 @@ protected:
 class QuestionMark: public Operator {
 public:
     QuestionMark(): Operator(QUESTION_MARK, 0, 9, RIGHT) {}
-    Value& execute(vector<Value*> operands) const { throw string("Operator ? should never be executed"); }
+    Value& execute(vector<Value*>& operands) const { throw string("Operator ? should never be executed"); }
 };
 
 
@@ -299,7 +299,7 @@ public:
 class Colon: public Operator {
 public:
     Colon(): Operator(COLON, 0, 10, LEFT) {}
-    Value& execute(vector<Value*> operands) const { throw string("Operator : should never be executed"); }
+    Value& execute(vector<Value*>& operands) const { throw string("Operator : should never be executed"); }
 };
 
 

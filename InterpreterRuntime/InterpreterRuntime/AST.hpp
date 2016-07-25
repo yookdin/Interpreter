@@ -14,6 +14,10 @@
 #include "ParseStackElement.hpp"
 #include "Value.hpp"
 #include "Operator.hpp"
+#include "SymbolTable.hpp"
+
+class AstVisitor;
+class Interpreter;
 
 //==========================================================================================================
 //==========================================================================================================
@@ -27,12 +31,15 @@ public:
 
     vector<AST*> children;
 
+    void traverse(AstVisitor& visitor);
+    
     // When eval-ing a non-value node, no_value will be returned
+    // Note: eval not done with traverse because each node has its own logic
     virtual Value& eval() = 0;
+
     virtual void print_node() = 0;
     
 protected:
-    void recursive_print(int indentation_level);
     void eval_children(int start = 0);
     vector<Value*> get_children_vals();
 };
@@ -79,7 +86,14 @@ public:
 class OpAST: public AST {
 public:
     OpAST(Operator* _op): op(_op){}
-    Value& eval() { return op->eval(get_children_vals()); }
+    
+    Value& eval() {
+        auto vals = get_children_vals();
+        Value& res = op->eval(vals);
+        for(auto v: vals)
+            if(v->tmp) delete v;
+        return res;
+    } 
     void print_node() { op->print(); }
 
 protected:
@@ -117,12 +131,12 @@ public:
 //==========================================================================================================
 class VarAST: public AST {
 public:
-    VarAST(string _name): name(_name) {}
     VarAST(vector<TokenOrAST>& elements): name(((IdentifierToken*)elements[0].get_token())->name) {} 
     Value& eval();
     void print_node() { cout << name << endl; }
 
     const string name;
+    Interpreter* interpreter;
 };
 
 
@@ -133,6 +147,8 @@ public:
     AssignmentAST(vector<TokenOrAST>& elements);
     Value& eval();
     void print_node() { cout << '=' << endl; }
+    
+    Interpreter* interpreter;
 };
 
 
@@ -230,6 +246,7 @@ public:
     void print_node() { cout << name << "()" << endl; }
     
     const string name;
+    Interpreter* interpreter;
 };
 
 

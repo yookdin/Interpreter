@@ -72,7 +72,6 @@ AST* Parser::parse(vector<Token*> tokens) {
                 if(stack.top().state != 0 or stack.size() != 1)
                     throw string("Expected stack to contain just the start state after ACCEPT");
                 
-                cout << "Success!" << endl;
                 return res;
             }
             case ERROR: {

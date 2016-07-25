@@ -6,21 +6,14 @@
 //  Copyright © 2016 Vonage. All rights reserved.
 //
 
-#include "Lexer.hpp"
-#include "Parser.hpp"
+
+#include "Interpreter.hpp"
 
 int main(int argc, const char * argv[]) {
       
     try {
-        vector<Token*> tokens;
-        Lexer lex;
-        lex.lex("/Users/ydinari/src/Interpreter/InterpreterRuntime/InterpreterRuntime/try.scr", tokens);
-        Parser parser;
-        AST* ast = parser.parse(tokens);
-        if(ast != nullptr) {
-            ast->print();
-            ast->eval();
-        }
+        Interpreter interpreter;
+        interpreter.interpret("/Users/ydinari/src/Interpreter/InterpreterRuntime/InterpreterRuntime/try.scr");
     } catch (string err) {
         cout << "Error: " << err << endl;
     }

@@ -19,8 +19,11 @@ public:
     enum Type {BOOL, NUMBER, STRING, NO_VAL};
     
     Value(Type _type): type(_type) {}
+    virtual ~Value(){}
+    
     Type get_type() { return type; }
     
+    virtual Value& copy() = 0;
     virtual void print() = 0;
     
     //------------------------------------------------------------------------------------------------------
@@ -41,6 +44,10 @@ public:
             case NO_VAL: return "NO_VAL";
         }
     }
+    
+    // This is poor man's smart pointer. tmp will be true unless using it as a value for a variable. Operations
+    // on values will delete intermidiated calculated values, unless their tmp field is false.
+    bool tmp = true;
 
 protected:
     const Type type;
@@ -77,6 +84,7 @@ public:
 class NoValue: public Value {
 public:
     NoValue(): Value(NO_VAL){}
+    Value& copy() { throw string("NoValue::copy() shouldb't be called"); }
     void print() { cout << get_type_name() << endl; }
 };
 
@@ -98,6 +106,7 @@ public:
     Value& operator==(Value& other) { return *(new Bool(val == bool(other))); }
     Value& operator!=(Value& other) { return *(new Bool(val != bool(other))); }
 
+    Value& copy() { return *(new Bool(*this)); }
     void print() { cout << to_string(val) << endl; }
     
 private:
@@ -126,6 +135,7 @@ public:
     Value& operator<=(Value& other) { return *(new Bool(val <= int(other))); }
     Value& operator>=(Value& other) { return *(new Bool(val >= int(other))); }
     
+    Value& copy() { return *(new Num(*this)); }
     void print() { cout << to_string(val) << endl; }
 
 private:
@@ -154,6 +164,7 @@ public:
     Value& match(Value& other) { return *(new Bool(regex_match(val, regex(string(other))))); }
     Value& not_match(Value& other) { return not match(other); }
     
+    Value& copy() { return *(new String(*this)); }
     void print() { cout << '"' << val << '"' << endl; }
 
 private:

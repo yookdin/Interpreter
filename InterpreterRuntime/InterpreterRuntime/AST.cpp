@@ -7,20 +7,26 @@
 //
 
 #include "AST.hpp"
+#include "AstVisitor.hpp"
+#include "Interpreter.hpp"
+
+
+//==========================================================================================================
+// Traverse the tree, perform the visitor action for each node
+//==========================================================================================================
+void AST::traverse(AstVisitor& visitor) {
+    visitor.visit(*this);
+    visitor.before_descending(*this);
+    for(auto c: children) c->traverse(visitor);
+    visitor.after_descending(*this);
+}
 
 
 //==========================================================================================================
 //==========================================================================================================
 void AST::print() {
-    recursive_print(0);
-}
-
-//==========================================================================================================
-//==========================================================================================================
-void AST::recursive_print(int indentation_level) {
-    cout << setw(indentation_level * 3) << "";
-    print_node();
-    for(auto& c: children) c->recursive_print(indentation_level + 1);
+    AstPrintVisitor print_visitor;
+    traverse(print_visitor);
 }
 
 
@@ -77,16 +83,18 @@ Value& CondExpAST::eval() {
 //==========================================================================================================
 //==========================================================================================================
 Value& VarAST::eval() {
-    // TODO: return value of variable
-    return no_value;
+    Value* val;
+    if((val = interpreter->get_val(name)) == nullptr)
+        return no_value;
+    else
+        return *val;
 }
 
 
 //==========================================================================================================
 //==========================================================================================================
 AssignmentAST::AssignmentAST(vector<TokenOrAST>& elements) {
-    string id = ((IdentifierToken*)elements[0].get_token())->name;
-    add_child(new VarAST(id));
+    add_child(new VarAST(elements));
     add_child(elements[2].get_ast());
 }
 
@@ -94,9 +102,17 @@ AssignmentAST::AssignmentAST(vector<TokenOrAST>& elements) {
 //==========================================================================================================
 //==========================================================================================================
 Value& AssignmentAST::eval() {
-    // TODO: assign the variable
-    Value& v = children[1]->eval();
-    v.print();
+    string var = ((VarAST*)children[0])->name;
+    Value& val = children[1]->eval();
+    
+    if(val.tmp) {
+        val.tmp = false; // Prevent deleting this by OpAST
+        interpreter->set_val(var, val);
+    }
+    else { // Create a copy of value, so every variable will have it's own
+        interpreter->set_val(var, val.copy());
+    }
+
     return no_value;
 }
 
