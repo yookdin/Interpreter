@@ -12,22 +12,24 @@
 #include "common_headers.h"
 #include "Lexer.hpp"
 #include "Parser.hpp"
-
+#include "FunctionTable.hpp"
 
 //==========================================================================================================
 //==========================================================================================================
 class Interpreter {
 public:
+    Interpreter(FunctionTable& _functab): functab(_functab){}
     void interpret(string filename);
     Value* get_val(string var);
     void set_val(string var, Value& val) { symtab.set_val(var, val); }
-    //Value* call_func();
+    Value* call_func(string name, vector<Value*> args) { return functab.call(name, args); }
     void print();
     
 private:
     Lexer lexer;
     Parser parser;
     SymbolTable symtab;
+    FunctionTable& functab;
     
     void update_interpreter_pointers(AST* ast);
 };

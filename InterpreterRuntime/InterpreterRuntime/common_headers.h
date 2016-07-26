@@ -20,6 +20,7 @@
 #include <sstream>
 #include <iomanip>
 #include <stack>
+#include <list>
 
 using namespace std;
 

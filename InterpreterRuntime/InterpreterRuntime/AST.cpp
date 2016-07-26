@@ -287,6 +287,7 @@ NamedParamsAST::NamedParamsAST(vector<TokenOrAST>& elements) {
 
 
 //==========================================================================================================
+// The children are the function parameters
 //==========================================================================================================
 FuncAST::FuncAST(vector<TokenOrAST>& elements): name(((IdentifierToken*)elements[0].get_token())->name) {
     if(elements.size() != 3) { // 3 means no parameters : "ID ( )"
@@ -299,8 +300,7 @@ FuncAST::FuncAST(vector<TokenOrAST>& elements): name(((IdentifierToken*)elements
 //==========================================================================================================
 //==========================================================================================================
 Value& FuncAST::eval() {
-    // TODO: find function, build params list, invoke it, return its value
-    return no_value;
+    return *interpreter->call_func(name, get_children_vals());
 }
 
 
