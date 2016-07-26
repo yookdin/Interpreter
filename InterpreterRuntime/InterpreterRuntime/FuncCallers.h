@@ -64,8 +64,10 @@ struct any_ref_cast<const X&> {
 template <typename Ret, typename...Args>
 Ret call_func(Ret (*func)(Args...), std::list<boost::any> args)
 {
-    if (sizeof...(Args) != args.size())
-        throw "Argument number mismatch!";
+    int required_args = sizeof...(Args);
+    
+    if(required_args != args.size())
+        throw string("Argument number mismatch: expected " + to_string(required_args) + ", received " + to_string(args.size()));
     
     // boost::any_cast for some reason doesn't know how to automatically handle reference types,
     // that's why the any_ref_cast is needed
@@ -174,7 +176,7 @@ public:
 // void returning global functions
 //======================================================================================================================
 template<typename... Args>
-class VoidFuncCaller: public FuncCaller<string, Args...> {
+class VoidFuncCaller: public FuncCaller<void, Args...> {
 public:
     VoidFuncCaller(void(*_func)(Args...)): FuncCaller<void, Args...>(_func) {}
     
@@ -220,7 +222,7 @@ public:
 template<typename Class, typename... Args>
 class BoolClassFuncCaller: public ClassFuncCaller<Class, bool, Args...> {
 public:
-    BoolClassFuncCaller(Class& _obj, int (Class::*_func)(Args...)): ClassFuncCaller<Class, bool, Args...>(_obj, _func) {}
+    BoolClassFuncCaller(Class& _obj, bool (Class::*_func)(Args...)): ClassFuncCaller<Class, bool, Args...>(_obj, _func) {}
     
     Value* operator()(vector<Value*> args) {
         return new Bool(call_class_func(this->obj, this->func, this->convert_to_any_args(args)));
@@ -234,7 +236,7 @@ public:
 template<typename Class, typename... Args>
 class StringClassFuncCaller: public ClassFuncCaller<Class, string, Args...> {
 public:
-    StringClassFuncCaller(Class& _obj, int (Class::*_func)(Args...)): ClassFuncCaller<Class, string, Args...>(_obj, _func) {}
+    StringClassFuncCaller(Class& _obj, string (Class::*_func)(Args...)): ClassFuncCaller<Class, string, Args...>(_obj, _func) {}
     
     Value* operator()(vector<Value*> args) {
         return new String(call_class_func(this->obj, this->func, this->convert_to_any_args(args)));

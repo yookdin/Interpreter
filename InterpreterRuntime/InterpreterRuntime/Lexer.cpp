@@ -80,7 +80,8 @@ bool Lexer::try_string_char(bool& in_string, string& cur_string, int& num_open_b
             cur_string.clear();
             
             if(c == '[') { // Start of interpolation
-                tokens.push_back(new KeywordToken(ADD)); // String interpolation is implemented by performing contactanation
+                tokens.push_back(new KeywordToken(ADD));        // String interpolation is implemented by performing contactanation
+                tokens.push_back(new KeywordToken(LEFT_PAREN)); // We want the interpolated expression to be evaluated seperately from the string containing it 
                 ++num_open_brackets;
             }
         }
@@ -98,6 +99,7 @@ bool Lexer::try_string_char(bool& in_string, string& cur_string, int& num_open_b
     if(*iter == ']') {
         if(num_open_brackets == 0) throw string("']' with no preceding '['");
         --num_open_brackets;
+        tokens.push_back(new KeywordToken(RIGHT_PAREN)); // Close the interpolated expression
         tokens.push_back(new KeywordToken(ADD));
         in_string = true;
         ++iter;
