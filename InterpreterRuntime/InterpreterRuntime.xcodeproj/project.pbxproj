@@ -36,7 +36,6 @@
 /* Begin PBXFileReference section */
 		FE1EE3C91D40BA93006A721A /* InterpreterRuntime */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = InterpreterRuntime; sourceTree = BUILT_PRODUCTS_DIR; };
 		FE1EE3EB1D40BB11006A721A /* todo */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = todo; sourceTree = "<group>"; };
-		FE1EE3EE1D40BB11006A721A /* try.scr */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = try.scr; sourceTree = "<group>"; };
 		FE1EE4251D40E292006A721A /* Operator.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Operator.cpp; sourceTree = "<group>"; };
 		FE1EE4261D40E292006A721A /* Operator.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Operator.hpp; sourceTree = "<group>"; };
 		FE1EE4281D40E2A3006A721A /* main.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
@@ -105,7 +104,6 @@
 				FEF4A6AD1D41110400319EC9 /* AST */,
 				FE32753A1D4515E400DC6AF7 /* Interpreter */,
 				FE1EE3EB1D40BB11006A721A /* todo */,
-				FE1EE3EE1D40BB11006A721A /* try.scr */,
 			);
 			path = InterpreterRuntime;
 			sourceTree = "<group>";
