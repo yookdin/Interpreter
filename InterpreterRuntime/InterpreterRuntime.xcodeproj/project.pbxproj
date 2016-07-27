@@ -43,7 +43,6 @@
 		FE32753B1D45169800DC6AF7 /* Interpreter.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Interpreter.cpp; sourceTree = "<group>"; };
 		FE32753C1D45169800DC6AF7 /* Interpreter.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Interpreter.hpp; sourceTree = "<group>"; };
 		FE32753F1D4602C800DC6AF7 /* AstVisitor.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = AstVisitor.hpp; sourceTree = "<group>"; };
-		FEAA83221D47534000942880 /* callable_funcs_declaration.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = callable_funcs_declaration.h; sourceTree = "<group>"; };
 		FEF4A6971D40E43700319EC9 /* Symbol.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Symbol.cpp; sourceTree = "<group>"; };
 		FEF4A6981D40E43700319EC9 /* Symbol.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Symbol.hpp; sourceTree = "<group>"; };
 		FEF4A69A1D40E45200319EC9 /* bimap.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = bimap.h; sourceTree = "<group>"; };
@@ -107,7 +106,6 @@
 		FE32753A1D4515E400DC6AF7 /* Interpreter */ = {
 			isa = PBXGroup;
 			children = (
-				FEAA83221D47534000942880 /* callable_funcs_declaration.h */,
 				FE3275381D4512AE00DC6AF7 /* SymbolTable.hpp */,
 				FE3275371D4512AE00DC6AF7 /* SymbolTable.cpp */,
 				FE32753C1D45169800DC6AF7 /* Interpreter.hpp */,

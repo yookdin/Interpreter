@@ -25,13 +25,14 @@ public:
     
     virtual Value& copy() = 0;
     virtual void print() = 0;
+    virtual bool is_no_value() { return false; }
     
     //------------------------------------------------------------------------------------------------------
     // By default all conversion are undefined. Derived classes will override those conversion they support
     //------------------------------------------------------------------------------------------------------
-    virtual operator bool() const { throw string("Conversion of " + get_type_name() + " to bool undefined"); }
-    virtual operator int() const { throw string("Conversion of " + get_type_name() + " to int undefined"); }
-    virtual operator string() const { throw string("Conversion of " + get_type_name() + " to string undefined"); }
+    virtual operator bool() const { throw string("Conversion of " + get_type_name() + " to bool is undefined"); }
+    virtual operator int() const { throw string("Conversion of " + get_type_name() + " to int is undefined"); }
+    virtual operator string() const { throw string("Conversion of " + get_type_name() + " to string is undefined"); }
 
     
     //------------------------------------------------------------------------------------------------------
@@ -85,6 +86,7 @@ class NoValue: public Value {
 public:
     NoValue(): Value(NO_VAL){}
     Value& copy() { throw string("NoValue::copy() shouldb't be called"); }
+    bool is_no_value() { return true; }
     void print() { cout << get_type_name() << endl; }
 };
 
