@@ -140,7 +140,7 @@ public:
     Value& operator>=(Value& other) { return *(new Bool(val >= int(other))); }
     
     Value& copy() { return *(new Num(*this)); }
-    string to_string() const { return ::to_string(val); }
+    string to_string() const { return std::to_string(val); }
 
 private:
     int val;

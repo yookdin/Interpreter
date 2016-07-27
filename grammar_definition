@@ -2,6 +2,7 @@ STATEMENTS  ->  STATEMENT               #  Statements
 STATEMENTS  ->  STATEMENT STATEMENTS    #  Statements
 STATEMENTS  ->  STATEMENT ; STATEMENTS  #  Statements
 STATEMENT   ->  ID = EXP                #  Assignment
+STATEMENT   ->  ID ?= EXP               #  Assignment
 STATEMENT   ->  BLOCK                   #  Statements
 BLOCK       ->  { STATEMENTS }          #  Statements
 STATEMENT   ->  if EXP STATEMENT        #  If

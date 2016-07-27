@@ -83,17 +83,17 @@ Value& CondExpAST::eval() {
 //==========================================================================================================
 //==========================================================================================================
 Value& VarAST::eval() {
-    Value* val;
-    if((val = interpreter->get_val(name)) == nullptr)
-        return no_value;
-    else
-        return *val;
+    Value& val = interpreter->get_val(name);
+    if(val.is_no_value())
+        throw string("Variable " + name + " is not defined");
+    
+    return val;
 }
 
 
 //==========================================================================================================
 //==========================================================================================================
-AssignmentAST::AssignmentAST(vector<TokenOrAST>& elements) {
+AssignmentAST::AssignmentAST(vector<TokenOrAST>& elements): conditional(elements[1].get_token()->sym == CONDITIONAL_ASSIGN) {
     add_child(new VarAST(elements));
     add_child(elements[2].get_ast());
 }
@@ -103,19 +103,22 @@ AssignmentAST::AssignmentAST(vector<TokenOrAST>& elements) {
 //==========================================================================================================
 Value& AssignmentAST::eval() {
     string var = ((VarAST*)children[0])->name;
-    Value& val = children[1]->eval();
     
-    if(val.is_no_value())
-        throw string("Cannot assign a no_value to a variable");
-    
-    if(val.tmp) {
-        val.tmp = false; // Prevent deleting this by OpAST
-        interpreter->set_val(var, val);
+    if(not conditional or not interpreter->is_var_set(var)) {
+        Value& val = children[1]->eval();
+        
+        if(val.is_no_value())
+            throw string("Cannot assign a no_value to a variable");
+        
+        if(val.tmp) {
+            val.tmp = false; // Prevent deleting this by OpAST
+            interpreter->set_val(var, val);
+        }
+        else { // Create a copy of value, so every variable will have it's own
+            interpreter->set_val(var, val.copy());
+        }
     }
-    else { // Create a copy of value, so every variable will have it's own
-        interpreter->set_val(var, val.copy());
-    }
-
+        
     return no_value;
 }
 
@@ -303,6 +306,11 @@ FuncAST::FuncAST(vector<TokenOrAST>& elements): name(((IdentifierToken*)elements
 //==========================================================================================================
 //==========================================================================================================
 Value& FuncAST::eval() {
+    auto args = get_children_vals();
+    for(auto v: args) {
+        if(v->is_no_value()) throw string("Can't pass a no_value to a function");
+    }
+    
     return interpreter->call_func(name, get_children_vals());
 }
 

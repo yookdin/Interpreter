@@ -17,7 +17,7 @@
 class SymbolTable {
 public:
     ~SymbolTable() { for(auto& p: symtab) delete p.second; }
-    Value* get_val(string var) { return (symtab.count(var) == 0) ? nullptr : symtab[var]; }
+    Value& get_val(string var) { return (symtab.count(var) == 0) ? no_value : *symtab[var]; }
     void set_val(string var, Value& val);
     void print();
     

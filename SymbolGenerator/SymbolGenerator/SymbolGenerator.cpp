@@ -12,6 +12,7 @@ SymbolGenerator::SymbolGenerator(string grammar_file, string header_file, string
 	string_symbol_map["/"] = "DIV";
 	string_symbol_map["%"] = "MOD";
 	string_symbol_map["="] = "ASSIGN";
+    string_symbol_map["?="] = "CONDITIONAL_ASSIGN";    
 	string_symbol_map["=="] = "EQ";
 	string_symbol_map["!="] = "NE";
 	string_symbol_map["<"] = "LT";

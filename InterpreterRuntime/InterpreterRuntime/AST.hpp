@@ -146,9 +146,12 @@ class AssignmentAST: public AST {
 public:
     AssignmentAST(vector<TokenOrAST>& elements);
     Value& eval();
-    void print_node() { cout << '=' << endl; }
+    void print_node() { cout << (conditional ? "?=" : "=") << endl; }
     
     Interpreter* interpreter;
+    
+private:
+    const bool conditional;
 };
 
 

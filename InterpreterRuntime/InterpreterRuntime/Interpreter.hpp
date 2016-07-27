@@ -19,8 +19,9 @@
 class Interpreter {
 public:
     void interpret(string filename);
-    Value* get_val(string var);
+    Value& get_val(string var);
     void set_val(string var, Value& val) { symtab.set_val(var, val); }
+    bool is_var_set(string var) { return not get_val(var).is_no_value(); }
     Value& call_func(string name, vector<Value*> args);
     void print();
     

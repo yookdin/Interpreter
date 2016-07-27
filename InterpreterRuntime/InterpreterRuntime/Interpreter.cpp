@@ -41,7 +41,7 @@ void Interpreter::update_interpreter_pointers(AST* ast) {
 
 //==========================================================================================================
 //==========================================================================================================
-Value* Interpreter::get_val(string var) {
+Value& Interpreter::get_val(string var) {
     // TODO: check external symtab; try var as func with no params?
     return symtab.get_val(var);
 }
