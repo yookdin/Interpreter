@@ -105,6 +105,9 @@ Value& AssignmentAST::eval() {
     string var = ((VarAST*)children[0])->name;
     Value& val = children[1]->eval();
     
+    if(val.is_no_value())
+        throw string("Cannot assign a no_value to a variable");
+    
     if(val.tmp) {
         val.tmp = false; // Prevent deleting this by OpAST
         interpreter->set_val(var, val);
@@ -267,7 +270,7 @@ NamedParamAST::NamedParamAST(vector<TokenOrAST>& elements): name(((IdentifierTok
 // Containing function node is responsible for taking the value and assigning it to the correct parameter
 //==========================================================================================================
 Value& NamedParamAST::eval() {
-    return children[0]->eval();
+    return *(new ParamVal(name, children[0]->eval()));
 }
 
 
@@ -300,7 +303,7 @@ FuncAST::FuncAST(vector<TokenOrAST>& elements): name(((IdentifierToken*)elements
 //==========================================================================================================
 //==========================================================================================================
 Value& FuncAST::eval() {
-    return *interpreter->call_func(name, get_children_vals());
+    return interpreter->call_func(name, get_children_vals());
 }
 
 

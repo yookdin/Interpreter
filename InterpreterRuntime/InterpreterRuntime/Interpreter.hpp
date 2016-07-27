@@ -21,11 +21,11 @@ public:
     void interpret(string filename);
     Value* get_val(string var);
     void set_val(string var, Value& val) { symtab.set_val(var, val); }
-    Value* call_func(string name, vector<Value*> args);
+    Value& call_func(string name, vector<Value*> args);
     void print();
     
 private:
-    typedef Value*(Interpreter::*CallableFunc)(vector<Value*>);
+    typedef Value&(Interpreter::*CallableFunc)(vector<Value*>);
 
     static map<string, CallableFunc> functab;
     Lexer lexer;
@@ -33,7 +33,11 @@ private:
     SymbolTable symtab;
     
     void update_interpreter_pointers(AST* ast);
-    Value* print(vector<Value*>);
+
+    Value& print(vector<Value*>);
+    Value& foo(vector<Value*> args) { return no_value; }
+    
+    void delete_args(vector<Value*> args);
 };
 
 

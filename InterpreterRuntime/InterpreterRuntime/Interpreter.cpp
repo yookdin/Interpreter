@@ -13,7 +13,8 @@
 //==========================================================================================================
 //==========================================================================================================
 map<string, Interpreter::CallableFunc> Interpreter::functab = {
-    {"print", &Interpreter::print}
+    {"print", &Interpreter::print},
+    {"foo", &Interpreter::foo}
 };
 
 
@@ -48,20 +49,29 @@ Value* Interpreter::get_val(string var) {
 
 //==========================================================================================================
 //==========================================================================================================
-Value* Interpreter::call_func(string name, vector<Value*> args) {
+Value& Interpreter::call_func(string name, vector<Value*> args) {
     if(functab.count(name) == 0)
         throw string("Function " + name + "() not recognized");
 
-    return (this->*functab[name])(args);
+    Value& res = (this->*functab[name])(args);
+    delete_args(args); // Arguments created for the function call no longer needed 
+    return res;
+}
+
+//==========================================================================================================
+//==========================================================================================================
+void Interpreter::delete_args(vector<Value*> args) { 
+    for(auto arg: args)
+        if(arg->tmp)
+            delete arg; 
 }
 
 
-
 //==========================================================================================================
 //==========================================================================================================
-Value* Interpreter::print(vector<Value*> args) {
+Value& Interpreter::print(vector<Value*> args) {
     for(auto arg: args) arg->print();
-    return &no_value;
+    return no_value;
 }
 
 

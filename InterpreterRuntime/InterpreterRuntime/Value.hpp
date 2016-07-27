@@ -16,7 +16,7 @@
 //==========================================================================================================
 class Value {
 public:
-    enum Type {BOOL, NUMBER, STRING, NO_VAL};
+    enum Type {BOOL, NUMBER, STRING, PARAM_VAL, NO_VAL};
     
     Value(Type _type): type(_type) {}
     virtual ~Value(){}
@@ -24,7 +24,8 @@ public:
     Type get_type() { return type; }
     
     virtual Value& copy() = 0;
-    virtual void print() = 0;
+    virtual string to_string() const = 0;
+    virtual void print() { cout << to_string() << endl; }
     virtual bool is_no_value() { return false; }
     
     //------------------------------------------------------------------------------------------------------
@@ -42,6 +43,7 @@ public:
             case STRING: return "STRING";
             case NUMBER: return "NUMBER";
             case BOOL: return "BOOL";
+            case PARAM_VAL: return "PARAM_VAL";
             case NO_VAL: return "NO_VAL";
         }
     }
@@ -87,7 +89,7 @@ public:
     NoValue(): Value(NO_VAL){}
     Value& copy() { throw string("NoValue::copy() shouldb't be called"); }
     bool is_no_value() { return true; }
-    void print() { cout << get_type_name() << endl; }
+    string to_string() const { return get_type_name(); }
 };
 
 extern NoValue no_value;
@@ -100,7 +102,7 @@ public:
     Bool(bool _val = false): Value(BOOL), val(_val) {}
     
     operator bool() const { return val; };
-    operator string() const { return to_string(val); }
+    operator string() const { return to_string(); }
         
     Value& operator||(Value& other) { return *(new Bool(val || bool(other))); }
     Value& operator&&(Value& other) { return *(new Bool(val && bool(other))); }
@@ -109,7 +111,7 @@ public:
     Value& operator!=(Value& other) { return *(new Bool(val != bool(other))); }
 
     Value& copy() { return *(new Bool(*this)); }
-    void print() { cout << to_string(val) << endl; }
+    string to_string() const { return ::to_string(val); }
     
 private:
     bool val;
@@ -123,7 +125,7 @@ public:
     Num(int _val = 0): Value(NUMBER), val(_val) {}
     
     operator int() const { return val; }
-    operator string() const { return to_string(val); }
+    operator string() const { return to_string(); }
     
     Value& operator+ (Value& other) { return *(new Num(val  +  int(other))); }
     Value& operator- (Value& other) { return *(new Num(val  -  int(other))); }
@@ -138,7 +140,7 @@ public:
     Value& operator>=(Value& other) { return *(new Bool(val >= int(other))); }
     
     Value& copy() { return *(new Num(*this)); }
-    void print() { cout << to_string(val) << endl; }
+    string to_string() const { return ::to_string(val); }
 
 private:
     int val;
@@ -167,7 +169,7 @@ public:
     Value& not_match(Value& other) { return not match(other); }
     
     Value& copy() { return *(new String(*this)); }
-    void print() { cout << '"' << val << '"' << endl; }
+    string to_string() const { return '"' + val + '"'; } 
 
 private:
     string val;
@@ -175,4 +177,38 @@ private:
 };
 
 
+//==========================================================================================================
+// In order to enable calling function with named parameters, we need a Value that will represent a param-val
+// pair.
+//==========================================================================================================
+class ParamVal: public Value {
+public:
+    ParamVal(string _name, Value& _val): Value(PARAM_VAL), name(_name), val(_val) {}
+    ~ParamVal() { delete &val; }
+    
+    Value& copy() { throw string("Shouldn't copy a param-value pair"); }
+    string to_string() const { return "(" + name + ", " + val.to_string() + ")"; }
+
+private:
+    string name;
+    Value& val;
+};
+
+
 #endif /* Value_hpp */
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
