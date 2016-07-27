@@ -38,6 +38,7 @@ void Lexer::lex(string filename, vector<Token*>& tokens) {
     bool in_string = false;
     int num_open_brackets = 0;
     string cur_string;
+    line_num = 1;
     
     //------------------------------------------------------------------------------------------------------
     // Turn file text into tokens
@@ -51,13 +52,16 @@ void Lexer::lex(string filename, vector<Token*>& tokens) {
         
         Token* token = try_match();
         if(token == nullptr)
-            throw string("Unrecognized syntax at file " + filename + ": \"" + input.substr(iter - input.begin(), 20) + "\"..."); // TODO: calc and add line number
+            throw string("Unrecognized syntax at file " + filename + ", line " + to_string(line_num) + ":\n" + get_current_line());
         tokens.push_back(token);
     }
 
     if(num_open_brackets > 0)
         throw string("'[' without closing ']'");
         
+    if(in_string)
+        throw string("String not terminated");
+    
     tokens.push_back(new KeywordToken(EOI));
     input.clear();
 }
@@ -124,9 +128,8 @@ char Lexer::get_next_string_char(bool& string_ended) {
             ++iter; // Skip also the escaped char        
     }
     else {
-        if(*iter == '"' or *iter == '[') {
-            string_ended = true;
-        }
+        if(*iter == '"' or *iter == '[') string_ended = true;
+        if(*iter == '\n') ++line_num;
         ++iter;
     }
     
@@ -206,7 +209,10 @@ void Lexer::skip_irrelevant() {
 bool Lexer::skip_spaces() {
     if(iter == input.end()) return false;
     auto cur_pos = iter;
-    while(iter != input.end() and isspace(*iter)) ++iter;
+    while(iter != input.end() and isspace(*iter)) {
+        if(*iter == '\n') ++line_num;
+        ++iter;
+    }
     return iter > cur_pos;
 }
 
@@ -219,13 +225,32 @@ bool Lexer::skip_comment() {
     if(*iter == '#') {
         do { ++iter; } while(iter != input.end() and *iter != '\n');
         if(iter == input.end()) return false;
+        
         ++iter;
+        ++line_num;
         return true;
     }
     return false;        
 }
 
 
+//==========================================================================================================
+//==========================================================================================================
+string Lexer::get_current_line() {
+    int pos = iter - input.begin();
+    
+    int start = input.rfind('\n', pos);
+    if(start == string::npos)
+        start = 0;
+    else
+        ++start;
+    
+    int end = input.find('\n', pos), len = end;
+    if(end != string::npos)
+        len = end - start;  
+    
+    return input.substr(start, len);
+}
 
 
 

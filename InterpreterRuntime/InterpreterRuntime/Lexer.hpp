@@ -25,6 +25,7 @@ private:
     
     string input;
     string::const_iterator iter;
+    int line_num;
     
     Token* try_match();
     Token* match_keyword(smatch& match);
@@ -38,6 +39,7 @@ private:
     
     bool try_string_char(bool& in_string, string& cur_string, int& num_open_brackets, vector<Token*>& tokens);
     char get_next_string_char(bool& string_ended);
+    string get_current_line();
 };
 
  
