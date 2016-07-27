@@ -11,7 +11,6 @@
 		FE1EE4291D40E2A3006A721A /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FE1EE4281D40E2A3006A721A /* main.cpp */; };
 		FE3275391D4512AE00DC6AF7 /* SymbolTable.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FE3275371D4512AE00DC6AF7 /* SymbolTable.cpp */; };
 		FE32753D1D45169800DC6AF7 /* Interpreter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FE32753B1D45169800DC6AF7 /* Interpreter.cpp */; };
-		FEAA83211D46702F00942880 /* FunctionTable.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FEAA831F1D46702F00942880 /* FunctionTable.cpp */; };
 		FEF4A6991D40E43700319EC9 /* Symbol.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FEF4A6971D40E43700319EC9 /* Symbol.cpp */; };
 		FEF4A69E1D40E45200319EC9 /* utils.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FEF4A69C1D40E45200319EC9 /* utils.cpp */; };
 		FEF4A6A41D40E4B600319EC9 /* Parser.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FEF4A6A21D40E4B600319EC9 /* Parser.cpp */; };
@@ -44,10 +43,7 @@
 		FE32753B1D45169800DC6AF7 /* Interpreter.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Interpreter.cpp; sourceTree = "<group>"; };
 		FE32753C1D45169800DC6AF7 /* Interpreter.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Interpreter.hpp; sourceTree = "<group>"; };
 		FE32753F1D4602C800DC6AF7 /* AstVisitor.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = AstVisitor.hpp; sourceTree = "<group>"; };
-		FEAA831F1D46702F00942880 /* FunctionTable.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = FunctionTable.cpp; sourceTree = "<group>"; };
-		FEAA83201D46702F00942880 /* FunctionTable.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = FunctionTable.hpp; sourceTree = "<group>"; };
 		FEAA83221D47534000942880 /* callable_funcs_declaration.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = callable_funcs_declaration.h; sourceTree = "<group>"; };
-		FEAA83231D47947700942880 /* FuncCallers.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = FuncCallers.h; sourceTree = "<group>"; };
 		FEF4A6971D40E43700319EC9 /* Symbol.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Symbol.cpp; sourceTree = "<group>"; };
 		FEF4A6981D40E43700319EC9 /* Symbol.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Symbol.hpp; sourceTree = "<group>"; };
 		FEF4A69A1D40E45200319EC9 /* bimap.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = bimap.h; sourceTree = "<group>"; };
@@ -114,9 +110,6 @@
 				FEAA83221D47534000942880 /* callable_funcs_declaration.h */,
 				FE3275381D4512AE00DC6AF7 /* SymbolTable.hpp */,
 				FE3275371D4512AE00DC6AF7 /* SymbolTable.cpp */,
-				FEAA83231D47947700942880 /* FuncCallers.h */,
-				FEAA83201D46702F00942880 /* FunctionTable.hpp */,
-				FEAA831F1D46702F00942880 /* FunctionTable.cpp */,
 				FE32753C1D45169800DC6AF7 /* Interpreter.hpp */,
 				FE32753B1D45169800DC6AF7 /* Interpreter.cpp */,
 			);
@@ -227,7 +220,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				FEAA83211D46702F00942880 /* FunctionTable.cpp in Sources */,
 				FE1EE4291D40E2A3006A721A /* main.cpp in Sources */,
 				FEF4A6A81D40F12800319EC9 /* ParserTables.cpp in Sources */,
 				FE32753D1D45169800DC6AF7 /* Interpreter.cpp in Sources */,

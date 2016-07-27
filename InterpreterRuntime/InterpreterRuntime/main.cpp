@@ -13,9 +13,9 @@
 int main(int argc, const char * argv[]) {
       
     try {
-        FunctionTable functab;
-        Interpreter interpreter(functab);
+        Interpreter interpreter;
         interpreter.interpret("/Users/ydinari/src/Interpreter/try.scr");
+    
     } catch (string err) {
         cout << "Error: " << err << endl;
     }
