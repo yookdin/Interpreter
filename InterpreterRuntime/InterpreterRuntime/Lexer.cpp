@@ -22,7 +22,7 @@ vector<Lexer::token_matcher> Lexer::matchers = {
 regex Lexer::num_re("^-?\\d+\\b");
 regex Lexer::bool_re("^(true|false)\\b");
 regex Lexer::id_re("^[_[:alpha:]]\\w*");
-regex Lexer::keyword_re("^(\\+|-|\\*|/|%|not|or|and|\\?=|==|!=|<=|>=|<|>|~|!~|\\?|:|\\(|\\)|=|\\{|\\}|;|,|if|else|while|repeat|times)");
+regex Lexer::keyword_re("^(\\+|-|\\*|/|%|not|or|and|\\?=|==|!=|<=|>=|<|>|~|!~|\\?|:|\\(|\\)|=|\\{|\\}|;|,|if|else|while|repeat|times|break|continue)");
 
 
 //==========================================================================================================

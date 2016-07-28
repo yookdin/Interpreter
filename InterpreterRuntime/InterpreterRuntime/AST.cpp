@@ -210,8 +210,16 @@ WhileAST::WhileAST(vector<TokenOrAST>& elements) {
 //==========================================================================================================
 //==========================================================================================================
 Value& WhileAST::eval() {
-    while(children[0]->eval())
-        eval_children(1);
+    while(children[0]->eval()) {
+        try {
+            eval_children(1);
+        } catch (AST::JumpKind jump_kind) {
+            if(jump_kind == BREAK)
+                break;
+            else
+                continue;
+        }
+    }
     
     return no_value;
 }
@@ -239,9 +247,17 @@ Value& RepeatAST::eval() {
     int times = children[0]->eval();
     if(times < 0) throw string("'times' value of repeat statement must be greater or equal to 0");
     
-    for(int i = 0; i < times; ++i)
-        eval_children(1);
-    
+    for(int i = 0; i < times; ++i) {
+        try {
+            eval_children(1);
+        } catch (AST::JumpKind jump_kind) {
+            if(jump_kind == BREAK)
+                break;
+            else
+                continue;
+        }
+    }
+
     return no_value;
 }
 

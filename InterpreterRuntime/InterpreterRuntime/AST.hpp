@@ -40,6 +40,8 @@ public:
     virtual void print_node() = 0;
     
 protected:
+    enum JumpKind {BREAK, CONTINUE};
+    
     void eval_children(int start = 0);
     vector<Value*> get_children_vals();
 };
@@ -206,6 +208,26 @@ public:
 private:
     int times; // How many times to repeat body
 };
+
+
+//==========================================================================================================
+//==========================================================================================================
+class BreakAST: public AST {
+public:
+    BreakAST(vector<TokenOrAST>& elements) {}
+    Value& eval() { throw BREAK; }
+    void print_node() { cout << "break" << endl; }
+};
+
+//==========================================================================================================
+//==========================================================================================================
+class ContinueAST: public AST {
+public:
+    ContinueAST(vector<TokenOrAST>& elements) {}
+    Value& eval() { throw CONTINUE; }
+    void print_node() { cout << "continue" << endl; }
+};
+
 
 
 //==========================================================================================================

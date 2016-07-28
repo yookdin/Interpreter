@@ -27,7 +27,6 @@ void Interpreter::interpret(string filename) {
     ast->print();
     update_interpreter_pointers(ast);
     ast->eval();
-    print();
 }
 
 

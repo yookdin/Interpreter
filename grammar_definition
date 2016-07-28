@@ -5,10 +5,15 @@ STATEMENT   ->  ID = EXP                #  Assignment
 STATEMENT   ->  ID ?= EXP               #  Assignment
 STATEMENT   ->  BLOCK                   #  Statements
 BLOCK       ->  { STATEMENTS }          #  Statements
-STATEMENT   ->  if EXP STATEMENT        #  If
-STATEMENT   ->  while EXP STATEMENT     #  While
-STATEMENT   ->  repeat EXP times STATEMENT          #  Repeat
+
+STATEMENT   ->  if EXP STATEMENT                    #  If
 STATEMENT   ->  if EXP STATEMENT else STATEMENT     #  IfElse
+
+STATEMENT   ->  while EXP STATEMENT         #  While
+STATEMENT   ->  repeat EXP times STATEMENT  #  Repeat
+STATEMENT   ->  break                       #  Break
+STATEMENT   ->  continue                    #  Continue
+
 STATEMENT   ->  FUNC_CALL
 
 EXP  ->  NUM            #  Num
