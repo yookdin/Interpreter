@@ -23,9 +23,17 @@ private:
     static vector<token_matcher> matchers;
     static regex keyword_re, num_re, bool_re, id_re;
     
+    // Fields indicating current state
     string input;
     string::const_iterator iter;
-    int line_num;
+    int line_num = 1;
+    bool in_string = false;
+    int num_open_brackets = 0;
+    string cur_string;
+
+    enum StringKind { QUOTES, BRACKETS };
+    stack<StringKind> string_kinds;
+    
     
     Token* try_match();
     Token* match_keyword(smatch& match);
@@ -37,8 +45,9 @@ private:
     bool skip_spaces();
     bool skip_comment();
     
-    bool try_string_char(bool& in_string, string& cur_string, int& num_open_brackets, vector<Token*>& tokens);
-    char get_next_string_char(bool& string_ended);
+    bool try_string(vector<Token*>& tokens);
+    string get_next_string_chars();
+    bool check_string_end(string& end_chars);
     string get_current_line();
 };
 
