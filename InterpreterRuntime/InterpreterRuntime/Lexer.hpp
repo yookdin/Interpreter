@@ -48,7 +48,12 @@ private:
     bool try_string(vector<Token*>& tokens);
     string get_next_string_chars();
     bool check_string_end(string& end_chars);
-    string get_current_line();
+    
+    // Note: these are esacaped in any kind of string. In quoted strings " need to be escaped,
+    // in bracketed strings ]] needs to be escaped (like this: \]])
+    bool is_escaped_char(char c) { return c == '[' or c == '\\'; }
+    
+    string extract_current_line();
 };
 
  

@@ -58,7 +58,7 @@ void Lexer::lex(string filename, vector<Token*>& tokens) {
         
         Token* token = try_match();
         if(token == nullptr)
-            throw string("Unrecognized syntax at file " + filename + ", line " + to_string(line_num) + ":\n" + get_current_line());
+            throw string("Unrecognized syntax at file " + filename + ", line " + to_string(line_num) + ":\n" + extract_current_line());
         tokens.push_back(token);
     }
 
@@ -162,9 +162,9 @@ string Lexer::get_next_string_chars() {
         if(check_string_end(res)) // Check if literal string end sequence
             return res;
     
-        if(*iter == '[') {// Check if literal [
-            ++iter;
-            return "[";
+        if(is_escaped_char(*iter)) {
+            res = *(iter++);
+            return res;
         }
         
         return "\\"; // If the backslash doesn't escape, it is literal
@@ -304,7 +304,7 @@ bool Lexer::skip_comment() {
 
 //==========================================================================================================
 //==========================================================================================================
-string Lexer::get_current_line() {
+string Lexer::extract_current_line() {
     int pos = iter - input.begin();
     
     int start = input.rfind('\n', pos);
