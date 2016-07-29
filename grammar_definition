@@ -3,6 +3,8 @@
 // the name of the specific AST class that should be created when this production is reduced.
 // If no AST specified, it means no new AST should be created, just pass on the AST already
 // created for the right-hand-side of that production.
+// Note: empty productions are not allowed.
+
 
 //---------------------------------------------------------------------
 // Statements
