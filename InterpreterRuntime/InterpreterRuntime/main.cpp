@@ -15,7 +15,7 @@ int main(int argc, const char * argv[]) {
         Interpreter interpreter;
         interpreter.interpret("/Users/ydinari/src/Interpreter/try.scr");
     
-    } catch (string err) {
+    } catch(string& err) {
         cout << "Error: " << err << endl;
     }
         

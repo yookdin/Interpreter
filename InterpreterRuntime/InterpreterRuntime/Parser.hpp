@@ -25,6 +25,8 @@ private:
     
     AST* gen_ast(int production, vector<TokenOrAST>& elements);
     AST* extract_ast(vector<TokenOrAST>& elements);
+    
+    string create_err_msg(ParseStackElement& stack_element, Token& token);
 };
 
 #endif /* Parser_hpp */

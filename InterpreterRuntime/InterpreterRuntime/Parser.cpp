@@ -75,7 +75,7 @@ AST* Parser::parse(vector<Token*> tokens) {
                 return res;
             }
             case ERROR: {
-                cout << "Error on [" << to_string(stack.top().state) << "," << symbol_str_map[token->sym] << "]" << endl;
+                cout << create_err_msg(stack.top(), *token) << endl;
                 return nullptr;
             }
         }
@@ -85,6 +85,26 @@ AST* Parser::parse(vector<Token*> tokens) {
     
     cout << "Error: end of input reached. Current state is " << stack.top().state << endl; 
     return nullptr;
+}
+
+
+//==========================================================================================================
+//==========================================================================================================
+string Parser::create_err_msg(ParseStackElement& stack_element, Token& token) {
+    string prev_symbol, cur_symbol = token.get_name();
+    if(cur_symbol == "$") cur_symbol = "end-of-input";
+    int state = stack_element.state;
+
+    if(state == 0) { // start state
+        return "Error: can't start with " + cur_symbol;
+    }
+    
+    // This should never happen, it it does it's an internal error
+    if(not stack_element.get_token_or_ast().is_token)
+        throw string("A parse error while top of the stack contains an AST");
+        
+    prev_symbol = stack_element.get_token()->get_name();
+    return "Error: " + cur_symbol + " after " + prev_symbol;
 }
 
 

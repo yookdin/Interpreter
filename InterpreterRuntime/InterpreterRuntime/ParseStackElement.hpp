@@ -43,6 +43,7 @@ public:
     ParseStackElement(int s, Token* token): state(s), token_or_ast(token) {}
     ParseStackElement(int s, AST* ast): state(s), token_or_ast(ast) {}
 
+    Token* get_token() { return token_or_ast.get_token(); }
     AST* get_ast() { return token_or_ast.get_ast(); }
     TokenOrAST get_token_or_ast() { return token_or_ast; }
     

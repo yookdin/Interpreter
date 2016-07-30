@@ -20,7 +20,9 @@ class Token
 {
 public:
     Token(Symbol _sym): sym(_sym) {}
-    virtual void print() { cout << symbol_str_map[sym] << endl; }
+    
+    string get_name() { return symbol_str_map[sym]; }
+    virtual void print() { cout << get_name() << endl; }
     
     const Symbol sym;
 };
@@ -28,40 +30,50 @@ public:
 
 //==========================================================================================================
 //==========================================================================================================
-class NumToken: public Token {
+class TokenWithValue: public Token {
 public:
-    NumToken(string n): Token(NUM), val(stoi(n)) {}
-    void print() { cout << to_string(val) << endl; }
+    TokenWithValue(Symbol _sym): Token(_sym) {}
+    virtual string value_to_string() = 0;
+    virtual void print() { cout << get_name() << ": " << value_to_string() << endl; }
+};
+
+
+//==========================================================================================================
+//==========================================================================================================
+class NumToken: public TokenWithValue {
+public:
+    NumToken(string n): TokenWithValue(NUM), val(stoi(n)) {}
+    string value_to_string() { return to_string(val); }
     const int val;
 };
 
 
 //==========================================================================================================
 //==========================================================================================================
-class BoolToken: public Token {
+class BoolToken: public TokenWithValue {
 public:
-    BoolToken(string b): Token(BOOL), val(stob(b)) {}
-    void print() { cout << to_string(val) << endl; }
+    BoolToken(string b): TokenWithValue(BOOL), val(stob(b)) {}
+    string value_to_string() { return to_string(val); }
     const bool val;
 };
 
 
 //==========================================================================================================
 //==========================================================================================================
-class StringToken: public Token {
+class StringToken: public TokenWithValue {
 public:
-    StringToken(string s): Token(STRING), val(s) {}
-    void print() { cout << val << endl; }
+    StringToken(string s): TokenWithValue(STRING), val(s) {}
+    string value_to_string() { return val; }
     const string val;
 };
 
 
 //==========================================================================================================
 //==========================================================================================================
-class IdentifierToken: public Token {
+class IdentifierToken: public TokenWithValue {
 public:
-    IdentifierToken(string _name): Token(ID), name(_name) {}
-    void print() { cout << name << endl; }
+    IdentifierToken(string _name): TokenWithValue(ID), name(_name) {}
+    string value_to_string() { return name; }
     const string name;
 };
 

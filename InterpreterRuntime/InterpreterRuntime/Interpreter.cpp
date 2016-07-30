@@ -23,10 +23,29 @@ map<string, Interpreter::CallableFunc> Interpreter::functab = {
 void Interpreter::interpret(string filename) {
     vector<Token*> tokens;
     lexer.lex(filename, tokens);
-    AST* ast = parser.parse(tokens);
+    AST* ast;
+    
+    try {
+        ast = parser.parse(tokens);
+    } catch(string& err) { // These are internal error, not syntax error in the file
+        cout << "Internal error caught:\n" << err << endl;
+        return;
+    }
+    
+    if(ast == nullptr) return; // There was a syntax error and a message should have been printed by the parser
+        
     ast->print();
     update_interpreter_pointers(ast);
-    ast->eval();
+    
+    try {
+        ast->eval();
+    }
+    catch(string& err) {
+        cout << "Error during evaluation: " << err << endl;
+    }
+    catch(invalid_argument& err) { // Can be thrown by stoi()
+        cout << "Error during evaluation: invalid argument: " << err.what() << endl;
+    }
 }
 
 

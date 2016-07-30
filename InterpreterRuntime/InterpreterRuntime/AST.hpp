@@ -37,7 +37,8 @@ public:
     // Note: eval not done with traverse because each node has its own logic
     virtual Value& eval() = 0;
 
-    virtual void print_node() = 0;
+    virtual string get_name() = 0;
+    virtual void print_node() { cout << get_name() << endl; }
     
 protected:
     enum JumpKind {BREAK, CONTINUE};
@@ -53,7 +54,7 @@ class NumAST: public AST {
 public:
     NumAST(vector<TokenOrAST>& elements): num(((NumToken*)elements[0].get_token())->val) {}
     Value& eval() { return *(new Num(num)); }
-    void print_node() { cout << num << endl; }
+    string get_name() { return to_string(num); }
 
     const int num;
 };
@@ -65,7 +66,7 @@ class BoolAST: public AST {
 public:
     BoolAST(vector<TokenOrAST>& elements): val(((BoolToken*)elements[0].get_token())->val) {}
     Value& eval() { return *(new Bool(val)); }
-    void print_node() { cout << to_string(val) << endl; }
+    string get_name() { return to_string(val); }
     
     const bool val;
 };
@@ -77,7 +78,7 @@ class StringAST: public AST {
 public:
     StringAST(vector<TokenOrAST>& elements): val(((StringToken*)elements[0].get_token())->val) {}
     Value& eval() { return *(new String(val)); }
-    void print_node() { cout << "\"" << val << "\"" << endl; }
+    string get_name() { return "\"" + val + "\""; }
     
     const string val;
 };
@@ -96,7 +97,7 @@ public:
             if(v->tmp) delete v;
         return res;
     } 
-    void print_node() { op->print(); }
+    string get_name() { return op->get_name(); }
 
 protected:
     const Operator* op;
@@ -125,7 +126,7 @@ class CondExpAST: public AST {
 public:
     CondExpAST(vector<TokenOrAST>& elements);
     Value& eval();
-    void print_node() { cout << "?:" << endl; }
+    string get_name() { return "?:"; }
 };
 
 
@@ -135,7 +136,7 @@ class VarAST: public AST {
 public:
     VarAST(vector<TokenOrAST>& elements): name(((IdentifierToken*)elements[0].get_token())->name) {} 
     Value& eval();
-    void print_node() { cout << name << endl; }
+    string get_name() { return name; }
 
     const string name;
     Interpreter* interpreter;
@@ -148,7 +149,7 @@ class AssignmentAST: public AST {
 public:
     AssignmentAST(vector<TokenOrAST>& elements);
     Value& eval();
-    void print_node() { cout << (conditional ? "?=" : "=") << endl; }
+    string get_name() { return (conditional ? "?=" : "="); }
     
     Interpreter* interpreter;
     
@@ -163,7 +164,7 @@ class StatementsAST: public AST {
 public:
     StatementsAST(vector<TokenOrAST>& elements);
     Value& eval();
-    void print_node() { cout << "Statements" << endl; }
+    string get_name() { return "Statements"; }
 };
 
 
@@ -173,7 +174,7 @@ class IfAST: public AST {
 public:
     IfAST(vector<TokenOrAST>& elements);
     Value& eval();
-    void print_node() { cout << "if" << endl; }
+    string get_name() { return "if"; }
 };
 
 
@@ -183,7 +184,7 @@ class IfElseAST: public AST {
 public:
     IfElseAST(vector<TokenOrAST>& elements);
     Value& eval();
-    void print_node() { cout << "if-else" << endl; }
+    string get_name() { return "if-else"; }
 };
 
 
@@ -193,7 +194,7 @@ class WhileAST: public AST {
 public:
     WhileAST(vector<TokenOrAST>& elements);
     Value& eval();
-    void print_node() { cout << "while" << endl; }
+    string get_name() { return "while"; }
 };
 
 
@@ -203,7 +204,7 @@ class RepeatAST: public AST {
 public:
     RepeatAST(vector<TokenOrAST>& elements);
     Value& eval();
-    void print_node() { cout << "repeat" << endl; }
+    string get_name() { return "repeat"; }
     
 private:
     int times; // How many times to repeat body
@@ -216,7 +217,7 @@ class BreakAST: public AST {
 public:
     BreakAST(vector<TokenOrAST>& elements) {}
     Value& eval() { throw BREAK; }
-    void print_node() { cout << "break" << endl; }
+    string get_name() { return "break"; }
 };
 
 //==========================================================================================================
@@ -225,7 +226,7 @@ class ContinueAST: public AST {
 public:
     ContinueAST(vector<TokenOrAST>& elements) {}
     Value& eval() { throw CONTINUE; }
-    void print_node() { cout << "continue" << endl; }
+    string get_name() { return "continue"; }
 };
 
 
@@ -236,7 +237,7 @@ class ParamsAST: public AST {
 public:
     ParamsAST(vector<TokenOrAST>& elements);
     Value& eval() { throw string("ParamsAST::eval() should never be called"); }
-    void print_node() { cout << "params-list" << endl; }
+    string get_name() { return "params-list"; }
 };
 
 
@@ -246,7 +247,7 @@ class NamedParamAST: public AST {
 public:
     NamedParamAST(vector<TokenOrAST>& elements);
     Value& eval();
-    void print_node() { cout << "named-param: " << name << endl; }
+    string get_name() { return "named-param: " + name; }
 
     const string name;
 };
@@ -258,7 +259,7 @@ class NamedParamsAST: public AST {
 public:
     NamedParamsAST(vector<TokenOrAST>& elements);
     Value& eval() { throw string("NamedParamsAST::eval() should never be called"); }
-    void print_node() { cout << "named-params-list" << endl; }
+    string get_name() { return "named-params-list"; }
 };
 
 
@@ -268,7 +269,7 @@ class FuncAST: public AST {
 public:
     FuncAST(vector<TokenOrAST>& elements);
     Value& eval();
-    void print_node() { cout << name << "()" << endl; }
+    string get_name() { return name + "()"; }
     
     const string name;
     Interpreter* interpreter;

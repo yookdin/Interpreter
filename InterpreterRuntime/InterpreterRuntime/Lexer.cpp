@@ -44,6 +44,7 @@ void Lexer::lex(string filename, vector<Token*>& tokens) {
 
     reset();
     input.assign(istreambuf_iterator<char>(file), istreambuf_iterator<char>());
+    iter = input.begin();
     
     //------------------------------------------------------------------------------------------------------
     // Turn file text into tokens
@@ -307,7 +308,6 @@ bool Lexer::skip_comment() {
 //==========================================================================================================
 void Lexer::reset() {
     input.clear();
-    iter = input.begin();
     line_num = 1;
     in_string = false;
     num_open_brackets = 0;
