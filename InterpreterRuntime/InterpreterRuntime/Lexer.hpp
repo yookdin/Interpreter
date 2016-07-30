@@ -23,17 +23,17 @@ private:
     static vector<token_matcher> matchers;
     static regex keyword_re, num_re, bool_re, id_re;
     
-    // Fields indicating current state
     string input;
     string::const_iterator iter;
-    int line_num = 1;
-    bool in_string = false;
-    int num_open_brackets = 0;
+    int line_num;
+    bool in_string;
+    int num_open_brackets;
     string cur_string;
 
     enum StringKind { QUOTES, BRACKETS };
     stack<StringKind> string_kinds;
     
+    void reset();
     
     Token* try_match();
     Token* match_keyword(smatch& match);
@@ -53,7 +53,8 @@ private:
     // in bracketed strings ]] needs to be escaped (like this: \]])
     bool is_escaped_char(char c) { return c == '[' or c == '\\'; }
     
-    string extract_current_line();
+    string create_syntax_err_msg(string& filename);
+    void get_current_line_position(int& start, int& len);
 };
 
  

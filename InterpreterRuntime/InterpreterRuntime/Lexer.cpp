@@ -42,9 +42,8 @@ void Lexer::lex(string filename, vector<Token*>& tokens) {
     if(!file.is_open())
         throw string("File " + filename + " not found");
 
+    reset();
     input.assign(istreambuf_iterator<char>(file), istreambuf_iterator<char>());
-    iter = input.begin();
-    line_num = 1;
     
     //------------------------------------------------------------------------------------------------------
     // Turn file text into tokens
@@ -57,8 +56,10 @@ void Lexer::lex(string filename, vector<Token*>& tokens) {
         if(iter == input.end()) break;
         
         Token* token = try_match();
+        
         if(token == nullptr)
-            throw string("Unrecognized syntax at file " + filename + ", line " + to_string(line_num) + ":\n" + extract_current_line());
+            throw create_syntax_err_msg(filename);
+        
         tokens.push_back(token);
     }
 
@@ -304,27 +305,46 @@ bool Lexer::skip_comment() {
 
 //==========================================================================================================
 //==========================================================================================================
-string Lexer::extract_current_line() {
+void Lexer::reset() {
+    input.clear();
+    iter = input.begin();
+    line_num = 1;
+    in_string = false;
+    num_open_brackets = 0;
+    cur_string.clear();
+}
+
+
+//==========================================================================================================
+//==========================================================================================================
+void Lexer::get_current_line_position(int& start, int& len) {
     int pos = iter - input.begin();
     
-    int start = input.rfind('\n', pos);
+    start = input.rfind('\n', pos);
     if(start == string::npos)
         start = 0;
     else
         ++start;
     
-    int end = input.find('\n', pos), len = end;
-    if(end != string::npos)
+    int end = input.find('\n', pos);
+
+    if(end == string::npos)
+        len = input.length() - start;
+    else
         len = end - start;  
-    
-    return input.substr(start, len);
 }
 
 
-
-
-
-
+//==========================================================================================================
+//==========================================================================================================
+string Lexer::create_syntax_err_msg(string& filename) {
+    string res = "Unrecognized syntax at file " + filename + ", line " + to_string(line_num) + ":\n";
+    int start, len, cur_pos = iter - input.begin();
+    get_current_line_position(start, len);
+    res += input.substr(start, len) + "\n";
+    res += string(cur_pos - start, ' ') + "^\n"; // Indicates where in the line the error occurred
+    return res;
+}
 
 
 
