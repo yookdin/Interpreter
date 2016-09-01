@@ -11,7 +11,7 @@
 
 //==========================================================================================================
 //==========================================================================================================
-Production::Production(vector<Symbol> _symbols, string _action_name): symbols(_symbols), action_name(_action_name) {
+Production::Production(vector<Symbol> _symbols, string _action_name, int _index): symbols(_symbols), action_name(_action_name), index(_index) {
     // Find the last symbol that is an operator
     auto iter = find_if(symbols.rbegin(), symbols.rend(), [](Symbol sym){ return is_op(sym); });
     
@@ -57,22 +57,15 @@ void Grammar::read_grammar_file(string grammar_file) {
         if(split_pos != string::npos)
             extract_action(line.substr(split_pos + 1), action_name);
         
-        productions.push_back(Production(symbols, action_name));
+        // We know we're going to add the production for START at the beginning, so put as index the current index + 1
+        productions.push_back(Production(symbols, action_name, productions.size() + 1));
     }
     
     //------------------------------------------------------------------------------------------------------
-    // First production nonterminal considered the start symbol. If it is not START, add a production:
+    // Add a production:
     // START -> FIRST-NONTERMINAL
     //------------------------------------------------------------------------------------------------------
-    if(productions[0][0] == START) {
-        if(productions[0].size() != 2)
-            throw string("Expected production for START to have just one symbol on right hand side");
-        if(not is_nonterminal(productions[0][1]))
-            throw string("Expected production for START to have a nonterminal on the right hand side");
-    }
-    else {
-        productions.push_front(Production({START, productions[0][0]}, ""));
-    }
+    productions.push_front(Production({START, productions[0][0]}, "", 0));
 
 } // read_grammar_file()
 
@@ -131,7 +124,7 @@ void Grammar::extract_action(string action_str, string& action_name) {
 //  First(S) =  
 //              S is a nonterminal: Union(First(F)) where F is the first symbol of a right-hand-side sequence of a production for S
 //
-// This is a non-efficient algorithm, since it goes over all the production again and again until nothing
+// This is a non-efficient algorithm, since it goes over all the productions again and again until nothing
 // new is added. A possible optimization is to build a directed graph, where there's an edge for the first
 // symbol of a RHS of a production to the nonterminal of the production.
 // Then from all the nodes that are terminals, go BFS-ly and add the terminal to all reachable nodes.

@@ -18,17 +18,18 @@
 //==========================================================================================================
 class Production {
 public:
-    Production(vector<Symbol> _symbols, string _action_name);
+    Production(vector<Symbol> _symbols, string _action_name, int index);
     
     Symbol operator[](int i) { return symbols[i]; }
     int size()               { return symbols.size(); }
     int rhs_size()           { return symbols.size() - 1; }
+    Symbol get_lhs()         { return symbols[0]; }
     
+    const int index;
     const vector<Symbol> symbols;
     const string action_name;
     Operator* op; // The last op (if any) in the production
 };
-
 
 //==========================================================================================================
 //==========================================================================================================
@@ -37,9 +38,11 @@ public:
     Grammar(string grammar_file);
     void print();
     Set<Symbol> get_follow_set(Symbol sym);
+    Set<Symbol> get_first_set(Symbol sym);
     
     friend class NFA;
     friend class SLR_Table;
+    friend class LR_TableGenerator;
 
 private:
     // This can't be vector (true to C++11) because in order to be able to add in the front, you need the push_front()
@@ -58,7 +61,6 @@ private:
     void extract_action(string action_str, string& action_name);
     void calc_follow_table();
     void calc_first_table();
-    Set<Symbol> get_first_set(Symbol sym);
 };
 
 
