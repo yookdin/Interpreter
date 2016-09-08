@@ -7,27 +7,27 @@
 //==========================================================================================================
 SymbolGenerator::SymbolGenerator(string grammar_file, string header_file, string source_file) {
 	string_symbol_map["+"] = "ADD";
-//	string_symbol_map["-"] = "SUB";
-//	string_symbol_map["*"] = "MUL";
-//	string_symbol_map["/"] = "DIV";
-//	string_symbol_map["%"] = "MOD";
+	string_symbol_map["-"] = "SUB";
+	string_symbol_map["*"] = "MUL";
+	string_symbol_map["/"] = "DIV";
+	string_symbol_map["%"] = "MOD";
 	string_symbol_map["="] = "ASSIGN";
-//    string_symbol_map["?="] = "CONDITIONAL_ASSIGN";    
-//	string_symbol_map["=="] = "EQ";
-//	string_symbol_map["!="] = "NE";
-//	string_symbol_map["<"] = "LT";
-//	string_symbol_map[">"] = "GT";
-//	string_symbol_map["<="] = "LE";
-//	string_symbol_map[">="] = "GE";
+    string_symbol_map["?="] = "CONDITIONAL_ASSIGN";    
+	string_symbol_map["=="] = "EQ";
+	string_symbol_map["!="] = "NE";
+	string_symbol_map["<"] = "LT";
+	string_symbol_map[">"] = "GT";
+	string_symbol_map["<="] = "LE";
+	string_symbol_map[">="] = "GE";
 	string_symbol_map["("] = "LEFT_PAREN";
 	string_symbol_map[")"] = "RIGHT_PAREN";
-//	string_symbol_map["{"] = "LEFT_CURLY";
-//	string_symbol_map["}"] = "RIGHT_CURLY";
-//	string_symbol_map["~"] = "STR_MATCH";
-//	string_symbol_map["!~"] = "NO_STR_MATCH";
-//	string_symbol_map[";"] = "SEMI_COLON";
-//	string_symbol_map["?"] = "QUESTION_MARK";
-//    string_symbol_map[":"] = "COLON";
+	string_symbol_map["{"] = "LEFT_CURLY";
+	string_symbol_map["}"] = "RIGHT_CURLY";
+	string_symbol_map["~"] = "STR_MATCH";
+	string_symbol_map["!~"] = "NO_STR_MATCH";
+	string_symbol_map[";"] = "SEMI_COLON";
+	string_symbol_map["?"] = "QUESTION_MARK";
+    string_symbol_map[":"] = "COLON";
     string_symbol_map["$"] = "EOI";
 //    string_symbol_map[","] = "COMMA";
 

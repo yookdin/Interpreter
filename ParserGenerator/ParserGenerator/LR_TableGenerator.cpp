@@ -29,7 +29,7 @@ void LR_TableGenerator::build_table() {
     Configuration c0(grammar, grammar.productions[0], 0, {EOI}); // Initial configuration
     
     // A list of the configuration sets, for each a state will be created
-    vector<UnorderedSet<Configuration>> configurating_sets{closure(c0)};
+    vector<ConfigurationSet> configurating_sets{ConfigurationSet(c0)};
     
     // Adding the starting state
     table.push_back(vector<Action>(NUM_SYMBOLS));
@@ -40,16 +40,17 @@ void LR_TableGenerator::build_table() {
     //------------------------------------------------------------------------------------------------------
     for(int i = 0; i < table.size(); ++i) {
         for(int sym = 0; sym < NUM_SYMBOLS; ++sym) { // for each symbol
-            UnorderedSet<Configuration> cs;
+            ConfigurationSet cs(grammar);
             
-            for(auto& c: configurating_sets[i]) {    // for each configuration in current state
+            for(auto c: configurating_sets[i]) {    // for each configuration in current state
                 if(not c.next_symbol_exists() or c.get_next_symbol() != sym) 
                     continue;
-                cs.insert(closure(c.get_transition_configuration()));
+
+                cs.merge(c.get_transition_configuration());
             }
 
             if(cs.empty()) continue;
-            
+                        
             // Check if the new set already exists
             for(int j = 0; j < table.size(); ++j) {
                 if(configurating_sets[j] == cs) {
@@ -72,14 +73,22 @@ void LR_TableGenerator::build_table() {
     // Add the reduce and accept actions
     //------------------------------------------------------------------------------------------------------
     for(int i = 0; i < configurating_sets.size(); ++i) {
-        for(auto& c: configurating_sets[i]) {
+        for(auto c: configurating_sets[i]) {
             if(not c.reducable()) continue;
                 
             // Add a reduce action for each symbol in the configuration lookahead set
             for(auto sym: c.lookaheads) {
-                if(table[i][sym].kind != ERROR) {
-                    if(resolve_conflict(c, sym, table[i][sym].kind) == SHIFT_WIN)
-                        continue;
+                
+                if(table[i][sym].kind != ERROR) { // There's a conflict, try to resolve
+                    
+                    ResolutionResult res = resolve_conflict(c, sym, table[i][sym].kind, table[i][sym].message); 
+                    
+                    // This sequence is not allowed. This happens for consecutive operators with no associativity,
+                    // meaning they're not allowed to be chained
+                    if(res == NOT_ALLOWED)
+                        table[i][sym].kind = ERROR;
+                    
+                    if(res != REDUCE_WIN) continue;
                 }
                 
                 // No confilict or REDUCE_WIN
@@ -97,68 +106,17 @@ void LR_TableGenerator::build_table() {
 
 
 //==========================================================================================================
-// For a configuration, return the closure set (all configuration representing equivalent positions in the
-// parsing process).
-//==========================================================================================================
-UnorderedSet<Configuration> LR_TableGenerator::closure(Configuration c) {
-    UnorderedSet<Configuration> tmp_set{c};
-    
-    // Use pointers in temp vector, otherwise, in order to be able to erase, we'll need to define a copy-assignment
-    // to Configuration, and as a result to Production, and all that is not really necessary.
-    vector<Configuration*> cur_configs{&c};
-    
-    //------------------------------------------------------------------------------------------------------
-    // While there are new configurations in the set, try to to extend them
-    //------------------------------------------------------------------------------------------------------
-    for(int i = 0; i < cur_configs.size(); ++i) {
-        if(cur_configs[i]->closed) continue; // Current configuration can't extended
-        
-        Symbol nonterminal = cur_configs[i]->get_next_symbol();
-        Set<Symbol> lookaheads = cur_configs[i]->get_actual_lookahead_set();
-        
-        for(auto& p: grammar.productions) {
-            if(p.get_lhs() != nonterminal) continue;
-            
-            Configuration c(grammar, p, 0, lookaheads);
-            
-            if(tmp_set.count(c) == 0) { // The check is not necessary when adding to a set, but it is to know whether to add to cur_configs
-                Configuration* pc = const_cast<Configuration*>(&tmp_set.insert(c));
-                cur_configs.push_back(pc);
-            }
-        }
-    }
-    
-    //------------------------------------------------------------------------------------------------------
-    // Merge configuration that only differ in their lookaheads sets
-    //------------------------------------------------------------------------------------------------------
-    UnorderedSet<Configuration> res;
-    
-    for(int i = 0; i < cur_configs.size(); ++i) {
-        for(int j = i+1; j < cur_configs.size(); ++j) {
-            if(cur_configs[i]->try_merge(*cur_configs[j])) {
-                cur_configs.erase(cur_configs.begin() + j);
-                --j;
-            }
-        }
-        res.insert(*cur_configs[i]);
-    }
-    
-    return res;
-}
-
-
-//==========================================================================================================
 // Conflicts that can be resolved are only shift-reduce of the following kinds:
 // o if-else - else (shift) wins, causing else to be always associated with closet preceding if
 // o Infix operators - resolve according to operator precedence and associativity
 //==========================================================================================================
-LR_TableGenerator::ResolutionResult LR_TableGenerator::resolve_conflict(const Configuration& c, Symbol sym, ParserActionKind action_kind) {
+LR_TableGenerator::ResolutionResult LR_TableGenerator::resolve_conflict(const Configuration& c, Symbol sym, ParserActionKind action_kind, string& err_msg) {
     if(action_kind != SHIFT)
-        throw string("Can't resolve conflict between reduce and " + action_kind_to_string(action_kind));
+        throw string("Can't resolve a reduce-reduce conflict");
 
-    //    if(sym == ELSE) {
-    //        return SHIFT_WIN;
-    //    }
+    if(sym == ELSE) {
+        return SHIFT_WIN;
+    }
     
     if(not is_op(sym))
         throw string("Can't resolve conflict, current symbol is " + symbol_str_map[sym] + " which isn't an operator");
@@ -169,9 +127,8 @@ LR_TableGenerator::ResolutionResult LR_TableGenerator::resolve_conflict(const Co
     Operator *left_op = c.production.op, *right_op = get_op(sym);
     
     if(left_op->precedence == right_op->precedence and left_op->associativity == Operator::NONE) {                    
-        //msg = "Sequence: \"EXP " + left_op->get_name() + " EXP " + right_op->get_name() + " EXP\" not allowed";
-        throw string("Can't resolve two operators with equal precedence and no associativity");
-        //return NOT_ALLOWED;
+        err_msg = "Sequence: \"EXP " + left_op->get_name() + " EXP " + right_op->get_name() + " EXP\" not allowed";
+        return NOT_ALLOWED;
     }
     
     // If the left (first) operator should precede the right one, reduce should be performed. This is because reduce
@@ -332,6 +289,85 @@ void LR_TableGenerator::print_separation_line(vector<int> col_widths) {
     }
     cout << "+" << endl;
 }
+
+
+//==========================================================================================================
+// Perform the closure operation on the configuration
+//==========================================================================================================
+ConfigurationSet::ConfigurationSet(Configuration c): grammar(c.grammar) {
+    UnorderedSet<Configuration> tmp_set{c};
+    vector<Configuration> cur_configs{c};
+    
+    //------------------------------------------------------------------------------------------------------
+    // While there are new configurations in the set, try to to extend them
+    //------------------------------------------------------------------------------------------------------
+    for(int i = 0; i < cur_configs.size(); ++i) {
+        if(cur_configs[i].closed) continue; // Current configuration can't be extended
+        
+        Symbol nonterminal = cur_configs[i].get_next_symbol();
+        Set<Symbol> lookaheads = cur_configs[i].get_actual_lookahead_set();
+        
+        for(auto& p: grammar.productions) {
+            if(p.get_lhs() != nonterminal) continue;
+            
+            Configuration c(grammar, p, 0, lookaheads);
+            
+            if(tmp_set.count(c) == 0) { // The check is not necessary when adding to a set, but it is to know whether to add to cur_configs
+                tmp_set.insert(c);
+                cur_configs.push_back(c);
+            }
+        }
+    }
+    
+    //------------------------------------------------------------------------------------------------------
+    // Transform actual configuration objects to map entries, while merging configurations that only differ
+    // in their lookahead sets.
+    //------------------------------------------------------------------------------------------------------
+    for(auto& c: tmp_set) {
+        m[{c.production.index, c.pos}].insert(c.lookaheads); // Either create a new entry or merge lookaheads into existing one
+    }
+}
+
+
+//==========================================================================================================
+//==========================================================================================================
+void ConfigurationSet::merge(ConfigurationSet other) {
+    for(auto& p: other.m)
+        m[p.first].insert(p.second);
+}
+
+
+//==========================================================================================================
+//==========================================================================================================
+void ConfigurationSet::print() {
+    for(auto c: *this) c.print();
+    cout << endl;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

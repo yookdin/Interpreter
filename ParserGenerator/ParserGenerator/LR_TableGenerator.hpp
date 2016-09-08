@@ -14,6 +14,8 @@
 
 
 //==========================================================================================================
+// Configuration is grammar production, plus position of parser within the production, plus lookaheads set -
+// expected tokens to follow this configuration while parsing.
 //==========================================================================================================
 class Configuration {
 public:
@@ -78,15 +80,6 @@ public:
 
     //------------------------------------------------------------------------------------------------------
     //------------------------------------------------------------------------------------------------------
-    bool try_merge(const Configuration& other) {
-        if(production.index != other.production.index or pos != other.pos) return false;
-        lookaheads.insert(other.lookaheads);
-        return true;
-    }
-    
-    
-    //------------------------------------------------------------------------------------------------------
-    //------------------------------------------------------------------------------------------------------
     bool operator==(const Configuration &other) const { 
         return (production.index == other.production.index and pos == other.pos and lookaheads == other.lookaheads);
     }
@@ -139,6 +132,58 @@ struct hash<Configuration>
 };
 
 
+//==========================================================================================================
+// A set of configurations. This class handles the closure operation on configuration, merging of
+// configuration sets, etc.
+// Doesn't actually store configurations. Instead use a map which key is <production-index, position>, and
+// value is the lookahead set. This makes it easier to merge configurations that differ only in their
+// lookahead sets.
+// However, iterating is possible, and a real Configuration object will be created to facilitate
+// configuration queries.
+//==========================================================================================================
+class ConfigurationSet {
+public:
+    ConfigurationSet(Grammar& _grammar): grammar(_grammar){}
+    ConfigurationSet(Configuration c);
+    bool operator==(const ConfigurationSet& other) { return m == other.m; }
+    bool empty() { return m.empty(); }
+    void merge(ConfigurationSet other);
+    void print();
+    
+    typedef pair<int,int> key_type;
+    typedef Set<Symbol> value_type;
+    typedef map<key_type, value_type>::iterator map_iterator; 
+    
+    
+    //------------------------------------------------------------------------------------------------------
+    // Will enable iteration over the set as if iterating over a real set of configurations
+    //------------------------------------------------------------------------------------------------------
+    struct iterator {
+        iterator(Grammar& _grammar, map_iterator _map_iter): grammar(_grammar), map_iter(_map_iter) {}
+        
+        Configuration operator*() { return Configuration(grammar, grammar.productions[map_iter->first.first], map_iter->first.second, map_iter->second); }
+        
+        bool operator==(const iterator& other) { return map_iter == other.map_iter; }
+        
+        bool operator!=(const iterator& other) { return map_iter != other.map_iter; }
+        
+        iterator& operator++() { ++map_iter; return *this; }
+        
+    private:
+        map_iterator map_iter;
+        Grammar& grammar;
+    };
+    
+    //------------------------------------------------------------------------------------------------------
+    //------------------------------------------------------------------------------------------------------
+    iterator begin() { return iterator(grammar, m.begin()); }
+    iterator end()   { return iterator(grammar, m.end());   }
+    
+private:
+    Grammar& grammar;
+    map<key_type, Set<Symbol>> m;
+};
+
 
 //==========================================================================================================
 //==========================================================================================================
@@ -159,10 +204,8 @@ private:
     vector<vector<Action>> table; // Action per state and symbol
     string tab = "    ";
     
-    UnorderedSet<Configuration> closure(Configuration c);
-    
     enum ResolutionResult {SHIFT_WIN, REDUCE_WIN, NOT_ALLOWED};
-    ResolutionResult resolve_conflict(const Configuration& c, Symbol sym, ParserActionKind action_kind);
+    ResolutionResult resolve_conflict(const Configuration& c, Symbol sym, ParserActionKind action_kind, string& err_msg);
     
     void build_table();
     void write_tables_file(string filename);

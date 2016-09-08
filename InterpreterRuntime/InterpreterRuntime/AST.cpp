@@ -93,8 +93,7 @@ Value& VarAST::eval() {
 
 //==========================================================================================================
 //==========================================================================================================
-//AssignmentAST::AssignmentAST(vector<TokenOrAST>& elements): conditional(elements[1].get_token()->sym == CONDITIONAL_ASSIGN) {
-AssignmentAST::AssignmentAST(vector<TokenOrAST>& elements): conditional(false) {
+AssignmentAST::AssignmentAST(vector<TokenOrAST>& elements): conditional(elements[1].get_token()->sym == CONDITIONAL_ASSIGN) {
     add_child(new VarAST(elements));
     add_child(elements[2].get_ast());
 }

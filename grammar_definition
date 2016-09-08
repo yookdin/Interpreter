@@ -10,8 +10,21 @@
 //---------------------------------------------------------------------
 // Statements
 //---------------------------------------------------------------------
+STATEMENTS  ->  STATEMENT                           #  Statements
+STATEMENTS  ->  STATEMENT STATEMENTS                #  Statements
+STATEMENTS  ->  STATEMENT ; STATEMENTS              #  Statements
 STATEMENT   ->  ID = EXP                            #  Assignment
+STATEMENT   ->  ID ?= EXP                           #  Assignment
+STATEMENT   ->  BLOCK                               #  Statements
+BLOCK       ->  { STATEMENTS }                      #  Statements
+STATEMENT   ->  if EXP STATEMENT                    #  If
+STATEMENT   ->  if EXP STATEMENT else STATEMENT     #  IfElse
+STATEMENT   ->  while EXP STATEMENT                 #  While
+STATEMENT   ->  repeat EXP times STATEMENT          #  Repeat
+STATEMENT   ->  break                               #  Break
+STATEMENT   ->  continue                            #  Continue
 
+    
 //---------------------------------------------------------------------
 // Expressions
 //---------------------------------------------------------------------
@@ -21,3 +34,19 @@ EXP  ->  STRING             #  String
 EXP  ->  ID                 #  Var
 EXP  ->  ( EXP )            
 EXP  ->  EXP + EXP          #  Bop
+EXP  ->  EXP - EXP          #  Bop
+EXP  ->  EXP * EXP          #  Bop
+EXP  ->  EXP / EXP          #  Bop
+EXP  ->  EXP % EXP          #  Bop 
+EXP  ->  EXP == EXP         #  Bop  
+EXP  ->  EXP != EXP         #  Bop
+EXP  ->  EXP < EXP          #  Bop
+EXP  ->  EXP > EXP          #  Bop
+EXP  ->  EXP <= EXP         #  Bop
+EXP  ->  EXP >= EXP         #  Bop
+EXP  ->  EXP ~ EXP          #  Bop
+EXP  ->  EXP !~ EXP         #  Bop
+EXP  ->  EXP or EXP         #  Bop
+EXP  ->  EXP and EXP        #  Bop
+EXP  ->  not EXP            #  Uop
+EXP  ->  EXP ? EXP : EXP    #  CondExp

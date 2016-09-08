@@ -40,8 +40,7 @@ public:
     Set<Symbol> get_follow_set(Symbol sym);
     Set<Symbol> get_first_set(Symbol sym);
     
-    friend class NFA;
-    friend class SLR_Table;
+    friend class ConfigurationSet;
     friend class LR_TableGenerator;
 
 private:
