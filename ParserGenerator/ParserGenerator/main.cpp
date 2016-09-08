@@ -6,11 +6,22 @@
 //  Copyright © 2016 Vonage. All rights reserved.
 //
 
-#include "SLR_Table.hpp"
+#include "LR_TableGenerator.hpp"
 
 int main(int argc, const char * argv[]) {
-
-    SLR_Table table("/Users/ydinari/src/Interpreter/grammar_definition", "/Users/ydinari/src/Interpreter/InterpreterRuntime/InterpreterRuntime/ParserTables.cpp");
     
+    try {
+        string project_dir(getenv("SRCROOT"));
+        
+        if(project_dir.empty())
+            throw string("Couldn't get project dir");
+        
+        string workspace_dir = project_dir + "/..";
+        LR_TableGenerator(workspace_dir + "/grammar_definition", workspace_dir + "/InterpreterRuntime/InterpreterRuntime/ParserTables.cpp");
+
+    } catch(string& err) {
+        cout << "Caught exception: " << err << endl;
+    }
+
     return 0;
 }

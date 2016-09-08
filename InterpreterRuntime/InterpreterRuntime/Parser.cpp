@@ -38,9 +38,6 @@ AST* Parser::parse(vector<Token*> tokens) {
                 ++i;
                 break;
             }
-            case GO: { // Should never be reached because tokens list received from lexer should contain only terminals
-                throw string("GO action should never be reached directly");
-            }
             case REDUCE: { // Perform the REDUCE and GO action that immediately follows it
                 
                 Symbol N = production_infos[action.val].lhs;
@@ -57,8 +54,8 @@ AST* Parser::parse(vector<Token*> tokens) {
                 
                 action = table[stack.top().state][N];
                 
-                if(action.kind != GO)
-                    throw string("Expected action for [" + to_string(stack.top().state) + "," + symbol_str_map[N] + "] to be GO but found: " + action.to_string());
+                if(action.kind != SHIFT)
+                    throw string("Expected action for [" + to_string(stack.top().state) + "," + symbol_str_map[N] + "] to be SHIFT but found: " + action.to_string());
                 
                 stack.push(ParseStackElement(action.val, ast));
                 break;
@@ -68,7 +65,7 @@ AST* Parser::parse(vector<Token*> tokens) {
                     throw string("ACCEPT reached before end of input");
                 
                 AST* res = stack.top().get_token_or_ast().get_ast();
-                stack.pop(); // ACCEPT is REDUCE for producation 0, which always has just one symbol on right-hand-side
+                stack.pop(); // ACCEPT is REDUCE for production 0, which always has just one symbol on right-hand-side
                 if(stack.top().state != 0 or stack.size() != 1)
                     throw string("Expected stack to contain just the start state after ACCEPT");
                 

@@ -1,4 +1,3 @@
-// This grammar is for an SLR parser generator.
 // If a # sign appear after a production rule, it means that the word after it is
 // the name of the specific AST class that should be created when this production is reduced.
 // If no AST specified, it means no new AST should be created, just pass on the AST already
@@ -11,20 +10,7 @@
 //---------------------------------------------------------------------
 // Statements
 //---------------------------------------------------------------------
-STATEMENTS  ->  STATEMENT                           #  Statements
-STATEMENTS  ->  STATEMENT STATEMENTS                #  Statements
-STATEMENTS  ->  STATEMENT ; STATEMENTS              #  Statements
 STATEMENT   ->  ID = EXP                            #  Assignment
-STATEMENT   ->  ID ?= EXP                           #  Assignment
-STATEMENT   ->  BLOCK                               #  Statements
-BLOCK       ->  { STATEMENTS }                      #  Statements
-STATEMENT   ->  if EXP STATEMENT                    #  If
-STATEMENT   ->  if EXP STATEMENT else STATEMENT     #  IfElse
-STATEMENT   ->  while EXP STATEMENT                 #  While
-STATEMENT   ->  repeat EXP times STATEMENT          #  Repeat
-STATEMENT   ->  break                               #  Break
-STATEMENT   ->  continue                            #  Continue
-STATEMENT   ->  FUNC_CALL
 
 //---------------------------------------------------------------------
 // Expressions
@@ -35,32 +21,3 @@ EXP  ->  STRING             #  String
 EXP  ->  ID                 #  Var
 EXP  ->  ( EXP )            
 EXP  ->  EXP + EXP          #  Bop
-EXP  ->  EXP - EXP          #  Bop
-EXP  ->  EXP * EXP          #  Bop
-EXP  ->  EXP / EXP          #  Bop
-EXP  ->  EXP % EXP          #  Bop 
-EXP  ->  EXP == EXP         #  Bop  
-EXP  ->  EXP != EXP         #  Bop
-EXP  ->  EXP < EXP          #  Bop
-EXP  ->  EXP > EXP          #  Bop
-EXP  ->  EXP <= EXP         #  Bop
-EXP  ->  EXP >= EXP         #  Bop
-EXP  ->  EXP ~ EXP          #  Bop
-EXP  ->  EXP !~ EXP         #  Bop
-EXP  ->  EXP or EXP         #  Bop
-EXP  ->  EXP and EXP        #  Bop
-EXP  ->  not EXP            #  Uop
-EXP  ->  EXP ? EXP : EXP    #  CondExp
-EXP  ->  FUNC_CALL
-
-//---------------------------------------------------------------------
-// Function call (can be both a statement and an expression)
-//---------------------------------------------------------------------
-FUNC_CALL           ->  ID ( )                           # Func
-FUNC_CALL           ->  ID ( PARAMS_LIST )               # Func
-FUNC_CALL           ->  ID ( NAMED_PARAMS_LIST )         # Func
-PARAMS_LIST         ->  EXP                              # Params
-PARAMS_LIST         ->  EXP , PARAMS_LIST                # Params
-NAMED_PARAM         ->  ID = EXP                         # NamedParam
-NAMED_PARAMS_LIST   ->  NAMED_PARAM                      # NamedParams
-NAMED_PARAMS_LIST   ->  NAMED_PARAM , NAMED_PARAMS_LIST  # NamedParams

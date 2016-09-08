@@ -24,6 +24,10 @@ public:
         set<T>::insert(other.begin(), other.end());
     }
     
+    void insert(const set<T>& other) {
+        set<T>::insert(other.begin(), other.end());
+    }
+
     void insert(Set<T>& other) {
         set<T>::insert(other.begin(), other.end());
     }
@@ -37,5 +41,33 @@ public:
         set<T>::insert(value);
     }
 };
+
+
+//==========================================================================================================
+// Unordered set that support insert(another-set) operation
+//==========================================================================================================
+template<class T>
+class UnorderedSet: public unordered_set<T> {
+public:
+    UnorderedSet(){}
+    UnorderedSet(initializer_list<T> il): unordered_set<T>(il) {}
+    
+    void insert(unordered_set<T>& other) {
+        unordered_set<T>::insert(other.begin(), other.end());
+    }
+    
+    void insert(UnorderedSet<T>& other) {
+        unordered_set<T>::insert(other.begin(), other.end());
+    }
+    
+    void insert(UnorderedSet<T>&& other) {
+        unordered_set<T>::insert(other.begin(), other.end());
+    }
+    
+    const T& insert(const T& value) {
+        return *unordered_set<T>::insert(value).first;
+    }
+};
+
 
 #endif /* Set_h */

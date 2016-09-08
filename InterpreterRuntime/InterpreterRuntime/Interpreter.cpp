@@ -37,15 +37,15 @@ void Interpreter::interpret(string filename) {
     ast->print();
     update_interpreter_pointers(ast);
     
-    try {
-        ast->eval();
-    }
-    catch(string& err) {
-        cout << "Error during evaluation: " << err << endl;
-    }
-    catch(invalid_argument& err) { // Can be thrown by stoi()
-        cout << "Error during evaluation: invalid argument: " << err.what() << endl;
-    }
+//    try {
+//        ast->eval();
+//    }
+//    catch(string& err) {
+//        cout << "Error during evaluation: " << err << endl;
+//    }
+//    catch(invalid_argument& err) { // Can be thrown by stoi()
+//        cout << "Error during evaluation: invalid argument: " << err.what() << endl;
+//    }
 }
 
 

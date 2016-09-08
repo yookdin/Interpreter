@@ -15,7 +15,7 @@ using namespace std;
 
 #include "Symbol.hpp"
 
-enum ParserActionKind {SHIFT, GO, REDUCE, ACCEPT, ERROR};
+enum ParserActionKind {SHIFT, REDUCE, ACCEPT, ERROR};
 
 string action_kind_to_string(ParserActionKind kind);
 
@@ -24,7 +24,7 @@ string action_kind_to_string(ParserActionKind kind);
 struct Action {
     Action(): kind(ERROR), val(-1) {}
     Action(ParserActionKind k, int v = -1): kind(k), val(v) { 
-        if((kind == SHIFT or kind == REDUCE or kind == GO) and val <= 0)
+        if((kind == SHIFT or kind == REDUCE) and val <= 0)
             throw string("Shift or reduce actions need a value greater than 0");
     }
     
@@ -36,7 +36,6 @@ struct Action {
         string val_str = std::to_string(val);
         switch (kind) {
             case SHIFT: return "s" + val_str;
-            case GO: return "g" + val_str;
             case REDUCE: return "r" + val_str;
             case ACCEPT: return "a";
             case ERROR: return "";
@@ -56,5 +55,7 @@ struct ProductionInfo {
 string& trim(string& line, string comment_start= "");
 bool stob(string);
 string to_string(bool);
+string symbol_to_string(int sym);
+
 
 #endif /* utils_hpp */

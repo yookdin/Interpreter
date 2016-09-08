@@ -228,7 +228,7 @@ Set<Symbol> Grammar::get_follow_set(Symbol sym) {
 void Grammar::print() {
     cout << "Grammar:" << endl;
     for(int i = 0; i < productions.size(); ++i) {
-        cout << i << ": " << symbol_str_map[productions[i][0]] << " --> ";
+        cout << i << ": " << symbol_str_map[productions[i][0]] << " -> ";
         for(int j = 1; j < productions[i].size(); ++j)
             cout << symbol_str_map[productions[i][j]] << " ";
         cout << endl;

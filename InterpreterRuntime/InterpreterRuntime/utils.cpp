@@ -11,7 +11,6 @@
 string action_kind_to_string(ParserActionKind kind) {
     switch (kind) {
         case SHIFT: return "SHIFT";
-        case GO: return "GO";
         case REDUCE: return "REDUCE";
         case ACCEPT: return "ACCEPT";
         case ERROR: return "ERROR";
@@ -66,9 +65,11 @@ bool stob(string s)
 string to_string(bool b) { return (b ? "true" : "false"); }
 
 
-
-
-
+//==========================================================================================================
+//==========================================================================================================
+string symbol_to_string(int sym) {
+    return symbol_str_map[(Symbol)sym];
+}
 
 
 

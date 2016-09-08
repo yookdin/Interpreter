@@ -11,9 +11,6 @@
 		FE1EE4091D40C9BE006A721A /* Grammar.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FE1EE4071D40C9BE006A721A /* Grammar.cpp */; };
 		FE1EE40E1D40D0CC006A721A /* Operator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FE1EE40D1D40D0CC006A721A /* Operator.cpp */; };
 		FE1EE41A1D40DC39006A721A /* utils.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FE1EE4181D40DC39006A721A /* utils.cpp */; };
-		FE1EE4211D40DED1006A721A /* DFA.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FE1EE41B1D40DED1006A721A /* DFA.cpp */; };
-		FE1EE4221D40DED1006A721A /* NFA.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FE1EE41D1D40DED1006A721A /* NFA.cpp */; };
-		FE1EE4231D40DED1006A721A /* SLR_Table.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FE1EE41F1D40DED1006A721A /* SLR_Table.cpp */; };
 		FEEDD3C51D7855DC0033338C /* LR_TableGenerator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FEEDD3C31D7855DC0033338C /* LR_TableGenerator.cpp */; };
 		FEF4A6A11D40E47700319EC9 /* Symbol.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FEF4A69F1D40E47700319EC9 /* Symbol.cpp */; };
 /* End PBXBuildFile section */
@@ -41,12 +38,6 @@
 		FE1EE40D1D40D0CC006A721A /* Operator.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Operator.cpp; path = ../../InterpreterRuntime/InterpreterRuntime/Operator.cpp; sourceTree = "<group>"; };
 		FE1EE4181D40DC39006A721A /* utils.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = utils.cpp; path = ../../InterpreterRuntime/InterpreterRuntime/utils.cpp; sourceTree = "<group>"; };
 		FE1EE4191D40DC39006A721A /* utils.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = utils.hpp; path = ../../InterpreterRuntime/InterpreterRuntime/utils.hpp; sourceTree = "<group>"; };
-		FE1EE41B1D40DED1006A721A /* DFA.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = DFA.cpp; sourceTree = "<group>"; };
-		FE1EE41C1D40DED1006A721A /* DFA.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = DFA.hpp; sourceTree = "<group>"; };
-		FE1EE41D1D40DED1006A721A /* NFA.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = NFA.cpp; sourceTree = "<group>"; };
-		FE1EE41E1D40DED1006A721A /* NFA.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = NFA.hpp; sourceTree = "<group>"; };
-		FE1EE41F1D40DED1006A721A /* SLR_Table.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SLR_Table.cpp; sourceTree = "<group>"; };
-		FE1EE4201D40DED1006A721A /* SLR_Table.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = SLR_Table.hpp; sourceTree = "<group>"; };
 		FE1EE42A1D40E348006A721A /* common_headers.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = common_headers.h; path = ../../InterpreterRuntime/InterpreterRuntime/common_headers.h; sourceTree = "<group>"; };
 		FEEDD3C31D7855DC0033338C /* LR_TableGenerator.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = LR_TableGenerator.cpp; sourceTree = "<group>"; };
 		FEEDD3C41D7855DC0033338C /* LR_TableGenerator.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = LR_TableGenerator.hpp; sourceTree = "<group>"; };
@@ -90,12 +81,6 @@
 				FE1EE3B91D40B6EF006A721A /* main.cpp */,
 				FE1EE40B1D40CCCD006A721A /* Operator.hpp */,
 				FE1EE40D1D40D0CC006A721A /* Operator.cpp */,
-				FE1EE4201D40DED1006A721A /* SLR_Table.hpp */,
-				FE1EE41F1D40DED1006A721A /* SLR_Table.cpp */,
-				FE1EE41C1D40DED1006A721A /* DFA.hpp */,
-				FE1EE41B1D40DED1006A721A /* DFA.cpp */,
-				FE1EE41E1D40DED1006A721A /* NFA.hpp */,
-				FE1EE41D1D40DED1006A721A /* NFA.cpp */,
 				FE1EE4081D40C9BE006A721A /* Grammar.hpp */,
 				FE1EE4071D40C9BE006A721A /* Grammar.cpp */,
 				FEEDD3C41D7855DC0033338C /* LR_TableGenerator.hpp */,
@@ -174,13 +159,10 @@
 			files = (
 				FE1EE4091D40C9BE006A721A /* Grammar.cpp in Sources */,
 				FEF4A6A11D40E47700319EC9 /* Symbol.cpp in Sources */,
-				FE1EE4221D40DED1006A721A /* NFA.cpp in Sources */,
 				FE1EE41A1D40DC39006A721A /* utils.cpp in Sources */,
 				FEEDD3C51D7855DC0033338C /* LR_TableGenerator.cpp in Sources */,
 				FE1EE40E1D40D0CC006A721A /* Operator.cpp in Sources */,
-				FE1EE4211D40DED1006A721A /* DFA.cpp in Sources */,
 				FE1EE3BA1D40B6EF006A721A /* main.cpp in Sources */,
-				FE1EE4231D40DED1006A721A /* SLR_Table.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
