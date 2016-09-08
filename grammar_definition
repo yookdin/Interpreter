@@ -23,6 +23,14 @@ STATEMENT   ->  while EXP STATEMENT                 #  While
 STATEMENT   ->  repeat EXP times STATEMENT          #  Repeat
 STATEMENT   ->  break                               #  Break
 STATEMENT   ->  continue                            #  Continue
+STATEMENT   ->  FUNC_CALL
+//STATEMENT   ->  COMMAND_CALL
+
+
+//----------------------------------------------------------------------------------------------------------
+// Commands. Like function, but without parentheses (commas are optional)
+//----------------------------------------------------------------------------------------------------------
+//COMMAND_CALL  ->  ID NAMED_PARAMS_LIST              #  Command
 
     
 //---------------------------------------------------------------------
@@ -50,3 +58,18 @@ EXP  ->  EXP or EXP         #  Bop
 EXP  ->  EXP and EXP        #  Bop
 EXP  ->  not EXP            #  Uop
 EXP  ->  EXP ? EXP : EXP    #  CondExp
+EXP  ->  FUNC_CALL
+
+
+//---------------------------------------------------------------------
+// Function call (can be both a statement and an expression)
+//---------------------------------------------------------------------
+FUNC_CALL           ->  ID ( )                           # Func
+FUNC_CALL           ->  ID ( PARAMS_LIST )               # Func
+FUNC_CALL           ->  ID ( NAMED_PARAMS_LIST )         # Func
+PARAMS_LIST         ->  EXP                              # Params
+PARAMS_LIST         ->  EXP , PARAMS_LIST                # Params
+NAMED_PARAMS_LIST   ->  NAMED_PARAM                      # NamedParams
+NAMED_PARAMS_LIST   ->  NAMED_PARAM , NAMED_PARAMS_LIST  # NamedParams
+NAMED_PARAMS_LIST   ->  NAMED_PARAM   NAMED_PARAMS_LIST  # NamedParams
+NAMED_PARAM         ->  ID : EXP                         # NamedParam

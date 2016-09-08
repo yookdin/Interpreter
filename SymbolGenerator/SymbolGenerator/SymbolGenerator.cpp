@@ -29,7 +29,7 @@ SymbolGenerator::SymbolGenerator(string grammar_file, string header_file, string
 	string_symbol_map["?"] = "QUESTION_MARK";
     string_symbol_map[":"] = "COLON";
     string_symbol_map["$"] = "EOI";
-//    string_symbol_map[","] = "COMMA";
+    string_symbol_map[","] = "COMMA";
 
 	read_file(grammar_file);
 	write_header_file(header_file);

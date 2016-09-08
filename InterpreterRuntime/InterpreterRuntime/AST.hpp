@@ -264,6 +264,37 @@ public:
 
 
 //==========================================================================================================
+// Base for function and command call, which have the same functionality but different construction
+//==========================================================================================================
+//class CallableAST: public AST {
+//public:
+//    CallableAST(vector<TokenOrAST>& elements): name(((IdentifierToken*)elements[0].get_token())->name) {}
+//    Value& eval(FuncCallContext* context = nullptr);
+//    string get_name() { return name + "()"; }
+//    
+//    const string name;
+//    ScriptInterpreter* interpreter;
+//};
+//
+//
+////==========================================================================================================
+////==========================================================================================================
+//class FuncAST: public CallableAST {
+//public:
+//    FuncAST(vector<TokenOrAST>& elements);
+//};
+//
+//
+////==========================================================================================================
+////==========================================================================================================
+//class CommandAST: public CallableAST {
+//public:
+//    CommandAST(vector<TokenOrAST>& elements);
+//};
+
+
+
+//==========================================================================================================
 //==========================================================================================================
 class FuncAST: public AST {
 public:

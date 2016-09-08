@@ -39,6 +39,8 @@ void LR_TableGenerator::build_table() {
     // states if needed
     //------------------------------------------------------------------------------------------------------
     for(int i = 0; i < table.size(); ++i) {
+        cout << i << " "; fflush(stdout);
+    
         for(int sym = 0; sym < NUM_SYMBOLS; ++sym) { // for each symbol
             ConfigurationSet cs(grammar);
             
