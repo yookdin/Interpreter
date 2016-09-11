@@ -28,10 +28,10 @@ vector<Lexer::token_matcher> Lexer::matchers = {
 
 //==========================================================================================================
 //==========================================================================================================
-regex Lexer::num_re("^-?\\d+\\b");
+regex Lexer::keyword_re("^(\\+|-|\\*|/|%|not|or|and|\\?=|==|!=|<=|>=|<|>|~|!~|\\?|:|\\(|\\)|=|\\{|\\}|;|,|if|else|while|repeat|times|break|continue|send)");
 regex Lexer::bool_re("^(true|false)\\b");
 regex Lexer::id_re("^[_[:alpha:]]\\w*");
-regex Lexer::keyword_re("^(\\+|-|\\*|/|%|not|or|and|\\?=|==|!=|<=|>=|<|>|~|!~|\\?|:|\\(|\\)|=|\\{|\\}|;|,|if|else|while|repeat|times|break|continue)");
+regex Lexer::num_re("^\\d+\\b");
 
 
 //==========================================================================================================
@@ -50,10 +50,14 @@ void Lexer::lex(string filename, vector<Token*>& tokens) {
     // Turn file text into tokens
     //------------------------------------------------------------------------------------------------------
     skip_irrelevant();
+    
     while(iter != input.end()) {
         if(try_string(tokens))
             continue;
-        skip_irrelevant();
+        
+        if(skip_irrelevant())
+            continue;
+        
         if(iter == input.end()) break;
         
         Token* token = try_match();
@@ -298,8 +302,8 @@ bool Lexer::is_parameter_preceding_token(Token* token) {
     return (dynamic_cast<TokenWithValue*>(token) != nullptr or 
             token->sym == LEFT_PAREN or
             token->sym == RIGHT_PAREN or
-            token->sym == COMMA);
-    // or SEND
+            token->sym == COMMA or
+            token->sym == SEND);
 }
 
 
@@ -307,8 +311,11 @@ bool Lexer::is_parameter_preceding_token(Token* token) {
 //==========================================================================================================
 // Skip spaces and comments
 //==========================================================================================================
-void Lexer::skip_irrelevant() {
-    while(skip_spaces() or skip_comment());
+bool Lexer::skip_irrelevant() {
+    bool skipped = false;
+    while(skip_spaces() or skip_comment())
+        skipped = true;
+    return skipped;
 }
 
 

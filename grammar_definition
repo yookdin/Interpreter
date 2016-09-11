@@ -25,12 +25,23 @@ STATEMENT   ->  break                               #  Break
 STATEMENT   ->  continue                            #  Continue
 STATEMENT   ->  FUNC_CALL
 STATEMENT   ->  COMMAND_CALL
+STATEMENT   ->  SEND_COMMAND
 
 
 //----------------------------------------------------------------------------------------------------------
 // Commands. Like function, but without parentheses (commas are optional)
 //----------------------------------------------------------------------------------------------------------
 COMMAND_CALL  ->  ID NAMED_PARAMS_LIST              #  Command
+
+
+//----------------------------------------------------------------------------------------------------------
+// send command has its own unique syntax for two reasons:
+// o Enable mixing param-val pairs and an unnamed param (the message string)
+// o Need different evaluation than normal function and commands, since the call number need to be set 
+//   BEFORE evaluating the message string (for last_* identifiers to be evaluated correctly)
+//----------------------------------------------------------------------------------------------------------
+SEND_COMMAND  ->  send EXP                       #  SendCommand
+SEND_COMMAND  ->  send NAMED_PARAMS_LIST STRING  #  SendCommand
 
     
 //---------------------------------------------------------------------
@@ -57,6 +68,7 @@ EXP  ->  EXP !~ EXP         #  Bop
 EXP  ->  EXP or EXP         #  Bop
 EXP  ->  EXP and EXP        #  Bop
 EXP  ->  not EXP            #  Uop
+EXP  ->  - EXP              #  Uop
 EXP  ->  EXP ? EXP : EXP    #  CondExp
 EXP  ->  FUNC_CALL
 

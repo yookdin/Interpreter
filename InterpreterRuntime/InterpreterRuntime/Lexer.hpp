@@ -41,7 +41,7 @@ private:
     Token* match_bool(smatch& match);
     Token* match_id(smatch& match);
     
-    void skip_irrelevant();
+    bool skip_irrelevant();
     bool skip_spaces();
     bool skip_comment();
     

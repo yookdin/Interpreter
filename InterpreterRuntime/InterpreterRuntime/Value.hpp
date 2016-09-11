@@ -189,7 +189,6 @@ public:
     Value& copy() { throw string("Shouldn't copy a param-value pair"); }
     string to_string() const { return "(" + name + ", " + val.to_string() + ")"; }
 
-private:
     string name;
     Value& val;
 };

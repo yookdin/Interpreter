@@ -339,8 +339,44 @@ CommandAST::CommandAST(vector<TokenOrAST>& elements): CallableAST(elements) {
 }
 
 
+//==========================================================================================================
+//==========================================================================================================
+SendCommandAST::SendCommandAST(vector<TokenOrAST>& elements): CallableAST("send") {
+    if(elements.size() == 3)
+        for(auto c: elements[1].get_ast()->children) add_child(c); // Add the named params
+    
+        add_child(new StringAST(elements.back()));
+}
 
 
+//==========================================================================================================
+// - Go over all but last child, eval and put in list. If one of them is "call_number" parameter put its
+//   value in the context object.
+// - Evaluate the message string using the context object, create another param-val to hold it, and add it to
+//   the list.
+// - Call the send function with the list of values.
+//==========================================================================================================
+Value& SendCommandAST::eval(FuncCallContext* context) {
+    vector<Value*> vals;
+    
+    for(int i = 0; i < children.size() - 1; ++i) {
+        vals.push_back(&children[i]->eval(context));
+        
+        NamedParamAST* pv = dynamic_cast<NamedParamAST*>(children[i]);
+        
+        if(pv->name == "call_number") {
+            if(context != nullptr)
+                throw string("send command called with non-null context");
+            
+            context = new FuncCallContext;
+            context->call_number = ((ParamVal*)vals.back())->val;
+        }
+    }
+    
+    vals.push_back(&children.back()->eval(context));    
+    delete context;
+    return interpreter->call_func(name, vals);
+}
 
 
 

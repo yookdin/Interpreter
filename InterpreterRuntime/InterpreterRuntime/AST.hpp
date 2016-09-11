@@ -85,6 +85,7 @@ public:
 class StringAST: public AST {
 public:
     StringAST(vector<TokenOrAST>& elements): val(((StringToken*)elements[0].get_token())->val) {}
+    StringAST(TokenOrAST& elem): val(((StringToken*)elem.get_token())->val) {}
     Value& eval(FuncCallContext* context = nullptr) { return *(new String(val)); }
     string get_name() { return "\"" + val + "\""; }
     
@@ -277,6 +278,7 @@ public:
 class CallableAST: public AST {
 public:
     CallableAST(vector<TokenOrAST>& elements): name(((IdentifierToken*)elements[0].get_token())->name) {}
+    CallableAST(string _name): name(_name) {}
     Value& eval(FuncCallContext* context = nullptr);
     string get_name() { return name + "()"; }
     
@@ -298,6 +300,15 @@ public:
 class CommandAST: public CallableAST {
 public:
     CommandAST(vector<TokenOrAST>& elements);
+};
+
+
+//==========================================================================================================
+//==========================================================================================================
+class SendCommandAST: public CallableAST {
+public:
+    SendCommandAST(vector<TokenOrAST>& elements);
+    Value& eval(FuncCallContext* context = nullptr);
 };
 
 
