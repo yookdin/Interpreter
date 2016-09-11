@@ -32,16 +32,16 @@ void AST::print() {
 
 //==========================================================================================================
 //==========================================================================================================
-void AST::eval_children(int start) {
-    for(int i = start; i < children.size(); ++i) children[i]->eval();
+void AST::eval_children(int start, FuncCallContext* context) {
+    for(int i = start; i < children.size(); ++i) children[i]->eval(context);
 }
 
 
 //==========================================================================================================
 //==========================================================================================================
-vector<Value*> AST::get_children_vals() {
+vector<Value*> AST::get_children_vals(FuncCallContext* context) {
     vector<Value*> res;
-    for(auto c: children) res.push_back(& c->eval());
+    for(auto c: children) res.push_back(& c->eval(context));
     return res;
 }
 
@@ -72,17 +72,17 @@ CondExpAST::CondExpAST(vector<TokenOrAST>& elements) {
 
 //==========================================================================================================
 //==========================================================================================================
-Value& CondExpAST::eval() {
-    if(children[0]->eval())
-        return children[1]->eval();
+Value& CondExpAST::eval(FuncCallContext* context) {
+    if(children[0]->eval(context))
+        return children[1]->eval(context);
     else
-        return children[2]->eval();
+        return children[2]->eval(context);
 }
 
 
 //==========================================================================================================
 //==========================================================================================================
-Value& VarAST::eval() {
+Value& VarAST::eval(FuncCallContext* context) {
     Value& val = interpreter->get_val(name);
     if(val.is_no_value())
         throw string("Variable " + name + " is not defined");
@@ -101,11 +101,11 @@ AssignmentAST::AssignmentAST(vector<TokenOrAST>& elements): conditional(elements
 
 //==========================================================================================================
 //==========================================================================================================
-Value& AssignmentAST::eval() {
+Value& AssignmentAST::eval(FuncCallContext* context) {
     string var = ((VarAST*)children[0])->name;
     
     if(not conditional or not interpreter->is_var_set(var)) {
-        Value& val = children[1]->eval();
+        Value& val = children[1]->eval(context);
         
         if(val.is_no_value())
             throw string("Cannot assign a no_value to a variable");
@@ -143,7 +143,7 @@ StatementsAST::StatementsAST(vector<TokenOrAST>& elements) {
 
 //==========================================================================================================
 //==========================================================================================================
-Value& StatementsAST::eval() {
+Value& StatementsAST::eval(FuncCallContext* context) {
     eval_children();
     return no_value;
 }
@@ -165,8 +165,8 @@ IfAST::IfAST(vector<TokenOrAST>& elements) {
 
 //==========================================================================================================
 //==========================================================================================================
-Value& IfAST::eval() {
-    if(children[0]->eval())
+Value& IfAST::eval(FuncCallContext* context) {
+    if(children[0]->eval(context))
         eval_children(1);
     
     return no_value;
@@ -184,11 +184,11 @@ IfElseAST::IfElseAST(vector<TokenOrAST>& elements) {
 
 //==========================================================================================================
 //==========================================================================================================
-Value& IfElseAST::eval() {
-    if(children[0]->eval())
-        children[1]->eval();
+Value& IfElseAST::eval(FuncCallContext* context) {
+    if(children[0]->eval(context))
+        children[1]->eval(context);
     else
-        children[2]->eval();
+        children[2]->eval(context);
     
     return no_value;
 }
@@ -209,8 +209,8 @@ WhileAST::WhileAST(vector<TokenOrAST>& elements) {
 
 //==========================================================================================================
 //==========================================================================================================
-Value& WhileAST::eval() {
-    while(children[0]->eval()) {
+Value& WhileAST::eval(FuncCallContext* context) {
+    while(children[0]->eval(context)) {
         try {
             eval_children(1);
         } catch (AST::JumpKind jump_kind) {
@@ -243,8 +243,8 @@ RepeatAST::RepeatAST(vector<TokenOrAST>& elements) {
 
 //==========================================================================================================
 //==========================================================================================================
-Value& RepeatAST::eval() {
-    int times = children[0]->eval();
+Value& RepeatAST::eval(FuncCallContext* context) {
+    int times = children[0]->eval(context);
     if(times < 0) throw string("'times' value of repeat statement must be greater or equal to 0");
     
     for(int i = 0; i < times; ++i) {
@@ -280,16 +280,16 @@ ParamsAST::ParamsAST(vector<TokenOrAST>& elements) {
 
 //==========================================================================================================
 //==========================================================================================================
-NamedParamAST::NamedParamAST(vector<TokenOrAST>& elements): name(((IdentifierToken*)elements[0].get_token())->name) {
-    add_child(elements[2].get_ast());
+NamedParamAST::NamedParamAST(vector<TokenOrAST>& elements): name(((ParamToken*)elements[0].get_token())->name) {
+    add_child(elements[1].get_ast());
 }
 
 
 //==========================================================================================================
 // Containing function node is responsible for taking the value and assigning it to the correct parameter
 //==========================================================================================================
-Value& NamedParamAST::eval() {
-    return *(new ParamVal(name, children[0]->eval()));
+Value& NamedParamAST::eval(FuncCallContext* context) {
+    return *(new ParamVal(name, children[0]->eval(context)));
 }
 
 
@@ -309,9 +309,21 @@ NamedParamsAST::NamedParamsAST(vector<TokenOrAST>& elements) {
 
 
 //==========================================================================================================
+//==========================================================================================================
+Value& CallableAST::eval(FuncCallContext* context) {
+    auto args = get_children_vals(context);
+    for(auto v: args) {
+        if(v->is_no_value()) throw string("Can't pass a no_value to a function");
+    }
+    
+    return interpreter->call_func(name, args);
+}
+
+
+//==========================================================================================================
 // The children are the function parameters
 //==========================================================================================================
-FuncAST::FuncAST(vector<TokenOrAST>& elements): name(((IdentifierToken*)elements[0].get_token())->name) {
+FuncAST::FuncAST(vector<TokenOrAST>& elements): CallableAST(elements) {
     if(elements.size() != 3) { // 3 means no parameters : "ID ( )"
         // Get the children of the parameter list
         for(auto c: elements[2].get_ast()->children) add_child(c);
@@ -320,14 +332,10 @@ FuncAST::FuncAST(vector<TokenOrAST>& elements): name(((IdentifierToken*)elements
 
 
 //==========================================================================================================
+// The children are the function parameters
 //==========================================================================================================
-Value& FuncAST::eval() {
-    auto args = get_children_vals();
-    for(auto v: args) {
-        if(v->is_no_value()) throw string("Can't pass a no_value to a function");
-    }
-    
-    return interpreter->call_func(name, get_children_vals());
+CommandAST::CommandAST(vector<TokenOrAST>& elements): CallableAST(elements) {
+    for(auto c: elements[1].get_ast()->children) add_child(c);
 }
 
 

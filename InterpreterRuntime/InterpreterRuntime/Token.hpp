@@ -79,6 +79,18 @@ public:
 
 
 //==========================================================================================================
+// An ID followed by a colon. It solves parsing ambiguities to identify this in the lexing instead of in the
+// parsing process
+//==========================================================================================================
+class ParamToken: public TokenWithValue {
+public:
+    ParamToken(string _name): TokenWithValue(PARAM_NAME), name(_name) {}
+    string value_to_string() { return name; }
+    const string name;
+};
+
+
+//==========================================================================================================
 //==========================================================================================================
 class KeywordToken: public Token {
 public:

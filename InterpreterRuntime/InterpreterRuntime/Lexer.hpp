@@ -49,6 +49,9 @@ private:
     string get_next_string_chars();
     bool check_string_end(string& end_chars);
     
+    void try_parameter_token(Token*& token, vector<Token*>& tokens);
+    bool is_parameter_preceding_token(Token* token);
+    
     // Note: these are esacaped in any kind of string. In quoted strings " need to be escaped,
     // in bracketed strings ]] needs to be escaped (like this: \]])
     bool is_escaped_char(char c) { return c == '[' or c == '\\'; }

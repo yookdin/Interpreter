@@ -61,6 +61,10 @@ void Lexer::lex(string filename, vector<Token*>& tokens) {
         if(token == nullptr)
             throw create_syntax_err_msg(filename);
         
+        // Check if current and last tokens should be interpreted as a parameter ("ID:"). If so last token will
+        // be popped and current (the colon) replaced with a parameter token.
+        try_parameter_token(token, tokens);
+        
         tokens.push_back(token);
     }
 
@@ -264,6 +268,40 @@ Token* Lexer::match_id(smatch& match) {
     
     return nullptr;
 }
+
+
+//==========================================================================================================
+// Check if current and last tokens should be interpreted as a parameter ("ID:")
+//==========================================================================================================
+void Lexer::try_parameter_token(Token*& token, vector<Token*>& tokens) {
+    if(token->sym == COLON and tokens.size() > 0) {
+        Token* last_token = tokens.back(); 
+        
+        if(typeid(*last_token) == typeid(IdentifierToken)) {
+            
+            // If parameter, replace ID token with param token and don't add the colon token
+            if(tokens.size() == 1 or is_parameter_preceding_token(tokens[tokens.size() - 2])) {
+                delete token; // Colon token no longer needed
+                token = new ParamToken(((IdentifierToken*)last_token)->name);
+                tokens.pop_back();
+            }
+        }
+    }
+}
+
+
+//==========================================================================================================
+// The sequence "ID :" can be either part of a param-val pair (ID:EXP), or part of a conditional expression
+// (EXP ? EXP : EXP). It can be determined which is the case by looking at the token preceding the ID token.
+//==========================================================================================================
+bool Lexer::is_parameter_preceding_token(Token* token) {
+    return (dynamic_cast<TokenWithValue*>(token) != nullptr or 
+            token->sym == LEFT_PAREN or
+            token->sym == RIGHT_PAREN or
+            token->sym == COMMA);
+    // or SEND
+}
+
 
 
 //==========================================================================================================

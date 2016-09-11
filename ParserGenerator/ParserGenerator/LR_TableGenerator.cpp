@@ -40,7 +40,7 @@ void LR_TableGenerator::build_table() {
     //------------------------------------------------------------------------------------------------------
     for(int i = 0; i < table.size(); ++i) {
         cout << i << " "; fflush(stdout);
-    
+        
         for(int sym = 0; sym < NUM_SYMBOLS; ++sym) { // for each symbol
             ConfigurationSet cs(grammar);
             
@@ -53,7 +53,7 @@ void LR_TableGenerator::build_table() {
 
             if(cs.empty()) continue;
                         
-            // Check if the new set already exists
+            // Check if the new set already exists. TODO: check if can speed this O(n^2) check by using hash table for states
             for(int j = 0; j < table.size(); ++j) {
                 if(configurating_sets[j] == cs) {
                     table[i][sym] = {SHIFT, j}; // Set already exist, just add transition to it
@@ -68,22 +68,31 @@ void LR_TableGenerator::build_table() {
             }
             
         } // for each symbol
-    } // for each new state
-    
-    
-    //------------------------------------------------------------------------------------------------------
-    // Add the reduce and accept actions
-    //------------------------------------------------------------------------------------------------------
-    for(int i = 0; i < configurating_sets.size(); ++i) {
+        
+        //--------------------------------------------------------------------------------------------------
+        // Add the reductions for the current state
+        //--------------------------------------------------------------------------------------------------
         for(auto c: configurating_sets[i]) {
             if(not c.reducable()) continue;
-                
+            
             // Add a reduce action for each symbol in the configuration lookahead set
             for(auto sym: c.lookaheads) {
                 
                 if(table[i][sym].kind != ERROR) { // There's a conflict, try to resolve
                     
-                    ResolutionResult res = resolve_conflict(c, sym, table[i][sym].kind, table[i][sym].message); 
+                    ResolutionResult res; 
+                    
+                    try {
+                        res = resolve_conflict(c, sym, table[i][sym], table[i][sym].message); 
+                    } catch(string err) {
+                        cout << endl << "Conflict resolution error. Current state is " << i << ":" << endl;
+                        configurating_sets[i].print();
+                        cout << "Current configuration is:" << endl;
+                        c.print();
+                        cout << "Previous action is shift to state " << table[i][sym].val << ":" << endl;
+                        configurating_sets[table[i][sym].val].print();
+                        throw;
+                    }
                     
                     // This sequence is not allowed. This happens for consecutive operators with no associativity,
                     // meaning they're not allowed to be chained
@@ -103,7 +112,8 @@ void LR_TableGenerator::build_table() {
                 }
             }
         }
-    }
+
+    } // for each new state
 }
 
 
@@ -112,16 +122,17 @@ void LR_TableGenerator::build_table() {
 // o if-else - else (shift) wins, causing else to be always associated with closet preceding if
 // o Infix operators - resolve according to operator precedence and associativity
 //==========================================================================================================
-LR_TableGenerator::ResolutionResult LR_TableGenerator::resolve_conflict(const Configuration& c, Symbol sym, ParserActionKind action_kind, string& err_msg) {
-    if(action_kind != SHIFT)
+LR_TableGenerator::ResolutionResult LR_TableGenerator::resolve_conflict(const Configuration& c, Symbol sym, Action& action, string& err_msg) {
+    if(action.kind != SHIFT)
         throw string("Can't resolve a reduce-reduce conflict");
 
     if(sym == ELSE) {
         return SHIFT_WIN;
     }
     
-    if(not is_op(sym))
+    if(not is_op(sym)) {
         throw string("Can't resolve conflict, current symbol is " + symbol_str_map[sym] + " which isn't an operator");
+    }
     
     if(c.production.op == nullptr)
         throw string("Can't resolve conflict, production doesn't have an operator associated with it");

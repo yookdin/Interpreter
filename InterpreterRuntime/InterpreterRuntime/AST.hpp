@@ -21,11 +21,19 @@ class Interpreter;
 
 //==========================================================================================================
 //==========================================================================================================
+class FuncCallContext {
+public:
+    int call_number = -1;
+};
+
+//==========================================================================================================
+//==========================================================================================================
 class AST {
 public:
     void print();
     void add_child(AST* ast) {
-        if(ast == nullptr) throw string("Trying to add null child");
+        if(ast == nullptr) throw 
+            string("Trying to add null child");
         children.push_back(ast);
     }
 
@@ -35,7 +43,7 @@ public:
     
     // When eval-ing a non-value node, no_value will be returned
     // Note: eval not done with traverse because each node has its own logic
-    virtual Value& eval() = 0;
+    virtual Value& eval(FuncCallContext* context = nullptr) = 0;
 
     virtual string get_name() = 0;
     virtual void print_node() { cout << get_name() << endl; }
@@ -43,8 +51,8 @@ public:
 protected:
     enum JumpKind {BREAK, CONTINUE};
     
-    void eval_children(int start = 0);
-    vector<Value*> get_children_vals();
+    void eval_children(int start = 0, FuncCallContext* context = nullptr);
+    vector<Value*> get_children_vals(FuncCallContext* context = nullptr);
 };
 
 
@@ -53,7 +61,7 @@ protected:
 class NumAST: public AST {
 public:
     NumAST(vector<TokenOrAST>& elements): num(((NumToken*)elements[0].get_token())->val) {}
-    Value& eval() { return *(new Num(num)); }
+    Value& eval(FuncCallContext* context = nullptr) { return *(new Num(num)); }
     string get_name() { return to_string(num); }
 
     const int num;
@@ -65,7 +73,7 @@ public:
 class BoolAST: public AST {
 public:
     BoolAST(vector<TokenOrAST>& elements): val(((BoolToken*)elements[0].get_token())->val) {}
-    Value& eval() { return *(new Bool(val)); }
+    Value& eval(FuncCallContext* context = nullptr) { return *(new Bool(val)); }
     string get_name() { return to_string(val); }
     
     const bool val;
@@ -77,7 +85,7 @@ public:
 class StringAST: public AST {
 public:
     StringAST(vector<TokenOrAST>& elements): val(((StringToken*)elements[0].get_token())->val) {}
-    Value& eval() { return *(new String(val)); }
+    Value& eval(FuncCallContext* context = nullptr) { return *(new String(val)); }
     string get_name() { return "\"" + val + "\""; }
     
     const string val;
@@ -90,7 +98,7 @@ class OpAST: public AST {
 public:
     OpAST(Operator* _op): op(_op){}
     
-    Value& eval() {
+    Value& eval(FuncCallContext* context = nullptr) {
         auto vals = get_children_vals();
         Value& res = op->eval(vals);
         for(auto v: vals)
@@ -125,7 +133,7 @@ public:
 class CondExpAST: public AST {
 public:
     CondExpAST(vector<TokenOrAST>& elements);
-    Value& eval();
+    Value& eval(FuncCallContext* context = nullptr);
     string get_name() { return "?:"; }
 };
 
@@ -135,7 +143,7 @@ public:
 class VarAST: public AST {
 public:
     VarAST(vector<TokenOrAST>& elements): name(((IdentifierToken*)elements[0].get_token())->name) {} 
-    Value& eval();
+    Value& eval(FuncCallContext* context = nullptr);
     string get_name() { return name; }
 
     const string name;
@@ -148,7 +156,7 @@ public:
 class AssignmentAST: public AST {
 public:
     AssignmentAST(vector<TokenOrAST>& elements);
-    Value& eval();
+    Value& eval(FuncCallContext* context = nullptr);
     string get_name() { return (conditional ? "?=" : "="); }
     
     Interpreter* interpreter;
@@ -163,7 +171,7 @@ private:
 class StatementsAST: public AST {
 public:
     StatementsAST(vector<TokenOrAST>& elements);
-    Value& eval();
+    Value& eval(FuncCallContext* context = nullptr);
     string get_name() { return "Statements"; }
 };
 
@@ -173,7 +181,7 @@ public:
 class IfAST: public AST {
 public:
     IfAST(vector<TokenOrAST>& elements);
-    Value& eval();
+    Value& eval(FuncCallContext* context = nullptr);
     string get_name() { return "if"; }
 };
 
@@ -183,7 +191,7 @@ public:
 class IfElseAST: public AST {
 public:
     IfElseAST(vector<TokenOrAST>& elements);
-    Value& eval();
+    Value& eval(FuncCallContext* context = nullptr);
     string get_name() { return "if-else"; }
 };
 
@@ -193,7 +201,7 @@ public:
 class WhileAST: public AST {
 public:
     WhileAST(vector<TokenOrAST>& elements);
-    Value& eval();
+    Value& eval(FuncCallContext* context = nullptr);
     string get_name() { return "while"; }
 };
 
@@ -203,7 +211,7 @@ public:
 class RepeatAST: public AST {
 public:
     RepeatAST(vector<TokenOrAST>& elements);
-    Value& eval();
+    Value& eval(FuncCallContext* context = nullptr);
     string get_name() { return "repeat"; }
     
 private:
@@ -216,7 +224,7 @@ private:
 class BreakAST: public AST {
 public:
     BreakAST(vector<TokenOrAST>& elements) {}
-    Value& eval() { throw BREAK; }
+    Value& eval(FuncCallContext* context = nullptr) { throw BREAK; }
     string get_name() { return "break"; }
 };
 
@@ -225,7 +233,7 @@ public:
 class ContinueAST: public AST {
 public:
     ContinueAST(vector<TokenOrAST>& elements) {}
-    Value& eval() { throw CONTINUE; }
+    Value& eval(FuncCallContext* context = nullptr) { throw CONTINUE; }
     string get_name() { return "continue"; }
 };
 
@@ -236,7 +244,7 @@ public:
 class ParamsAST: public AST {
 public:
     ParamsAST(vector<TokenOrAST>& elements);
-    Value& eval() { throw string("ParamsAST::eval() should never be called"); }
+    Value& eval(FuncCallContext* context = nullptr) { throw string("ParamsAST::eval() should never be called"); }
     string get_name() { return "params-list"; }
 };
 
@@ -246,7 +254,7 @@ public:
 class NamedParamAST: public AST {
 public:
     NamedParamAST(vector<TokenOrAST>& elements);
-    Value& eval();
+    Value& eval(FuncCallContext* context = nullptr);
     string get_name() { return "named-param: " + name; }
 
     const string name;
@@ -258,7 +266,7 @@ public:
 class NamedParamsAST: public AST {
 public:
     NamedParamsAST(vector<TokenOrAST>& elements);
-    Value& eval() { throw string("NamedParamsAST::eval() should never be called"); }
+    Value& eval(FuncCallContext* context = nullptr) { throw string("NamedParamsAST::eval() should never be called"); }
     string get_name() { return "named-params-list"; }
 };
 
@@ -266,44 +274,30 @@ public:
 //==========================================================================================================
 // Base for function and command call, which have the same functionality but different construction
 //==========================================================================================================
-//class CallableAST: public AST {
-//public:
-//    CallableAST(vector<TokenOrAST>& elements): name(((IdentifierToken*)elements[0].get_token())->name) {}
-//    Value& eval(FuncCallContext* context = nullptr);
-//    string get_name() { return name + "()"; }
-//    
-//    const string name;
-//    ScriptInterpreter* interpreter;
-//};
-//
-//
-////==========================================================================================================
-////==========================================================================================================
-//class FuncAST: public CallableAST {
-//public:
-//    FuncAST(vector<TokenOrAST>& elements);
-//};
-//
-//
-////==========================================================================================================
-////==========================================================================================================
-//class CommandAST: public CallableAST {
-//public:
-//    CommandAST(vector<TokenOrAST>& elements);
-//};
-
-
-
-//==========================================================================================================
-//==========================================================================================================
-class FuncAST: public AST {
+class CallableAST: public AST {
 public:
-    FuncAST(vector<TokenOrAST>& elements);
-    Value& eval();
+    CallableAST(vector<TokenOrAST>& elements): name(((IdentifierToken*)elements[0].get_token())->name) {}
+    Value& eval(FuncCallContext* context = nullptr);
     string get_name() { return name + "()"; }
     
     const string name;
     Interpreter* interpreter;
+};
+
+
+//==========================================================================================================
+//==========================================================================================================
+class FuncAST: public CallableAST {
+public:
+    FuncAST(vector<TokenOrAST>& elements);
+};
+
+
+//==========================================================================================================
+//==========================================================================================================
+class CommandAST: public CallableAST {
+public:
+    CommandAST(vector<TokenOrAST>& elements);
 };
 
 

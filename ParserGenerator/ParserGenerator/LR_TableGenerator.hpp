@@ -205,7 +205,7 @@ private:
     string tab = "    ";
     
     enum ResolutionResult {SHIFT_WIN, REDUCE_WIN, NOT_ALLOWED};
-    ResolutionResult resolve_conflict(const Configuration& c, Symbol sym, ParserActionKind action_kind, string& err_msg);
+    ResolutionResult resolve_conflict(const Configuration& c, Symbol sym, Action& action, string& err_msg);
     
     void build_table();
     void write_tables_file(string filename);
