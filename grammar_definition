@@ -40,7 +40,7 @@ COMMAND_CALL  ->  ID NAMED_PARAMS_LIST              #  Command
 // o Need different evaluation than normal function and commands, since the call number need to be set 
 //   BEFORE evaluating the message string (for last_* identifiers to be evaluated correctly)
 //----------------------------------------------------------------------------------------------------------
-SEND_COMMAND  ->  send EXP                       #  SendCommand
+SEND_COMMAND  ->  send STRING                    #  SendCommand
 SEND_COMMAND  ->  send NAMED_PARAMS_LIST STRING  #  SendCommand
 
     
