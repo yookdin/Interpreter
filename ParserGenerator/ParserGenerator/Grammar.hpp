@@ -37,11 +37,10 @@ class Grammar {
 public:
     Grammar(string grammar_file);
     void print();
-    Set<Symbol> get_follow_set(Symbol sym);
     Set<Symbol> get_first_set(Symbol sym);
     
     friend class ConfigurationSet;
-    friend class LR_TableGenerator;
+    friend class LALR_TableGenerator;
 
 private:
     // This can't be vector (true to C++11) because in order to be able to add in the front, you need the push_front()
@@ -52,13 +51,9 @@ private:
 
     map<Symbol, Set<Symbol>> first_table;
     
-    // Follow(N) = {t | (t is terminal) and (START => A N t B  (A and B can be empty))}
-    map<Symbol, Set<Symbol>> follow_table;
-    
     void read_grammar_file(string grammar_file);    
     void extract_symbols(string production_str, vector<Symbol>& symbols);
     void extract_action(string action_str, string& action_name);
-    void calc_follow_table();
     void calc_first_table();
 };
 

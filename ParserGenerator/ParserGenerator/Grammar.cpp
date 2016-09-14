@@ -26,7 +26,7 @@ Production::Production(vector<Symbol> _symbols, string _action_name, int _index)
 //==========================================================================================================
 Grammar::Grammar(string grammar_file) {
     read_grammar_file(grammar_file);
-    calc_follow_table();
+    calc_first_table();
 }
 
 
@@ -161,70 +161,6 @@ Set<Symbol> Grammar::get_first_set(Symbol sym) {
 
 //==========================================================================================================
 //==========================================================================================================
-void Grammar::calc_follow_table() {
-    calc_first_table();
-    
-    //------------------------------------------------------------------------------------------------------
-    // To handle end-of-input correctly, add the EOI (= $) symbol to the follow of the start symbol.
-    // This is instead of add another symbol to be the new start and a production: START' -> START $
-    // That will have the same effect but causes some overhead of needing to deal with the new symbol and
-    // production.
-    //------------------------------------------------------------------------------------------------------
-    follow_table[START].insert(EOI);
-    
-    //------------------------------------------------------------------------------------------------------
-    // Go over the productions:
-    // For a sequence ...NA, add First(A) to Follow(N).
-    // For a sequence ...N, add a constraint: Follow(M) ⊆ Follow(N), where M is the LHS of the production.
-    //------------------------------------------------------------------------------------------------------
-    vector<pair<Symbol, Symbol>> follow_constraints; // Pair (M,N) means Follow(M) ⊆ Follow(N)
-    
-    for(auto& p: productions) {
-        Symbol M = p[0];
-        
-        for(int j = 1; j < p.size(); ++j) {
-            if(is_terminal(p[j])) continue;
-            Symbol N = p[j];
-            
-            if(j < p.size() - 1) {
-                follow_table[N].insert(get_first_set(p[j+1]));
-            }
-            else if(M != N) {
-                follow_constraints.push_back({M,N});
-            }
-        }
-    }
-
-    //------------------------------------------------------------------------------------------------------
-    // Go over the constraints and apply them, until no more changes are made
-    //------------------------------------------------------------------------------------------------------
-    bool added = true;
-    while(added) {
-        added = false;
-        
-        for(auto& c: follow_constraints) {
-            Symbol M = c.first, N = c.second;
-            int old_size = follow_table[N].size();
-            follow_table[N].insert(follow_table[M]);
-            added = (added or follow_table[N].size() > old_size);
-        }
-    }
-
-} // calc_follow_table()
-
-
-//==========================================================================================================
-//==========================================================================================================
-Set<Symbol> Grammar::get_follow_set(Symbol sym) {
-    if(follow_table.count(sym) > 0)
-        return follow_table[sym];
-    else
-        return {};
-}
-
-
-//==========================================================================================================
-//==========================================================================================================
 void Grammar::print() {
     cout << "Grammar:" << endl;
     for(int i = 0; i < productions.size(); ++i) {
@@ -241,12 +177,6 @@ void Grammar::print() {
         cout << "}" << endl;
     }
 
-    for(auto& p: follow_table) {
-        cout << "Follow(" << symbol_str_map[p.first] << ") = { ";
-        for(auto s: p.second)
-            cout << symbol_str_map[s] << " ";
-        cout << "}" << endl;
-    }
     cout << endl;
 }
 

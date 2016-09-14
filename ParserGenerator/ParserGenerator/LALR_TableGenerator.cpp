@@ -1,18 +1,18 @@
 //
-//  LR_TableGenerator.cpp
+//  LALR_TableGenerator.cpp
 //  ParserGenerator
 //
 //  Created by Yuval Dinari on 9/1/16.
 //  Copyright © 2016 Vonage. All rights reserved.
 //
 
-#include "LR_TableGenerator.hpp"
+#include "LALR_TableGenerator.hpp"
 
 
 //==========================================================================================================
 // According to given grammar file, generate the parser tables file
 //==========================================================================================================
-LR_TableGenerator::LR_TableGenerator(string grammar_file, string parser_tables_file): grammar(grammar_file) {
+LALR_TableGenerator::LALR_TableGenerator(string grammar_file, string parser_tables_file): grammar(grammar_file) {
     build_table();
     write_tables_file(parser_tables_file);
 }
@@ -24,8 +24,9 @@ LR_TableGenerator::LR_TableGenerator(string grammar_file, string parser_tables_f
 // calculate its transition (successor function), which might create new configuration sets.
 // Initial configuration set is the closure of the initial configuration which is:
 // [S' -> • S, $]
+// States are merged on the fly to create an LALR table.
 //==========================================================================================================
-void LR_TableGenerator::build_table() {
+void LALR_TableGenerator::build_table() {
     Configuration c0(&grammar, grammar.productions[0], 0, {EOI}); // Initial configuration
     
     // A list of the configuration sets, for each a state will be created
@@ -53,10 +54,17 @@ void LR_TableGenerator::build_table() {
 
             if(cs.empty()) continue;
                         
-            // Check if the new set already exists. TODO: check if can speed this O(n^2) check by using hash table for states
+            // TODO: check if can speed this O(n^2) check by using hash table for states
             for(int j = 0; j < table.size(); ++j) {
-                if(configurating_sets[j] == cs) {
-                    table[i][sym] = {SHIFT, j}; // Set already exist, just add transition to it
+                if(configurating_sets[j] == cs) { // Set already exist, just add transition to it
+                    table[i][sym] = {SHIFT, j};
+                    break;
+                }
+            
+                if(configurating_sets[j].lalr_equivalent(cs)) { // Sets can be merged to create an LALR(1) state
+                    configurating_sets[j].merge(cs);
+                    update_successors(j, i, configurating_sets); // Update successors states due to the merge
+                    table[i][sym] = {SHIFT, j};
                     break;
                 }
             }
@@ -73,86 +81,10 @@ void LR_TableGenerator::build_table() {
     
 
     //------------------------------------------------------------------------------------------------------
-    // Merge state with identical cores
-    //------------------------------------------------------------------------------------------------------
-    map<int,int> merge_targets; // Keep track of which state was merged into which state, to update the table
-    vector<int> offsets(table.size(), 0); // Keep track of offsets caused by deleting states from the table
-    
-    // Go in reverse, so erasing will not effect indices of states not yet seen
-    for(int i = table.size()-1; i >= 0; --i) {
-        for(int j = 0; j < i; ++j) {
-            if(configurating_sets[j].lalr_equivalent(configurating_sets[i])) {
-                configurating_sets[j].merge(configurating_sets[i]);
-                merge_targets[i] = j;
-                offsets[i] = 1;
-                table.erase(table.begin() + i);
-                configurating_sets.erase(configurating_sets.begin() + i);
-                break;
-            }
-        }
-    }
-    
-    // After this offsets will hold for each state, how many places it was shift down due to erasing states
-    for(int j = 1; j < offsets.size(); ++j) {
-        offsets[j] += offsets[j-1];
-    }
-    
-    for(int j = 0; j < table.size(); ++j) {
-        for(int sym = 0; sym < NUM_SYMBOLS; ++sym) {
-            if(table[j][sym].kind == SHIFT) {
-                if(merge_targets.count(table[j][sym].val) != 0) { // Correct the value that was changed due to a merge
-                    table[j][sym].val = merge_targets[table[j][sym].val];   
-                }
-                table[j][sym].val -= offsets[table[j][sym].val];
-            }
-        }
-    }
-
-    //------------------------------------------------------------------------------------------------------
     // Add the reductions for each state
     //------------------------------------------------------------------------------------------------------
-    for(int i = 0; i < table.size(); ++i) {
-        for(auto c: configurating_sets[i]) {
-            if(not c.reducable()) continue;
-            
-            // Add a reduce action for each symbol in the configuration lookahead set
-            for(auto sym: c.lookaheads) {
-                
-                if(table[i][sym].kind != ERROR) { // There's a conflict, try to resolve
-                    
-                    ResolutionResult res; 
-                    
-                    try {
-                        res = resolve_conflict(c, sym, table[i][sym], table[i][sym].message); 
-                    } catch(string err) {
-                        cout << endl << "Conflict resolution error. Current state is " << i << ":" << endl;
-                        configurating_sets[i].print();
-                        cout << "Current configuration is:" << endl;
-                        c.print();
-                        cout << "Previous action is shift to state " << table[i][sym].val << ":" << endl;
-                        configurating_sets[table[i][sym].val].print();
-                        throw;
-                    }
-                    
-                    // This sequence is not allowed. This happens for consecutive operators with no associativity,
-                    // meaning they're not allowed to be chained
-                    if(res == NOT_ALLOWED)
-                        table[i][sym].kind = ERROR;
-                    
-                    if(res != REDUCE_WIN) continue;
-                }
-                
-                // No confilict or REDUCE_WIN
-                if(c.production[0] == START) {
-                    if(sym != EOI)
-                        throw string("START symbol should only be reduced on $ symbol");
-                    table[i][sym].kind = ACCEPT;
-                } else {
-                    table[i][sym] = {REDUCE, c.production.index};                    
-                }
-            }
-        }
-    }
+    for(int i = 0; i < table.size(); ++i)
+        add_reductions(i, configurating_sets);
 }
 
 
@@ -162,9 +94,9 @@ void LR_TableGenerator::build_table() {
 // To handle loops in the states graph, only call recursively on state that were actually updated.
 // This ensures that we won't loop forever, and also that we don't miss anything.
 //==========================================================================================================
-void LR_TableGenerator::update_successors(int state, int last_complete_state, vector<ConfigurationSet>& configurating_sets) {
+void LALR_TableGenerator::update_successors(int state, int last_complete_state, vector<ConfigurationSet>& configurating_sets) {
 
-    if(state > last_complete_state) return; // No need to update successors, there aren't any yet
+    if(state > last_complete_state) return; // No need to update successors, they weren't calculated yet
     
     set<int> states_to_update;
     
@@ -183,8 +115,55 @@ void LR_TableGenerator::update_successors(int state, int last_complete_state, ve
         }
     }
 
+    // Recursively call update_successors() for all the states that were updated, because their successors needs to be updated also!
     for(auto s: states_to_update)
         update_successors(s, last_complete_state, configurating_sets);
+}
+
+
+//==========================================================================================================
+//==========================================================================================================
+void LALR_TableGenerator::add_reductions(int state, vector<ConfigurationSet>& configurating_sets) {
+    for(auto c: configurating_sets[state]) {
+        if(not c.reducable()) continue;
+        
+        // Add a reduce action for each symbol in the configuration lookahead set
+        for(auto sym: c.lookaheads) {
+            
+            if(table[state][sym].kind != ERROR) { // There's a conflict, try to resolve
+                
+                ResolutionResult res; 
+                
+                try {
+                    res = resolve_conflict(c, sym, table[state][sym], table[state][sym].message); 
+                } catch(string err) {
+                    cout << endl << "Conflict resolution error. Current state is " << state << ":" << endl;
+                    configurating_sets[state].print();
+                    cout << "Current configuration is:" << endl;
+                    c.print();
+                    cout << "Previous action is shift to state " << table[state][sym].val << ":" << endl;
+                    configurating_sets[table[state][sym].val].print();
+                    throw;
+                }
+                
+                // This sequence is not allowed. This happens for consecutive operators with no associativity,
+                // meaning they're not allowed to be chained
+                if(res == NOT_ALLOWED)
+                    table[state][sym].kind = ERROR;
+                
+                if(res != REDUCE_WIN) continue;
+            }
+            
+            // No confilict or REDUCE_WIN
+            if(c.production[0] == START) {
+                if(sym != EOI)
+                    throw string("START symbol should only be reduced on $ symbol");
+                table[state][sym].kind = ACCEPT;
+            } else {
+                table[state][sym] = {REDUCE, c.production.index};                    
+            }
+        } // for each symbol in the lookahead set
+    } // for each configuration in the set
 }
 
 
@@ -194,7 +173,7 @@ void LR_TableGenerator::update_successors(int state, int last_complete_state, ve
 // o if-else - else (shift) wins, causing else to be always associated with closet preceding if
 // o Infix operators - resolve according to operator precedence and associativity
 //==========================================================================================================
-LR_TableGenerator::ResolutionResult LR_TableGenerator::resolve_conflict(const Configuration& c, Symbol sym, Action& action, string& err_msg) {
+LALR_TableGenerator::ResolutionResult LALR_TableGenerator::resolve_conflict(const Configuration& c, Symbol sym, Action& action, string& err_msg) {
     if(action.kind != SHIFT)
         throw string("Can't resolve a reduce-reduce conflict");
 
@@ -229,7 +208,7 @@ LR_TableGenerator::ResolutionResult LR_TableGenerator::resolve_conflict(const Co
 // Write a source file containing the parser state machine table (action per (state, symbol), and production
 // info table
 //==========================================================================================================
-void LR_TableGenerator::write_tables_file(string filename) {
+void LALR_TableGenerator::write_tables_file(string filename) {
     ofstream file = ofstream(filename);
     
     if(!file.is_open())
@@ -246,7 +225,7 @@ void LR_TableGenerator::write_tables_file(string filename) {
 
 //==========================================================================================================
 //==========================================================================================================
-void LR_TableGenerator::write_parser_table(ofstream& file) {
+void LALR_TableGenerator::write_parser_table(ofstream& file) {
     file << "//==========================================================================================================" << endl;
     file << "// Table of actions per (state, symbol) pair" << endl;
     file << "//==========================================================================================================" << endl;
@@ -278,7 +257,7 @@ void LR_TableGenerator::write_parser_table(ofstream& file) {
 //==========================================================================================================
 // For the parsing process, only the nonterminal and the RHS size per production is needed, so write it.
 //==========================================================================================================
-void LR_TableGenerator::write_productions_table(ofstream &file) {
+void LALR_TableGenerator::write_productions_table(ofstream &file) {
     file << "//==========================================================================================================" << endl;
     file << "// Table of productions info: Left-hand-side nonterminal and number of symbols on right-hand-side" << endl;
     file << "//==========================================================================================================" << endl;
@@ -300,7 +279,7 @@ void LR_TableGenerator::write_productions_table(ofstream &file) {
 // Write the function that knows how to generate an AST given a production number and the parsing elements
 // extracted from the stack for a reduction operation.
 //==========================================================================================================
-void LR_TableGenerator::write_gen_ast_function(ofstream& file) {
+void LALR_TableGenerator::write_gen_ast_function(ofstream& file) {
     file << "//==========================================================================================================" << endl;
     file << "// Generate an AST acording to production number" << endl;
     file << "//==========================================================================================================" << endl;
@@ -324,7 +303,7 @@ void LR_TableGenerator::write_gen_ast_function(ofstream& file) {
 
 //==========================================================================================================
 //==========================================================================================================
-void LR_TableGenerator::print() {
+void LALR_TableGenerator::print() {
     cout << "LR_Table:" << endl;
     
     vector<int> col_widths;
@@ -366,7 +345,7 @@ void LR_TableGenerator::print() {
 
 //==========================================================================================================
 //==========================================================================================================
-void LR_TableGenerator::print_separation_line(vector<int> col_widths) {
+void LALR_TableGenerator::print_separation_line(vector<int> col_widths) {
     cout << "---";
     for(int sym = 0; sym < NUM_SYMBOLS; ++sym) {
         cout << "+";
@@ -446,12 +425,31 @@ bool ConfigurationSet::lalr_equivalent(ConfigurationSet& other) {
 // Given a configuration which has a transition into this configuration set, and which had its lookahead
 // set augmented due to LALR states merge, find the configuration in the current set that the input
 // configuration "points" to, and update its lookahead set.
+// Also update all the configurations of the closure of that configuration.
 // Return true if something was actually added
 //==========================================================================================================
 bool ConfigurationSet::update_lookaheads(Configuration& config) {
-    bool res = not config.lookaheads.is_difference_empty(m[{config.production.index, config.pos + 1}]); 
-    if(res)
-        m[{config.production.index, config.pos + 1}].insert(config.lookaheads);
+    int pos = config.pos + 1; // The position of the dot advances in the transition
+    
+    // Symbols will be added only if config lookahead contains new symbols 
+    bool res = not config.lookaheads.is_difference_empty(m[{config.production.index, pos}]); 
+    
+    if(res) {
+        // Update the configuration that is due to the transition
+        m[{config.production.index, pos}].insert(config.lookaheads);
+        
+        // If the position is just before the last symbol, may need to update the lookahead of the closure set
+        if(config.production.rhs_size() == pos + 1) {
+            Symbol S = config.production[pos+1]; // The last symbol of the production
+            
+            if(is_nonterminal(S)) {
+                for(auto& p: m) {
+                    if(grammar->productions[p.first.first].get_lhs() == S and p.first.second == 0)
+                        p.second.insert(config.lookaheads);
+                }
+            }
+        }
+    }
     return res;
 }
 

@@ -1,13 +1,13 @@
 //
-//  LR_TableGenerator.hpp
+//  LALR_TableGenerator.hpp
 //  ParserGenerator
 //
 //  Created by Yuval Dinari on 9/1/16.
 //  Copyright © 2016 Vonage. All rights reserved.
 //
 
-#ifndef LR_TableGenerator_hpp
-#define LR_TableGenerator_hpp
+#ifndef LALR_TableGenerator_hpp
+#define LALR_TableGenerator_hpp
 
 #include "common_headers.h"
 #include "Grammar.hpp"
@@ -188,10 +188,11 @@ private:
 
 
 //==========================================================================================================
+// Generate LALR(1) table
 //==========================================================================================================
-class LR_TableGenerator {
+class LALR_TableGenerator {
 public:
-    LR_TableGenerator(string grammar_file, string parser_tables_file);
+    LALR_TableGenerator(string grammar_file, string parser_tables_file);
     void print();
     
     void print(UnorderedSet<Configuration>& cs, int i) {
@@ -208,6 +209,7 @@ private:
     
     void build_table();
     void update_successors(int state, int last_complete_state, vector<ConfigurationSet>& configurating_sets);
+    void add_reductions(int state, vector<ConfigurationSet>& configurating_sets);
     
     enum ResolutionResult {SHIFT_WIN, REDUCE_WIN, NOT_ALLOWED};
     ResolutionResult resolve_conflict(const Configuration& c, Symbol sym, Action& action, string& err_msg);
@@ -221,4 +223,4 @@ private:
 };
 
 
-#endif /* LR_TableGenerator_hpp */
+#endif /* LALR_TableGenerator_hpp */

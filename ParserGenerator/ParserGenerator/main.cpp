@@ -6,7 +6,7 @@
 //  Copyright © 2016 Vonage. All rights reserved.
 //
 
-#include "LR_TableGenerator.hpp"
+#include "LALR_TableGenerator.hpp"
 
 int main(int argc, const char * argv[]) {
     
@@ -17,7 +17,7 @@ int main(int argc, const char * argv[]) {
             throw string("Couldn't get project dir");
         
         string workspace_dir = project_dir + "/..";
-        LR_TableGenerator(workspace_dir + "/grammar_definition", workspace_dir + "/InterpreterRuntime/InterpreterRuntime/ParserTables.cpp");
+        LALR_TableGenerator(workspace_dir + "/grammar_definition", workspace_dir + "/InterpreterRuntime/InterpreterRuntime/ParserTables.cpp");
 
     } catch(string& err) {
         cout << "Caught exception: " << err << endl;
