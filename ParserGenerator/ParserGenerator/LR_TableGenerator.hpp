@@ -19,7 +19,7 @@
 //==========================================================================================================
 class Configuration {
 public:
-    Configuration(Grammar& _grammar, Production& _production, int _pos, Set<Symbol> _lookaheads): grammar(_grammar), production(_production), pos(_pos), lookaheads(_lookaheads) {
+    Configuration(Grammar* _grammar, Production& _production, int _pos, Set<Symbol> _lookaheads): grammar(_grammar), production(_production), pos(_pos), lookaheads(_lookaheads) {
         
         // 'closed' indicates no other configurations should be added to a configuration set due to this configuration
         // A configuration can cause adding of others to its closure set only if the position of dot is followed by
@@ -27,7 +27,7 @@ public:
         closed = (pos == production.rhs_size()) or is_terminal(get_next_symbol());
     }
     
-    Grammar& grammar;
+    Grammar* grammar;
     Production& production;
     int pos;    // Position of the dot, i.e. where we are in the parse of the production
     Set<Symbol> lookaheads; // One or more terminals that can follow this production
@@ -64,7 +64,7 @@ public:
         if(pos == production.rhs_size() - 1)
             return lookaheads;
         else
-            return grammar.get_first_set(production[pos + 2]); 
+            return grammar->get_first_set(production[pos + 2]); 
     }
     
 
@@ -143,11 +143,13 @@ struct hash<Configuration>
 //==========================================================================================================
 class ConfigurationSet {
 public:
-    ConfigurationSet(Grammar& _grammar): grammar(_grammar){}
+    ConfigurationSet(Grammar* _grammar): grammar(_grammar){}
     ConfigurationSet(Configuration c);
     bool operator==(const ConfigurationSet& other) { return m == other.m; }
     bool empty() { return m.empty(); }
     void merge(ConfigurationSet other);
+    bool lalr_equivalent(ConfigurationSet& other);
+    bool update_lookaheads(Configuration& config);
     void print();
     
     typedef pair<int,int> key_type;
@@ -159,9 +161,9 @@ public:
     // Will enable iteration over the set as if iterating over a real set of configurations
     //------------------------------------------------------------------------------------------------------
     struct iterator {
-        iterator(Grammar& _grammar, map_iterator _map_iter): grammar(_grammar), map_iter(_map_iter) {}
+        iterator(Grammar* _grammar, map_iterator _map_iter): grammar(_grammar), map_iter(_map_iter) {}
         
-        Configuration operator*() { return Configuration(grammar, grammar.productions[map_iter->first.first], map_iter->first.second, map_iter->second); }
+        Configuration operator*() { return Configuration(grammar, grammar->productions[map_iter->first.first], map_iter->first.second, map_iter->second); }
         
         bool operator==(const iterator& other) { return map_iter == other.map_iter; }
         
@@ -171,7 +173,7 @@ public:
         
     private:
         map_iterator map_iter;
-        Grammar& grammar;
+        Grammar* grammar;
     };
     
     //------------------------------------------------------------------------------------------------------
@@ -180,7 +182,7 @@ public:
     iterator end()   { return iterator(grammar, m.end());   }
     
 private:
-    Grammar& grammar;
+    Grammar* grammar;
     map<key_type, Set<Symbol>> m;
 };
 
@@ -204,10 +206,12 @@ private:
     vector<vector<Action>> table; // Action per state and symbol
     string tab = "    ";
     
+    void build_table();
+    void update_successors(int state, int last_complete_state, vector<ConfigurationSet>& configurating_sets);
+    
     enum ResolutionResult {SHIFT_WIN, REDUCE_WIN, NOT_ALLOWED};
     ResolutionResult resolve_conflict(const Configuration& c, Symbol sym, Action& action, string& err_msg);
-    
-    void build_table();
+
     void write_tables_file(string filename);
     void write_parser_table(ofstream& file);
     void write_productions_table(ofstream& file);

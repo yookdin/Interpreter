@@ -26,14 +26,14 @@ LR_TableGenerator::LR_TableGenerator(string grammar_file, string parser_tables_f
 // [S' -> • S, $]
 //==========================================================================================================
 void LR_TableGenerator::build_table() {
-    Configuration c0(grammar, grammar.productions[0], 0, {EOI}); // Initial configuration
+    Configuration c0(&grammar, grammar.productions[0], 0, {EOI}); // Initial configuration
     
     // A list of the configuration sets, for each a state will be created
     vector<ConfigurationSet> configurating_sets{ConfigurationSet(c0)};
     
     // Adding the starting state
     table.push_back(vector<Action>(NUM_SYMBOLS));
-
+    
     //------------------------------------------------------------------------------------------------------
     // As long as there are new states in the table, calculate the transitions for them, while creating new
     // states if needed
@@ -42,7 +42,7 @@ void LR_TableGenerator::build_table() {
         cout << i << " "; fflush(stdout);
         
         for(int sym = 0; sym < NUM_SYMBOLS; ++sym) { // for each symbol
-            ConfigurationSet cs(grammar);
+            ConfigurationSet cs(&grammar);
             
             for(auto c: configurating_sets[i]) {    // for each configuration in current state
                 if(not c.next_symbol_exists() or c.get_next_symbol() != sym) 
@@ -66,12 +66,52 @@ void LR_TableGenerator::build_table() {
                 table.push_back(vector<Action>(NUM_SYMBOLS)); // Add a new state, with no transitions defined yet
                 table[i][sym] = {SHIFT, (int)table.size() - 1};
             }
-            
+             
         } // for each symbol
         
-        //--------------------------------------------------------------------------------------------------
-        // Add the reductions for the current state
-        //--------------------------------------------------------------------------------------------------
+    } // for each new state
+    
+
+    //------------------------------------------------------------------------------------------------------
+    // Merge state with identical cores
+    //------------------------------------------------------------------------------------------------------
+    map<int,int> merge_targets; // Keep track of which state was merged into which state, to update the table
+    vector<int> offsets(table.size(), 0); // Keep track of offsets caused by deleting states from the table
+    
+    // Go in reverse, so erasing will not effect indices of states not yet seen
+    for(int i = table.size()-1; i >= 0; --i) {
+        for(int j = 0; j < i; ++j) {
+            if(configurating_sets[j].lalr_equivalent(configurating_sets[i])) {
+                configurating_sets[j].merge(configurating_sets[i]);
+                merge_targets[i] = j;
+                offsets[i] = 1;
+                table.erase(table.begin() + i);
+                configurating_sets.erase(configurating_sets.begin() + i);
+                break;
+            }
+        }
+    }
+    
+    // After this offsets will hold for each state, how many places it was shift down due to erasing states
+    for(int j = 1; j < offsets.size(); ++j) {
+        offsets[j] += offsets[j-1];
+    }
+    
+    for(int j = 0; j < table.size(); ++j) {
+        for(int sym = 0; sym < NUM_SYMBOLS; ++sym) {
+            if(table[j][sym].kind == SHIFT) {
+                if(merge_targets.count(table[j][sym].val) != 0) { // Correct the value that was changed due to a merge
+                    table[j][sym].val = merge_targets[table[j][sym].val];   
+                }
+                table[j][sym].val -= offsets[table[j][sym].val];
+            }
+        }
+    }
+
+    //------------------------------------------------------------------------------------------------------
+    // Add the reductions for each state
+    //------------------------------------------------------------------------------------------------------
+    for(int i = 0; i < table.size(); ++i) {
         for(auto c: configurating_sets[i]) {
             if(not c.reducable()) continue;
             
@@ -112,9 +152,41 @@ void LR_TableGenerator::build_table() {
                 }
             }
         }
-
-    } // for each new state
+    }
 }
+
+
+//==========================================================================================================
+// After an LALR merge the lookahead sets grow, so need to update the successor states already created from
+// the original state (before the merge).
+// To handle loops in the states graph, only call recursively on state that were actually updated.
+// This ensures that we won't loop forever, and also that we don't miss anything.
+//==========================================================================================================
+void LR_TableGenerator::update_successors(int state, int last_complete_state, vector<ConfigurationSet>& configurating_sets) {
+
+    if(state > last_complete_state) return; // No need to update successors, there aren't any yet
+    
+    set<int> states_to_update;
+    
+    for(auto c: configurating_sets[state]) {
+        if(not c.next_symbol_exists()) // This configuration didn't cause any transition 
+            continue;
+        
+        Symbol sym = c.get_next_symbol();
+        
+        // Check if SHIFT, because it's possible (I think) to update on the current state, while not all of its transitions has been defined
+        if(table[state][sym].kind == SHIFT) {           
+            bool updated = configurating_sets[table[state][sym].val].update_lookaheads(c);
+            if(updated) {
+                states_to_update.insert(table[state][sym].val);
+            }
+        }
+    }
+
+    for(auto s: states_to_update)
+        update_successors(s, last_complete_state, configurating_sets);
+}
+
 
 
 //==========================================================================================================
@@ -320,7 +392,7 @@ ConfigurationSet::ConfigurationSet(Configuration c): grammar(c.grammar) {
         Symbol nonterminal = cur_configs[i].get_next_symbol();
         Set<Symbol> lookaheads = cur_configs[i].get_actual_lookahead_set();
         
-        for(auto& p: grammar.productions) {
+        for(auto& p: grammar->productions) {
             if(p.get_lhs() != nonterminal) continue;
             
             Configuration c(grammar, p, 0, lookaheads);
@@ -343,10 +415,44 @@ ConfigurationSet::ConfigurationSet(Configuration c): grammar(c.grammar) {
 
 
 //==========================================================================================================
+// Add all configurations in other. If configurations exists which only differs in their lookahead sets,
+// only merge the lookahead sets.
 //==========================================================================================================
 void ConfigurationSet::merge(ConfigurationSet other) {
     for(auto& p: other.m)
         m[p.first].insert(p.second);
+}
+
+
+//==========================================================================================================
+// The sets are considered equivalent if their cores (configurations without the lookahead sets) are equal. 
+//==========================================================================================================
+bool ConfigurationSet::lalr_equivalent(ConfigurationSet& other) {
+    if(m.size() != other.m.size())
+        return false;
+    
+    auto i1 = m.begin(), i2 = other.m.begin();
+    
+    for(; i1 != m.end(); ++i1, ++i2) {
+        if(i1->first != i2->first)
+            return false;
+    }
+    
+    return true;
+}
+
+
+//==========================================================================================================
+// Given a configuration which has a transition into this configuration set, and which had its lookahead
+// set augmented due to LALR states merge, find the configuration in the current set that the input
+// configuration "points" to, and update its lookahead set.
+// Return true if something was actually added
+//==========================================================================================================
+bool ConfigurationSet::update_lookaheads(Configuration& config) {
+    bool res = not config.lookaheads.is_difference_empty(m[{config.production.index, config.pos + 1}]); 
+    if(res)
+        m[{config.production.index, config.pos + 1}].insert(config.lookaheads);
+    return res;
 }
 
 

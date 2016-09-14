@@ -36,9 +36,18 @@ public:
         set<T>::insert(other.begin(), other.end());
     }
     
-    
     void insert(T value) {
         set<T>::insert(value);
+    }
+
+    //------------------------------------------------------------------------------------------------------
+    // Return whether the diffenrece of this and other (the set of elements in this and not in other) is empty
+    //------------------------------------------------------------------------------------------------------
+    bool is_difference_empty(Set<T>& other) {
+        for(auto& t: *this)
+            if(other.find(t) == other.end())
+                return false;
+        return true;
     }
 };
 
