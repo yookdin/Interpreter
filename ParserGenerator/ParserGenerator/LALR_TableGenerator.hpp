@@ -9,7 +9,10 @@
 #ifndef LALR_TableGenerator_hpp
 #define LALR_TableGenerator_hpp
 
-#include "common_headers.h"
+
+#include <iomanip>
+using namespace std;
+
 #include "Grammar.hpp"
 
 
@@ -37,12 +40,16 @@ public:
     //------------------------------------------------------------------------------------------------------
     // True when the position (the dot) is after all the symbols in the production
     //------------------------------------------------------------------------------------------------------
-    bool reducable() const { return pos == production.rhs_size();  }
+    bool reducable() const {
+        return pos == production.rhs_size();
+    }
     
     //------------------------------------------------------------------------------------------------------
     //------------------------------------------------------------------------------------------------------
-    bool next_symbol_exists() const { return pos < production.rhs_size(); }
-    
+    bool next_symbol_exists() const {
+        return pos < production.rhs_size();
+    }
+        
     //------------------------------------------------------------------------------------------------------
     // Return the symbol in the production after the current position 
     //------------------------------------------------------------------------------------------------------
@@ -57,9 +64,9 @@ public:
     // then return what is already in the lookahead set.
     // This is used to perform the closure operation on this configuration.
     //------------------------------------------------------------------------------------------------------
-    Set<Symbol> get_actual_lookahead_set() const {
-        if(pos == production.rhs_size())
-            throw string("Shouldn't call get_actual_lookahead_set() when position is at the end of a production");
+    Set<Symbol> get_next_symbol_lookahead_set() const {
+        if(not next_symbol_exists())
+            throw string("Can't get_next_symbol_lookahead_set() when position is at the end of a production");
             
         if(pos == production.rhs_size() - 1)
             return lookaheads;
@@ -87,21 +94,24 @@ public:
     //------------------------------------------------------------------------------------------------------
     //------------------------------------------------------------------------------------------------------
     void print() const {
-        cout << "[" << symbol_str_map[production[0]] << " ->";
+        ostringstream o;
+        o << symbol_str_map[production[0]] << " ->";
+        
         for(int i = 0; i < production.rhs_size(); ++i) {
-            if(pos == i) cout << " •";
-            cout << " " << symbol_str_map[production[i+1]];
+            if(pos == i)
+                o << " •";
+            o << " " << symbol_str_map[production[i+1]];
         }
-        if(pos == production.rhs_size()) cout << " •"; 
+
+        if(pos == production.rhs_size())
+            o << " •"; 
         
-        cout << ", ";
-        int i = 0;
-        for(auto s: lookaheads) {
-            cout << symbol_str_map[s];
-            if(i++ < lookaheads.size() - 1) cout << "/";
-        }
+        cout << left << setw(50) << o.str() << " # ";
         
-        cout << "]" << endl;
+        for(auto s: lookaheads)
+            cout << symbol_str_map[s] << " ";
+        
+        cout << endl;
     }
 };
 
@@ -133,7 +143,7 @@ struct hash<Configuration>
 
 
 //==========================================================================================================
-// A set of configurations. This class handles the closure operation on configuration, merging of
+// A set of configurations. This class handles the closure operation on configurations, merging of
 // configuration sets, etc.
 // Doesn't actually store configurations. Instead use a map which key is <production-index, position>, and
 // value is the lookahead set. This makes it easier to merge configurations that differ only in their
@@ -144,11 +154,17 @@ struct hash<Configuration>
 class ConfigurationSet {
 public:
     ConfigurationSet(Grammar* _grammar): grammar(_grammar){}
-    ConfigurationSet(Configuration c);
-    bool operator==(const ConfigurationSet& other) { return m == other.m; }
+    
+    ConfigurationSet(Configuration c): grammar(c.grammar) {
+        add_closure(c);
+    }
+    
+    void add_closure(Configuration c);
+    void add_closure(int production_index, int pos);
+    
     bool empty() { return m.empty(); }
     void merge(ConfigurationSet other);
-    bool lalr_equivalent(ConfigurationSet& other);
+    bool lalr_equivalent(ConfigurationSet& other, bool& really_equal);
     bool update_lookaheads(Configuration& config);
     void print();
     
@@ -163,13 +179,22 @@ public:
     struct iterator {
         iterator(Grammar* _grammar, map_iterator _map_iter): grammar(_grammar), map_iter(_map_iter) {}
         
-        Configuration operator*() { return Configuration(grammar, grammar->productions[map_iter->first.first], map_iter->first.second, map_iter->second); }
+        Configuration operator*() {
+            return Configuration(grammar, grammar->productions[map_iter->first.first], map_iter->first.second, map_iter->second);
+        }
         
-        bool operator==(const iterator& other) { return map_iter == other.map_iter; }
+        bool operator==(const iterator& other) { 
+            return map_iter == other.map_iter;
+        }
         
-        bool operator!=(const iterator& other) { return map_iter != other.map_iter; }
+        bool operator!=(const iterator& other) {
+            return map_iter != other.map_iter;
+        }
         
-        iterator& operator++() { ++map_iter; return *this; }
+        iterator& operator++() {
+            ++map_iter;
+            return *this;
+        }
         
     private:
         map_iterator map_iter;
@@ -178,8 +203,15 @@ public:
     
     //------------------------------------------------------------------------------------------------------
     //------------------------------------------------------------------------------------------------------
-    iterator begin() { return iterator(grammar, m.begin()); }
-    iterator end()   { return iterator(grammar, m.end());   }
+    iterator begin() {
+        return iterator(grammar, m.begin());
+    }
+    
+    //------------------------------------------------------------------------------------------------------
+    //------------------------------------------------------------------------------------------------------
+    iterator end() {
+        return iterator(grammar, m.end());
+    }
     
 private:
     Grammar* grammar;
@@ -208,7 +240,7 @@ private:
     string tab = "    ";
     
     void build_table();
-    void update_successors(int state, int last_complete_state, vector<ConfigurationSet>& configurating_sets);
+    void update_successors(int state, int max_state, vector<ConfigurationSet>& configurating_sets);
     void add_reductions(int state, vector<ConfigurationSet>& configurating_sets);
     
     enum ResolutionResult {SHIFT_WIN, REDUCE_WIN, NOT_ALLOWED};

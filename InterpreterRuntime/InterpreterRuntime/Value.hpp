@@ -9,109 +9,179 @@
 #ifndef Value_hpp
 #define Value_hpp
 
-#include "common_headers.h"
-#include "utils.hpp"
+#include <regex>
+using namespace std;
+
+#include "st_exception.h"
+#include "common_utils.hpp"
+
+
+//==========================================================================================================
+//==========================================================================================================
+class Value;
+typedef shared_ptr<Value> SharedValue;
+extern SharedValue no_value;
+
 
 //==========================================================================================================
 //==========================================================================================================
 class Value {
 public:
-    enum Type {BOOL, NUMBER, STRING, PARAM_VAL, NO_VAL};
+    enum Type {BOOL, NUMBER, STRING, RANGE, LIST, PARAM_VAL, PARAM_VALS_LIST, MATCH_RESULT, NO_VAL};
+    
+    static string get_type_name(Type type);
+    static SharedValue from_string(string s);
     
     Value(Type _type): type(_type) {}
-    virtual ~Value(){}
     
-    Type get_type() { return type; }
+    Type get_type();
+    string get_type_name() const;
+    virtual Value* copy() const = 0;
+    virtual void print();
+    virtual bool is_no_value() const;
     
-    virtual Value& copy() = 0;
-    virtual string to_string() const = 0;
-    virtual void print() { cout << to_string() << endl; }
-    virtual bool is_no_value() { return false; }
-    
-    //------------------------------------------------------------------------------------------------------
-    // By default all conversion are undefined. Derived classes will override those conversion they support
-    //------------------------------------------------------------------------------------------------------
-    virtual operator bool() const { throw string("Conversion of " + get_type_name() + " to bool is undefined"); }
-    virtual operator int() const { throw string("Conversion of " + get_type_name() + " to int is undefined"); }
-    virtual operator string() const { throw string("Conversion of " + get_type_name() + " to string is undefined"); }
-
-    
-    //------------------------------------------------------------------------------------------------------
-    //------------------------------------------------------------------------------------------------------
-    string get_type_name() const {
-        switch(type) {
-            case STRING: return "STRING";
-            case NUMBER: return "NUMBER";
-            case BOOL: return "BOOL";
-            case PARAM_VAL: return "PARAM_VAL";
-            case NO_VAL: return "NO_VAL";
-        }
+    SharedValue subscript(SharedValue v) const {
+        return subscript(v->to_int());
     }
     
-    // This is poor man's smart pointer. tmp will be true unless using it as a value for a variable. Operations
-    // on values will delete intermidiated calculated values, unless their tmp field is false.
-    bool tmp = true;
+    virtual SharedValue subscript(int i) const;
+    virtual SharedValue length(vector<SharedValue> args = {});
+    virtual SharedValue match     (SharedValue other) const;
+    virtual SharedValue not_match (SharedValue other) const;
+    
+    //------------------------------------------------------------------------------------------------------
+    // Return pointer to specific Value type, or null if can't cast
+    //------------------------------------------------------------------------------------------------------
+    template<class T>
+    T* get() {
+        return dynamic_cast<T*>(this);
+    }
+        
+    //------------------------------------------------------------------------------------------------------
+    // By default all conversion are illegal. Derived classes will override those conversion they support
+    //------------------------------------------------------------------------------------------------------
+    virtual string to_string() const = 0;
+    virtual int to_int() const;
+    virtual long to_long() const;
+    virtual bool to_bool() const;
+    virtual vector<string> to_strings() const;
+    
+    // Note: it is needed to overload the built-in conversion operators, to enable conversions inside
+    // templates, where the templated type is the one being converted to!
+    explicit virtual operator string()         const { return to_string(); } 
+    explicit virtual operator int()            const { return to_int(); }
+    explicit virtual operator long()           const { return to_long(); }
+    explicit virtual operator bool()           const { return to_bool(); }
+    explicit virtual operator vector<string>() const { return to_strings(); }
 
+    
+    //------------------------------------------------------------------------------------------------------
+    // Callable functions
+    //------------------------------------------------------------------------------------------------------
+    typedef SharedValue(Value::*CallableFunc)(vector<SharedValue> args);
+    static map<string, CallableFunc> functab;
+    virtual SharedValue call_func(string name, vector<SharedValue> args);
+    SharedValue type_name(vector<SharedValue> args);
+    
+    
 protected:
     const Type type;
-
+    
 private:
-    string wrong_op_str(string op) { return "Operator " + op + " not supported by type " + get_type_name(); }
+    string wrong_op_str(string op) const { return "Operator " + op + " not supported by type " + get_type_name(); }
     
 public:
     
     //------------------------------------------------------------------------------------------------------
-    // By default all operators are undefined. Derived classes will override those they support
+    // By default all operators are illeagal. Derived classes will override those they support
     //------------------------------------------------------------------------------------------------------
-    virtual Value& operator+ (Value& other) { throw wrong_op_str("+");   }
-    virtual Value& operator- (Value& other) { throw wrong_op_str("-");   }
-    virtual Value& operator* (Value& other) { throw wrong_op_str("*");   }
-    virtual Value& operator/ (Value& other) { throw wrong_op_str("/");   }
-    virtual Value& operator% (Value& other) { throw wrong_op_str("%");   }
-    virtual Value& operator||(Value& other) { throw wrong_op_str("or");  }
-    virtual Value& operator&&(Value& other) { throw wrong_op_str("and"); }
-    virtual Value& operator! ()             { throw wrong_op_str("not"); }
-    virtual Value& operator==(Value& other) { throw wrong_op_str("==");  }
-    virtual Value& operator!=(Value& other) { throw wrong_op_str("!=");  }
-    virtual Value& operator< (Value& other) { throw wrong_op_str("<");   }
-    virtual Value& operator> (Value& other) { throw wrong_op_str(">");   }
-    virtual Value& operator<=(Value& other) { throw wrong_op_str("<=");  }
-    virtual Value& operator>=(Value& other) { throw wrong_op_str(">=");  }
-    virtual Value& match     (Value& other) { throw wrong_op_str("~");   }
-    virtual Value& not_match (Value& other) { throw wrong_op_str("!~");  }    
-};
+    virtual Value& operator- ()             const;
+    virtual Value& operator+ (Value& other) const;
+    virtual Value& operator- (Value& other) const;
+    virtual Value& operator* (Value& other) const;
+    virtual Value& operator/ (Value& other) const;
+    virtual Value& operator% (Value& other) const;
+    virtual Value& operator||(Value& other) const;
+    virtual Value& operator&&(Value& other) const;
+    virtual Value& operator! ()             const;
+    virtual Value& operator==(Value& other) const;
+    virtual Value& operator!=(Value& other) const;
+    virtual Value& operator< (Value& other) const;
+    virtual Value& operator> (Value& other) const;
+    virtual Value& operator<=(Value& other) const;
+    virtual Value& operator>=(Value& other) const;
+    
+}; // class Value
 
 
 //==========================================================================================================
+// Global operators to enbale expressiong involving Value and primitve types
+//==========================================================================================================
+bool operator<(const int& i, const SharedValue& v);
+bool operator<(const SharedValue& v, const int& i);
+bool operator>(const int& i, const SharedValue& v);
+bool operator>(const SharedValue& v, const int& i);
+bool operator<=(const int& i, const SharedValue& v);
+bool operator<=(const SharedValue& v, const int& i);
+bool operator>=(const int& i, const SharedValue& v);
+bool operator>=(const SharedValue& v, const int& i);
+bool operator==(const int& i, const SharedValue& v);
+bool operator==(const SharedValue& v, const int& i);
+bool operator!=(const int& i, const SharedValue& v);
+bool operator!=(const SharedValue& v, const int& i);
+
+
+//==========================================================================================================
+// This represent a non-value, like nullptr. Should be only one global instance which everybody uses.
 //==========================================================================================================
 class NoValue: public Value {
 public:
-    NoValue(): Value(NO_VAL){}
-    Value& copy() { throw string("NoValue::copy() shouldb't be called"); }
-    bool is_no_value() { return true; }
-    string to_string() const { return get_type_name(); }
+    NoValue();
+    Value* copy() const override;
+    bool is_no_value() const override;
+    string to_string() const override;
 };
 
-extern NoValue no_value;
 
+//==========================================================================================================
+// Classes in the Value family will implement this, to enable calling functions by name, and if not found
+// roll the call up to the parent.
+// Note: each class still need to instantiate its static function table.
+//==========================================================================================================
+#define VALUE_CALL_MECHANISM(Base, Derived)                                         \
+public:                                                                             \
+    typedef Base Super;                                                             \
+    typedef SharedValue(Derived::*CallableFunc)(vector<SharedValue> args);          \
+private:                                                                            \
+    static map<string, CallableFunc> functab;                                       \
+public:                                                                             \
+    virtual SharedValue call_func(string name, vector<SharedValue> args) override { \
+        if(functab.count(name) != 0)                                                \
+            return (this->*functab[name])(args);                                    \
+        else                                                                        \
+            return Super::call_func(name, args);                                    \
+    }
 
 //==========================================================================================================
 //==========================================================================================================
 class Bool: public Value {
+    VALUE_CALL_MECHANISM(Value, Bool);
 public:
-    Bool(bool _val = false): Value(BOOL), val(_val) {}
     
-    operator bool() const { return val; };
-    operator string() const { return to_string(); }
-        
-    Value& operator||(Value& other) { return *(new Bool(val || bool(other))); }
-    Value& operator&&(Value& other) { return *(new Bool(val && bool(other))); }
-    Value& operator!()              { return *(new Bool(!val)); }
-    Value& operator==(Value& other) { return *(new Bool(val == bool(other))); }
-    Value& operator!=(Value& other) { return *(new Bool(val != bool(other))); }
-
-    Value& copy() { return *(new Bool(*this)); }
-    string to_string() const { return ::to_string(val); }
+    static SharedValue from_string(string s);
+    
+    Bool(bool _val = false);
+    
+    void flip();
+    
+    string to_string() const override;
+    bool to_bool() const override;
+    Value& operator||(Value& other) const override;
+    Value& operator&&(Value& other) const override;
+    Value& operator==(Value& other) const override;
+    Value& operator!=(Value& other) const override;
+    
+    Value* copy() const override;
     
 private:
     bool val;
@@ -121,60 +191,113 @@ private:
 //==========================================================================================================
 //==========================================================================================================
 class Num: public Value {
+    VALUE_CALL_MECHANISM(Value, Num);
 public:
-    Num(int _val = 0): Value(NUMBER), val(_val) {}
+    static SharedValue from_string(string s);
     
-    operator int() const { return val; }
-    operator string() const { return to_string(); }
+    Num(long _val = 0);
     
-    Value& operator+ (Value& other) { return *(new Num(val  +  int(other))); }
-    Value& operator- (Value& other) { return *(new Num(val  -  int(other))); }
-    Value& operator* (Value& other) { return *(new Num(val  *  int(other))); }
-    Value& operator/ (Value& other) { return *(new Num(val  /  int(other))); }
-    Value& operator% (Value& other) { return *(new Num(val  %  int(other))); }
-    Value& operator==(Value& other) { return *(new Bool(val == int(other))); }
-    Value& operator!=(Value& other) { return *(new Bool(val != int(other))); }
-    Value& operator< (Value& other) { return *(new Bool(val <  int(other))); }
-    Value& operator> (Value& other) { return *(new Bool(val >  int(other))); }
-    Value& operator<=(Value& other) { return *(new Bool(val <= int(other))); }
-    Value& operator>=(Value& other) { return *(new Bool(val >= int(other))); }
+    string to_string() const override;
+    int to_int() const override;
+    long to_long() const override;
     
-    Value& copy() { return *(new Num(*this)); }
-    string to_string() const { return std::to_string(val); }
-
+    Value& operator- ()             const override;
+    Value& operator+ (Value& other) const override;
+    Value& operator- (Value& other) const override;
+    Value& operator* (Value& other) const override;
+    Value& operator/ (Value& other) const override;
+    Value& operator% (Value& other) const override;
+    Value& operator==(Value& other) const override;
+    Value& operator!=(Value& other) const override;
+    Value& operator< (Value& other) const override;
+    Value& operator> (Value& other) const override;
+    Value& operator<=(Value& other) const override;
+    Value& operator>=(Value& other) const override;
+    
+    Value* copy() const override;
+    
 private:
-    int val;
+    long val;
 };
 
 
 //==========================================================================================================
 //==========================================================================================================
 class String: public Value {
+    VALUE_CALL_MECHANISM(Value, String);
 public:
-    String(string _val = ""): Value(STRING), val(_val) {}
-    
-    operator string() const { return val; }
-    operator bool() const { return stob(val); }
-    operator int() const { return stoi(val); }
-    
-    Value& operator+ (Value& other) { return *(new String(val + string(other)));}
-    Value& operator==(Value& other) { return *(new Bool(val == string(other))); }
-    Value& operator!=(Value& other) { return *(new Bool(val != string(other))); }
-    Value& operator< (Value& other) { return *(new Bool(val <  string(other))); }
-    Value& operator> (Value& other) { return *(new Bool(val >  string(other))); }
-    Value& operator<=(Value& other) { return *(new Bool(val <= string(other))); }
-    Value& operator>=(Value& other) { return *(new Bool(val >= string(other))); }
 
-    Value& match(Value& other) { return *(new Bool(regex_match(val, regex(string(other))))); }
-    Value& not_match(Value& other) { return not match(other); }
-    
-    Value& copy() { return *(new String(*this)); }
-    string to_string() const { return '"' + val + '"'; } 
+    static SharedValue from_string(string s);
 
+    String(string _val = "");
+    String(char c);
+    
+    string to_string() const override;
+    bool to_bool() const override;
+    long to_long() const override;
+    int to_int() const override;
+    
+    Value& operator+ (Value& other) const override;
+    Value& operator==(Value& other) const override;
+    Value& operator!=(Value& other) const override;
+    Value& operator< (Value& other) const override;
+    Value& operator> (Value& other) const override;
+    Value& operator<=(Value& other) const override;
+    Value& operator>=(Value& other) const override;
+    SharedValue match     (SharedValue other) const override;
+    SharedValue not_match (SharedValue other) const override;
+
+    Value* copy() const override;
+    SharedValue subscript(int) const override;
+    SharedValue length(vector<SharedValue> args) override;
+    SharedValue empty(vector<SharedValue> args);
+    
 private:
     string val;
-    
 };
+
+
+//==========================================================================================================
+//==========================================================================================================
+class Range: public Value {
+    VALUE_CALL_MECHANISM(Value, Range);
+public:
+    Range(int s, int e);
+    Range(SharedValue s, SharedValue e): Range(s->to_int(), e->to_int()) {}
+
+    
+    string to_string() const override;
+    Value* copy() const override;
+    SharedValue length(vector<SharedValue> args) override;
+    SharedValue subscript(int) const override;
+
+private:
+    int s, e;
+};
+
+
+//==========================================================================================================
+// List of values (actually SharedValue, that can wrap any Value)
+//==========================================================================================================
+class List: public Value {
+    VALUE_CALL_MECHANISM(Value, List);
+public:
+    static SharedValue from_string(string s);
+
+    List(vector<SharedValue> _values);
+    Value* copy() const override;
+    string to_string() const override;
+    vector<string> to_strings() const override;
+    SharedValue length(vector<SharedValue> args) override;
+    SharedValue empty(vector<SharedValue> args);
+    SharedValue subscript(int) const override;
+
+private:
+    vector<SharedValue> values;
+    
+    static SharedValue from_string(string& s, int& i);
+    
+}; // class List
 
 
 //==========================================================================================================
@@ -182,17 +305,58 @@ private:
 // pair.
 //==========================================================================================================
 class ParamVal: public Value {
+    VALUE_CALL_MECHANISM(Value, ParamVal);
 public:
-    ParamVal(string _name, Value& _val): Value(PARAM_VAL), name(_name), val(_val) {}
-    ~ParamVal() { delete &val; }
+    ParamVal(string _name, SharedValue _val);
+    ParamVal(string _name, string _val);
+    ParamVal(string _name, bool _val);
     
-    Value& copy() { throw string("Shouldn't copy a param-value pair"); }
-    string to_string() const { return "(" + name + ", " + val.to_string() + ")"; }
+    Value* copy() const override;
+    string to_string() const override;
 
     string name;
-    Value& val;
+    SharedValue val;
 };
 
+
+//==========================================================================================================
+// A list of param-value pairs.
+//==========================================================================================================
+class ParamValsList: public Value {
+    VALUE_CALL_MECHANISM(Value, ParamValsList);
+public:
+
+    ParamValsList(vector<SharedValue> _values);
+    
+    Value* copy() const override;
+    string to_string() const override;
+    vector<SharedValue> get_values();
+    SharedValue length(vector<SharedValue> args) override;
+    SharedValue empty(vector<SharedValue> args);
+    SharedValue subscript(int) const override;
+    
+private:
+    vector<SharedValue> values;
+    
+}; // class ParamValsList
+
+
+//==========================================================================================================
+//==========================================================================================================
+class MatchResult: public Value {
+    VALUE_CALL_MECHANISM(Value, MatchResult);
+public:
+    MatchResult(string, string);
+    Value* copy() const override;
+    string to_string() const override;
+    SharedValue length(vector<SharedValue> args) override;
+    SharedValue empty(vector<SharedValue> args);
+    SharedValue subscript(int) const override;
+
+private:
+    string str, regex_str;
+    smatch match;
+};
 
 #endif /* Value_hpp */
 

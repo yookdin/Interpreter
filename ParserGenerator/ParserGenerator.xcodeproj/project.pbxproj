@@ -9,8 +9,8 @@
 /* Begin PBXBuildFile section */
 		FE1EE3BA1D40B6EF006A721A /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FE1EE3B91D40B6EF006A721A /* main.cpp */; };
 		FE1EE4091D40C9BE006A721A /* Grammar.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FE1EE4071D40C9BE006A721A /* Grammar.cpp */; };
-		FE1EE40E1D40D0CC006A721A /* Operator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FE1EE40D1D40D0CC006A721A /* Operator.cpp */; };
-		FE1EE41A1D40DC39006A721A /* utils.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FE1EE4181D40DC39006A721A /* utils.cpp */; };
+		FE57556F1FB72E1B008C4698 /* parser_generator_utils.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FE57556D1FB72E1B008C4698 /* parser_generator_utils.cpp */; };
+		FE5755721FB730A6008C4698 /* OperatorClasses.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FE5755701FB730A6008C4698 /* OperatorClasses.cpp */; };
 		FEEDD3C51D7855DC0033338C /* LALR_TableGenerator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FEEDD3C31D7855DC0033338C /* LALR_TableGenerator.cpp */; };
 		FEF4A6A11D40E47700319EC9 /* Symbol.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FEF4A69F1D40E47700319EC9 /* Symbol.cpp */; };
 /* End PBXBuildFile section */
@@ -35,10 +35,10 @@
 		FE1EE4081D40C9BE006A721A /* Grammar.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Grammar.hpp; sourceTree = "<group>"; };
 		FE1EE40B1D40CCCD006A721A /* Operator.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = Operator.hpp; path = ../../InterpreterRuntime/InterpreterRuntime/Operator.hpp; sourceTree = "<group>"; };
 		FE1EE40C1D40CF69006A721A /* Set.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Set.h; sourceTree = "<group>"; };
-		FE1EE40D1D40D0CC006A721A /* Operator.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Operator.cpp; path = ../../InterpreterRuntime/InterpreterRuntime/Operator.cpp; sourceTree = "<group>"; };
-		FE1EE4181D40DC39006A721A /* utils.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = utils.cpp; path = ../../InterpreterRuntime/InterpreterRuntime/utils.cpp; sourceTree = "<group>"; };
-		FE1EE4191D40DC39006A721A /* utils.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = utils.hpp; path = ../../InterpreterRuntime/InterpreterRuntime/utils.hpp; sourceTree = "<group>"; };
-		FE1EE42A1D40E348006A721A /* common_headers.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = common_headers.h; path = ../../InterpreterRuntime/InterpreterRuntime/common_headers.h; sourceTree = "<group>"; };
+		FE57556D1FB72E1B008C4698 /* parser_generator_utils.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = parser_generator_utils.cpp; sourceTree = "<group>"; };
+		FE57556E1FB72E1B008C4698 /* parser_generator_utils.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = parser_generator_utils.hpp; sourceTree = "<group>"; };
+		FE5755701FB730A6008C4698 /* OperatorClasses.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = OperatorClasses.cpp; path = ../../InterpreterRuntime/InterpreterRuntime/OperatorClasses.cpp; sourceTree = "<group>"; };
+		FE5755711FB730A6008C4698 /* OperatorClasses.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = OperatorClasses.hpp; path = ../../InterpreterRuntime/InterpreterRuntime/OperatorClasses.hpp; sourceTree = "<group>"; };
 		FEEDD3C31D7855DC0033338C /* LALR_TableGenerator.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = LALR_TableGenerator.cpp; sourceTree = "<group>"; };
 		FEEDD3C41D7855DC0033338C /* LALR_TableGenerator.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = LALR_TableGenerator.hpp; sourceTree = "<group>"; };
 		FEF4A69F1D40E47700319EC9 /* Symbol.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Symbol.cpp; path = ../../InterpreterRuntime/InterpreterRuntime/Symbol.cpp; sourceTree = "<group>"; };
@@ -76,15 +76,14 @@
 			isa = PBXGroup;
 			children = (
 				FE1EE4241D40E0EC006A721A /* Utils */,
-				FEF4A6A01D40E47700319EC9 /* Symbol.hpp */,
-				FEF4A69F1D40E47700319EC9 /* Symbol.cpp */,
 				FE1EE3B91D40B6EF006A721A /* main.cpp */,
-				FE1EE40B1D40CCCD006A721A /* Operator.hpp */,
-				FE1EE40D1D40D0CC006A721A /* Operator.cpp */,
-				FE1EE4081D40C9BE006A721A /* Grammar.hpp */,
-				FE1EE4071D40C9BE006A721A /* Grammar.cpp */,
 				FEEDD3C41D7855DC0033338C /* LALR_TableGenerator.hpp */,
 				FEEDD3C31D7855DC0033338C /* LALR_TableGenerator.cpp */,
+				FE1EE4081D40C9BE006A721A /* Grammar.hpp */,
+				FE1EE4071D40C9BE006A721A /* Grammar.cpp */,
+				FE1EE40B1D40CCCD006A721A /* Operator.hpp */,
+				FE5755711FB730A6008C4698 /* OperatorClasses.hpp */,
+				FE5755701FB730A6008C4698 /* OperatorClasses.cpp */,
 			);
 			path = ParserGenerator;
 			sourceTree = "<group>";
@@ -92,9 +91,10 @@
 		FE1EE4241D40E0EC006A721A /* Utils */ = {
 			isa = PBXGroup;
 			children = (
-				FE1EE42A1D40E348006A721A /* common_headers.h */,
-				FE1EE4191D40DC39006A721A /* utils.hpp */,
-				FE1EE4181D40DC39006A721A /* utils.cpp */,
+				FE57556E1FB72E1B008C4698 /* parser_generator_utils.hpp */,
+				FE57556D1FB72E1B008C4698 /* parser_generator_utils.cpp */,
+				FEF4A6A01D40E47700319EC9 /* Symbol.hpp */,
+				FEF4A69F1D40E47700319EC9 /* Symbol.cpp */,
 				FE1EE4061D40C8A8006A721A /* bimap.h */,
 				FE1EE40C1D40CF69006A721A /* Set.h */,
 			);
@@ -157,11 +157,11 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				FE5755721FB730A6008C4698 /* OperatorClasses.cpp in Sources */,
+				FE57556F1FB72E1B008C4698 /* parser_generator_utils.cpp in Sources */,
 				FE1EE4091D40C9BE006A721A /* Grammar.cpp in Sources */,
 				FEF4A6A11D40E47700319EC9 /* Symbol.cpp in Sources */,
-				FE1EE41A1D40DC39006A721A /* utils.cpp in Sources */,
 				FEEDD3C51D7855DC0033338C /* LALR_TableGenerator.cpp in Sources */,
-				FE1EE40E1D40D0CC006A721A /* Operator.cpp in Sources */,
 				FE1EE3BA1D40B6EF006A721A /* main.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

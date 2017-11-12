@@ -9,12 +9,12 @@
 #ifndef Grammar_hpp
 #define Grammar_hpp
 
-#include "common_headers.h"
 #include "Symbol.hpp"
 #include "Operator.hpp"
 #include "Set.h"
 
 //==========================================================================================================
+// A production is a rule of the language. First symbol is the lhs nonterminal, the rest are the rhs.
 //==========================================================================================================
 class Production {
 public:
@@ -25,11 +25,14 @@ public:
     int rhs_size()           { return symbols.size() - 1; }
     Symbol get_lhs()         { return symbols[0]; }
     
+    string to_string();
+    
     const int index;
     const vector<Symbol> symbols;
     const string action_name;
-    Operator* op; // The last op (if any) in the production
+    Operator* last_op = nullptr; // The last op (if any) in the production
 };
+
 
 //==========================================================================================================
 //==========================================================================================================

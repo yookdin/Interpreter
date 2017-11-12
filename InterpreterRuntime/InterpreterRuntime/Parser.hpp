@@ -9,10 +9,16 @@
 #ifndef Parser_hpp
 #define Parser_hpp
 
-#include "common_headers.h"
-#include "utils.hpp"
+#include "sip_tester_utils.hpp"
 #include "Token.hpp"
 #include "AST.hpp"
+
+
+struct ParserStackElement {
+    int state;
+    ParseElement* elem;
+};
+
 
 class Parser {
 public:
@@ -23,10 +29,11 @@ private:
     static vector<vector<Action>> table;
     static vector<ProductionInfo> production_infos;
     
-    AST* gen_ast(int production, vector<TokenOrAST>& elements);
-    AST* extract_ast(vector<TokenOrAST>& elements);
+    AST* gen_ast(int production, vector<ParseElement*>& elements);
+    AST* extract_ast(vector<ParseElement*>& elements);
+    AST* gen_bop_ast(vector<ParseElement*>& elements);
     
-    string create_err_msg(ParseStackElement& stack_element, Token& token);
+    string create_err_msg(ParserStackElement &stack_element, Token& token);
 };
 
 #endif /* Parser_hpp */

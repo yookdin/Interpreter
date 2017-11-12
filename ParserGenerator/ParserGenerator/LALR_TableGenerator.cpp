@@ -6,6 +6,9 @@
 //  Copyright © 2016 Vonage. All rights reserved.
 //
 
+#include <fstream>
+using namespace std;
+
 #include "LALR_TableGenerator.hpp"
 
 
@@ -45,25 +48,26 @@ void LALR_TableGenerator::build_table() {
         for(int sym = 0; sym < NUM_SYMBOLS; ++sym) { // for each symbol
             ConfigurationSet cs(&grammar);
             
-            for(auto c: configurating_sets[i]) {    // for each configuration in current state
+            for(auto c: configurating_sets[i]) {     // for each configuration in current state
                 if(not c.next_symbol_exists() or c.get_next_symbol() != sym) 
                     continue;
 
-                cs.merge(c.get_transition_configuration());
+                cs.merge(ConfigurationSet(c.get_transition_configuration()));
             }
 
-            if(cs.empty()) continue;
+            if(cs.empty())
+                continue;
                         
             // TODO: check if can speed this O(n^2) check by using hash table for states
             for(int j = 0; j < table.size(); ++j) {
-                if(configurating_sets[j] == cs) { // Set already exist, just add transition to it
-                    table[i][sym] = {SHIFT, j};
-                    break;
-                }
-            
-                if(configurating_sets[j].lalr_equivalent(cs)) { // Sets can be merged to create an LALR(1) state
-                    configurating_sets[j].merge(cs);
-                    update_successors(j, i, configurating_sets); // Update successors states due to the merge
+                bool really_equal;
+                
+                if(configurating_sets[j].lalr_equivalent(cs, really_equal)) { // Sets can be merged to create an LALR(1) state
+                    if(not really_equal) {
+                        configurating_sets[j].merge(cs);
+                        update_successors(j, i, configurating_sets); // Update successors states due to the merge
+                    }
+                    
                     table[i][sym] = {SHIFT, j};
                     break;
                 }
@@ -94,9 +98,12 @@ void LALR_TableGenerator::build_table() {
 // To handle loops in the states graph, only call recursively on state that were actually updated.
 // This ensures that we won't loop forever, and also that we don't miss anything.
 //==========================================================================================================
-void LALR_TableGenerator::update_successors(int state, int last_complete_state, vector<ConfigurationSet>& configurating_sets) {
+void LALR_TableGenerator::update_successors(int state, int max_state, vector<ConfigurationSet>& configurating_sets) {
 
-    if(state > last_complete_state) return; // No need to update successors, they weren't calculated yet
+    // max_state is the last state for which transitions may have been calculated. If state is larger than
+    // it, no need to update its successors, they weren't calculated yet
+    if(state > max_state)
+        return;
     
     set<int> states_to_update;
     
@@ -108,16 +115,18 @@ void LALR_TableGenerator::update_successors(int state, int last_complete_state, 
         
         // Check if SHIFT, because it's possible (I think) to update on the current state, while not all of its transitions has been defined
         if(table[state][sym].kind == SHIFT) {           
-            bool updated = configurating_sets[table[state][sym].val].update_lookaheads(c);
+            int next_state = table[state][sym].val;
+            bool updated = configurating_sets[next_state].update_lookaheads(c);
+            
             if(updated) {
-                states_to_update.insert(table[state][sym].val);
+                states_to_update.insert(next_state);
             }
         }
     }
 
     // Recursively call update_successors() for all the states that were updated, because their successors needs to be updated also!
     for(auto s: states_to_update)
-        update_successors(s, last_complete_state, configurating_sets);
+        update_successors(s, max_state, configurating_sets);
 }
 
 
@@ -125,7 +134,8 @@ void LALR_TableGenerator::update_successors(int state, int last_complete_state, 
 //==========================================================================================================
 void LALR_TableGenerator::add_reductions(int state, vector<ConfigurationSet>& configurating_sets) {
     for(auto c: configurating_sets[state]) {
-        if(not c.reducable()) continue;
+        if(not c.reducable())
+            continue;
         
         // Add a reduce action for each symbol in the configuration lookahead set
         for(auto sym: c.lookaheads) {
@@ -137,12 +147,22 @@ void LALR_TableGenerator::add_reductions(int state, vector<ConfigurationSet>& co
                 try {
                     res = resolve_conflict(c, sym, table[state][sym], table[state][sym].message); 
                 } catch(string err) {
-                    cout << endl << "Conflict resolution error. Current state is " << state << ":" << endl;
+                    cout << endl << endl << "Conflict resolution error for symbol: " << symbol_str_map[sym] << endl << endl;
+                    cout << "Current state is " << state << ":" << endl;
                     configurating_sets[state].print();
                     cout << "Current configuration is:" << endl;
                     c.print();
-                    cout << "Previous action is shift to state " << table[state][sym].val << ":" << endl;
-                    configurating_sets[table[state][sym].val].print();
+                    
+                    if(table[state][sym].kind == SHIFT) {
+                        cout << endl << "Previous action is shift to state " << table[state][sym].val << ":" << endl;
+                        configurating_sets[table[state][sym].val].print();
+                    }
+                    else {
+                        int production_idx = table[state][sym].val;
+                        cout << endl << "Previus action is reduce of production " << production_idx << ":" << endl;
+                        cout << grammar.productions[production_idx].to_string() << endl << endl;
+                    }
+                    
                     throw;
                 }
                 
@@ -151,7 +171,8 @@ void LALR_TableGenerator::add_reductions(int state, vector<ConfigurationSet>& co
                 if(res == NOT_ALLOWED)
                     table[state][sym].kind = ERROR;
                 
-                if(res != REDUCE_WIN) continue;
+                if(res != REDUCE_WIN)
+                    continue;
             }
             
             // No confilict or REDUCE_WIN
@@ -185,10 +206,12 @@ LALR_TableGenerator::ResolutionResult LALR_TableGenerator::resolve_conflict(cons
         throw string("Can't resolve conflict, current symbol is " + symbol_str_map[sym] + " which isn't an operator");
     }
     
-    if(c.production.op == nullptr)
-        throw string("Can't resolve conflict, production doesn't have an operator associated with it");
-    
-    Operator *left_op = c.production.op, *right_op = get_op(sym);
+    if(c.production.last_op == nullptr) {
+        throw string("Can't resolve conflict, production doesn't have an operator associated with it:\n" + c.production.to_string());
+    }
+        
+    // TODO: It is assumed here that an operator involved in a conflict must be an infix operator (with two operands)!
+    Operator *left_op = c.production.last_op, *right_op = get_op(sym, 2);
     
     if(left_op->precedence == right_op->precedence and left_op->associativity == Operator::NONE) {                    
         err_msg = "Sequence: \"EXP " + left_op->get_name() + " EXP " + right_op->get_name() + " EXP\" not allowed";
@@ -214,7 +237,7 @@ void LALR_TableGenerator::write_tables_file(string filename) {
     if(!file.is_open())
         throw string("File " + filename + " can't be written");
     
-    file << "// Generated parser tables file" << endl << endl;
+    file << "// Generated parser tables file, do not change manually!" << endl << endl;
     file << "#include \"Parser.hpp\"" << endl << endl;
     write_productions_table(file);
     write_gen_ast_function(file);
@@ -258,17 +281,24 @@ void LALR_TableGenerator::write_parser_table(ofstream& file) {
 // For the parsing process, only the nonterminal and the RHS size per production is needed, so write it.
 //==========================================================================================================
 void LALR_TableGenerator::write_productions_table(ofstream &file) {
-    file << "//==========================================================================================================" << endl;
+    file << "//============================================================================================================" << endl;
     file << "// Table of productions info: Left-hand-side nonterminal and number of symbols on right-hand-side" << endl;
-    file << "//==========================================================================================================" << endl;
+    file << "//============================================================================================================" << endl;
     file << "vector<ProductionInfo> Parser::production_infos = {" << endl << tab;
+    
+    int line_length = tab.length(), max_line_length = 110;
     
     for(int i = 0; i < grammar.productions.size(); ++i) {
         Production& p = grammar.productions[i];
-        file << "{" << symbol_str_map[p[0]] << ", " << p.rhs_size() << "}, "; 
+        string pair = "{" + symbol_str_map[p[0]] + ", " + to_string(p.rhs_size()) + "}, ";
         
-        if((i + 1) % 10 == 0)
+        if(line_length + pair.length()  > max_line_length) {
             file << endl << tab;
+            line_length = tab.length();
+        }
+        
+        file << pair;
+        line_length += pair.length();
     }
     
     file << endl << "};" << endl << endl << endl;
@@ -283,7 +313,7 @@ void LALR_TableGenerator::write_gen_ast_function(ofstream& file) {
     file << "//==========================================================================================================" << endl;
     file << "// Generate an AST acording to production number" << endl;
     file << "//==========================================================================================================" << endl;
-    file << "AST* Parser::gen_ast(int production, vector<TokenOrAST>& elements) {" << endl;
+    file << "AST* Parser::gen_ast(int production, vector<ParseElement*>& elements) {" << endl;
     file << tab << "switch(production) {" << endl;
     
     for(int i = 1; i < grammar.productions.size(); ++i) { // Skipping first production (START -> ...)
@@ -291,6 +321,8 @@ void LALR_TableGenerator::write_gen_ast_function(ofstream& file) {
         
         if( grammar.productions[i].action_name.empty())
             file << "extract_ast(elements);" << endl;
+        else if(grammar.productions[i].action_name == "Bop")
+            file << "gen_bop_ast(elements);" << endl;
         else
             file <<  "new " << grammar.productions[i].action_name << "AST(elements);"<< endl;
     }
@@ -304,7 +336,7 @@ void LALR_TableGenerator::write_gen_ast_function(ofstream& file) {
 //==========================================================================================================
 //==========================================================================================================
 void LALR_TableGenerator::print() {
-    cout << "LR_Table:" << endl;
+    cout << "LALR_Table:" << endl;
     
     vector<int> col_widths;
     for(int sym = 0; sym < NUM_SYMBOLS; ++sym) {
@@ -356,9 +388,16 @@ void LALR_TableGenerator::print_separation_line(vector<int> col_widths) {
 
 
 //==========================================================================================================
-// Perform the closure operation on the configuration
+// Perform the closure operation on the configuration.
+// The closure of a configuration is the set of all configurations who's production LHS is equal to the
+// configuration's next symbol, with lookahead set calculated according to either the symbol after the
+// next one, or the originating configuration lookahead set if there is none, recursively (i.e. contains
+// also the closure of each element in it)
 //==========================================================================================================
-ConfigurationSet::ConfigurationSet(Configuration c): grammar(c.grammar) {
+void ConfigurationSet::add_closure(Configuration c) {
+    // While calculating the closure keep both a set and a vector of configurations that contain the same
+    // items. The set is used to check quickly if a new configuration already exists, and the vector to keep
+    // track of which configuration is new, so the closure operation needs to be performed on it.
     UnorderedSet<Configuration> tmp_set{c};
     vector<Configuration> cur_configs{c};
     
@@ -366,13 +405,16 @@ ConfigurationSet::ConfigurationSet(Configuration c): grammar(c.grammar) {
     // While there are new configurations in the set, try to to extend them
     //------------------------------------------------------------------------------------------------------
     for(int i = 0; i < cur_configs.size(); ++i) {
-        if(cur_configs[i].closed) continue; // Current configuration can't be extended
+        if(cur_configs[i].closed)
+            continue; // Current configuration can't be extended
         
+        // Next symbol is a nonterminal, o/w the configuration would be marked as closed
         Symbol nonterminal = cur_configs[i].get_next_symbol();
-        Set<Symbol> lookaheads = cur_configs[i].get_actual_lookahead_set();
+        Set<Symbol> lookaheads = cur_configs[i].get_next_symbol_lookahead_set();
         
         for(auto& p: grammar->productions) {
-            if(p.get_lhs() != nonterminal) continue;
+            if(p.get_lhs() != nonterminal)
+                continue;
             
             Configuration c(grammar, p, 0, lookaheads);
             
@@ -394,8 +436,31 @@ ConfigurationSet::ConfigurationSet(Configuration c): grammar(c.grammar) {
 
 
 //==========================================================================================================
+// Add closure for an existing configuration, probably because its lookahead set was augmented.
+// Note: It's ok to recalculate closure, there will never be duplications since what is stored is a map with
+// keys that are the pair of production index and position inside the production, and that never changes.
+// The values of the map are the lookahead sets, that store unique symbols.
+//==========================================================================================================
+void ConfigurationSet::add_closure(int production_index, int pos) {
+    // Create an actual Configuration object and call add_closure() with it
+    add_closure(Configuration(grammar, grammar->productions[production_index], pos, m[{production_index, pos}]));
+}
+
+
+//==========================================================================================================
 // Add all configurations in other. If configurations exists which only differs in their lookahead sets,
 // only merge the lookahead sets.
+// NOTE: when merging configurations, the closure of the merged configuration should be recalculated.
+// However, note that all configurations in the closures of the two merged configurations already exist in
+// both states (= configurations-sets), and differ only in their lookahead sets. So just going over the
+// configurations of the new state and inserting/merging them is enough.
+// For example:
+// In old state: [A -> • B, {x}] -- closure --> [B -> • C, {x}]
+// In new state: [A -> • B, {y}] -- closure --> [B -> • C, {y}]
+// After merge we get:
+// [A -> • B, {x, y}], [B -> • C, {x, y}]
+// So the second configuration is what we would have gotten if we recalculated the closure of the first
+// configuration.
 //==========================================================================================================
 void ConfigurationSet::merge(ConfigurationSet other) {
     for(auto& p: other.m)
@@ -404,17 +469,24 @@ void ConfigurationSet::merge(ConfigurationSet other) {
 
 
 //==========================================================================================================
-// The sets are considered equivalent if their cores (configurations without the lookahead sets) are equal. 
+// The sets are considered equivalent if their cores (configurations without the lookahead sets) are equal.
+// Set really_equal to true if the sets are identical.
 //==========================================================================================================
-bool ConfigurationSet::lalr_equivalent(ConfigurationSet& other) {
+bool ConfigurationSet::lalr_equivalent(ConfigurationSet& other, bool& really_equal) {    
     if(m.size() != other.m.size())
         return false;
     
-    auto i1 = m.begin(), i2 = other.m.begin();
-    
-    for(; i1 != m.end(); ++i1, ++i2) {
-        if(i1->first != i2->first)
+    really_equal = true;
+
+    // Note: the order the keys are stored in maps is the same if the keys are the same, so this comparison
+    // is correct
+    for(auto i1 = m.begin(), i2 = other.m.begin(); i1 != m.end(); ++i1, ++i2) {
+        if(i1->first != i2->first) {
+            really_equal = false;
             return false;
+        }
+        
+        really_equal = really_equal and (i1->second == i2->second);
     }
     
     return true;
@@ -424,7 +496,7 @@ bool ConfigurationSet::lalr_equivalent(ConfigurationSet& other) {
 //==========================================================================================================
 // Given a configuration which has a transition into this configuration set, and which had its lookahead
 // set augmented due to LALR states merge, find the configuration in the current set that the input
-// configuration "points" to, and update its lookahead set.
+// configuration "points" to, and update its lookahead set if neccessary.
 // Also update all the configurations of the closure of that configuration.
 // Return true if something was actually added
 //==========================================================================================================
@@ -435,21 +507,10 @@ bool ConfigurationSet::update_lookaheads(Configuration& config) {
     bool res = not config.lookaheads.is_difference_empty(m[{config.production.index, pos}]); 
     
     if(res) {
-        // Update the configuration that is due to the transition
-        m[{config.production.index, pos}].insert(config.lookaheads);
-        
-        // If the position is just before the last symbol, may need to update the lookahead of the closure set
-        if(config.production.rhs_size() == pos + 1) {
-            Symbol S = config.production[pos+1]; // The last symbol of the production
-            
-            if(is_nonterminal(S)) {
-                for(auto& p: m) {
-                    if(grammar->productions[p.first.first].get_lhs() == S and p.first.second == 0)
-                        p.second.insert(config.lookaheads);
-                }
-            }
-        }
+        m[{config.production.index, pos}].insert(config.lookaheads); // Augment the lookahead set
+        add_closure(config.production.index, pos); // Recalculate the closure
     }
+    
     return res;
 }
 
@@ -457,7 +518,8 @@ bool ConfigurationSet::update_lookaheads(Configuration& config) {
 //==========================================================================================================
 //==========================================================================================================
 void ConfigurationSet::print() {
-    for(auto c: *this) c.print();
+    for(auto c: *this)
+        c.print();
     cout << endl;
 }
 

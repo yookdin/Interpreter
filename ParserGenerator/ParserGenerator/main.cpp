@@ -18,10 +18,10 @@ int main(int argc, const char * argv[]) {
         
         string workspace_dir = project_dir + "/..";
         LALR_TableGenerator(workspace_dir + "/grammar_definition", workspace_dir + "/InterpreterRuntime/InterpreterRuntime/ParserTables.cpp");
-
+        
     } catch(string& err) {
         cout << "Caught exception: " << err << endl;
     }
-
+    
     return 0;
 }

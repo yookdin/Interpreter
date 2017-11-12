@@ -6,9 +6,12 @@
 //  Copyright © 2016 Vonage. All rights reserved.
 //
 
-#include "utils.hpp"
+
+#include <stack>
+using namespace std;
+
+#include "sip_tester_utils.hpp"
 #include "Parser.hpp"
-#include "ParseStackElement.hpp"
 
 
 //==========================================================================================================
@@ -17,13 +20,8 @@ AST* Parser::parse(vector<Token*> tokens) {
     if(tokens.empty() or tokens[0]->sym == EOI)
         return nullptr;
     
-    for(int i = 0; i < tokens.size(); ++i) {
-        if(is_nonterminal(tokens[i]->sym))
-            throw string("Token kind for parsing should be a terminal");
-    }
-    
-    stack<ParseStackElement> stack;
-    stack.push(0);
+    stack<ParserStackElement> stack;
+    stack.push({0, nullptr});
     
     //------------------------------------------------------------------------------------------------------
     // Go over tokens. For each token perform action according to it and current state
@@ -34,7 +32,7 @@ AST* Parser::parse(vector<Token*> tokens) {
         
         switch(action.kind) {
             case SHIFT: {
-                stack.push(ParseStackElement(action.val, token));
+                stack.push({action.val, token});
                 ++i;
                 break;
             }
@@ -42,10 +40,10 @@ AST* Parser::parse(vector<Token*> tokens) {
                 
                 Symbol N = production_infos[action.val].lhs;
                 int rhs_size = production_infos[action.val].rhs_size; 
-                vector<TokenOrAST> elements;
+                vector<ParseElement*> elements;
                 
                 while(rhs_size-- > 0) { 
-                    elements.push_back(stack.top().get_token_or_ast());
+                    elements.push_back(stack.top().elem);
                     stack.pop();
                 }
                 
@@ -55,66 +53,85 @@ AST* Parser::parse(vector<Token*> tokens) {
                 action = table[stack.top().state][N];
                 
                 if(action.kind != SHIFT)
-                    throw string("Expected action for [" + to_string(stack.top().state) + "," + symbol_str_map[N] + "] to be SHIFT but found: " + action.to_string());
+                    THROW << "Expected action for [" << stack.top().state << "," << symbol_str_map[N] << "] to be SHIFT but found: " << action.to_string();
                 
-                stack.push(ParseStackElement(action.val, ast));
+                stack.push({action.val, ast});
                 break;
             }
             case ACCEPT: {
                 if(i < tokens.size() - 1)
-                    throw string("ACCEPT reached before end of input");
+                    THROW << "ACCEPT reached before end of input";
                 
-                AST* res = stack.top().get_token_or_ast().get_ast();
+                AST* res = stack.top().elem->get_ast();
                 stack.pop(); // ACCEPT is REDUCE for production 0, which always has just one symbol on right-hand-side
                 if(stack.top().state != 0 or stack.size() != 1)
-                    throw string("Expected stack to contain just the start state after ACCEPT");
+                    THROW << "Expected stack to contain just the start state after ACCEPT";
                 
                 return res;
             }
             case ERROR: {
-                cout << create_err_msg(stack.top(), *token) << endl;
-                return nullptr;
+                THROW << create_err_msg(stack.top(), *token);
             }
         }
     }
     
-    for(auto t: tokens) delete t;
-    
-    cout << "Error: end of input reached. Current state is " << stack.top().state << endl; 
+    Print() << "Error: end of input reached. Current state is " << stack.top().state << endl; 
     return nullptr;
 }
 
 
 //==========================================================================================================
 //==========================================================================================================
-string Parser::create_err_msg(ParseStackElement& stack_element, Token& token) {
+string Parser::create_err_msg(ParserStackElement& stack_element, Token& token) {
     string prev_symbol, cur_symbol = token.get_name();
-    if(cur_symbol == "$") cur_symbol = "end-of-input";
+    
+    if(cur_symbol == "$")
+        cur_symbol = "end-of-input";
+    
     int state = stack_element.state;
 
     if(state == 0) { // start state
-        return "Error: can't start with " + cur_symbol;
+        return "Parsing error: can't start with " + cur_symbol;
     }
     
     // This should never happen, it it does it's an internal error
-    if(not stack_element.get_token_or_ast().is_token)
-        throw string("A parse error while top of the stack contains an AST");
+    if(not stack_element.elem->is_token())
+        THROW << "A parse error while top of the stack contains an AST";
         
-    prev_symbol = stack_element.get_token()->get_name();
-    return "Error: " + cur_symbol + " after " + prev_symbol;
+    prev_symbol = stack_element.elem->get_token()->get_name();
+    return "Parsing error: " + cur_symbol + " after " + prev_symbol;
 }
 
 
 //==========================================================================================================
-// Sometimes nothing new should be done, just return the only AST in the list of elements. The other are
+// Sometimes nothing new should be done, just return the first AST in the list of elements. The other are
 // tokens that aren't needed in the AST (like parentheses).
 //==========================================================================================================
-AST* Parser::extract_ast(vector<TokenOrAST>& elements) {
+AST* Parser::extract_ast(vector<ParseElement*>& elements) {
     for(auto& elem: elements) {
-        AST* ast;
-        if((ast = elem.get_ast()) != nullptr)
-            return ast;
+        if(not elem->is_token()) {
+            return elem->get_ast();
+        }
     }
     
-    throw string("No AST found in elements received by AST factory");
+    THROW << "No AST found in elements received by AST factory";
 }
+
+
+
+//==========================================================================================================
+// If left child is a BopAST with the same operator as current one, and its associativity is left, then add
+// the right child to the existing tree, instead of creating a new tree. So when consecutive operators
+// appear, they will result in just one tree with many children, which will evaluate from left to right.
+//==========================================================================================================
+AST* Parser::gen_bop_ast(vector<ParseElement*>& elements) {
+    return new BopAST(elements);
+}
+
+
+
+
+
+
+
+

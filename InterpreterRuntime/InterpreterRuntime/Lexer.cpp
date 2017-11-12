@@ -7,7 +7,7 @@
 //
 //  Two kind of strings are supported:
 //  1. "..."   // Here you need \" to get literal quote
-//  2. [[...]] // Here you need \]] to get a literal ]]
+//  2. [[...]] // Here you need to escape at least one of two consecutives ] to get a literal ]]
 //  In both kinds you can have string interpolation with []:
 //  "My name is [get_name()], and x = [3+5]!"
 //  [[My name is [get_name()], and x = [3+5]!]]
@@ -28,55 +28,79 @@ vector<Lexer::token_matcher> Lexer::matchers = {
 
 //==========================================================================================================
 //==========================================================================================================
-regex Lexer::keyword_re("^(\\+|-|\\*|/|%|not|or|and|\\?=|==|!=|<=|>=|<|>|~|!~|\\?|:|\\(|\\)|=|\\{|\\}|;|,|if|else|while|repeat|times|break|continue|send)");
-regex Lexer::bool_re("^(true|false)\\b");
-regex Lexer::id_re("^[_[:alpha:]]\\w*");
-regex Lexer::num_re("^\\d+\\b");
+const regex Lexer::bool_re("^(true|false)\\b");
+const regex Lexer::id_re("^[_[:alpha:]]\\w*");
+const regex Lexer::num_re("^\\d+\\b");
 
 
 //==========================================================================================================
 //==========================================================================================================
-void Lexer::lex(string filename, vector<Token*>& tokens) {
-    ifstream file = ifstream(filename);
-    
-    if(!file.is_open())
-        throw string("File " + filename + " not found");
-
+void Lexer::lex_from_file(string _filename, vector<Token*>& tokens) {
     reset();
+    filename = _filename;
+    ifstream file(filename);
+    
+    if(not file.is_open())
+        THROW << "File " << filename << " not found";
+    
     input.assign(istreambuf_iterator<char>(file), istreambuf_iterator<char>());
+    lex(tokens);
+    reset();
+}
+
+
+//==========================================================================================================
+//==========================================================================================================
+void Lexer::lex_from_string(string str, vector<Token*>& tokens) {
+    reset();
+    input = str;
+    lex(tokens);
+    reset();
+}
+
+
+//==========================================================================================================
+//==========================================================================================================
+void Lexer::lex(vector<Token*>& tokens) {
+
+    // Remove occurences of backslash followed by newline. Note: to match a single backslash you need 4 backslashes
+    // in the regular expression: a backslash needs a preceding backslash in the cpp source file to be literal, so the 4
+    // becomes 2. And 2 are needed to tell the regular expression to treat it as literal and not as an operator.
+    input = regex_replace(input, regex("\\\\\n"), "");
+
     iter = input.begin();
     
     //------------------------------------------------------------------------------------------------------
     // Turn file text into tokens
     //------------------------------------------------------------------------------------------------------
     skip_irrelevant();
-    
     while(iter != input.end()) {
         if(try_string(tokens))
             continue;
-        
+
         if(skip_irrelevant())
             continue;
+
+        if(iter == input.end())
+            break;
         
-        if(iter == input.end()) break;
-        
-        Token* token = try_match();
+        Token* token = try_match(); // Try matching current text as one of the tokens types
         
         if(token == nullptr)
-            throw create_syntax_err_msg(filename);
+            THROW << create_syntax_err_msg();
         
         // Check if current and last tokens should be interpreted as a parameter ("ID:"). If so last token will
         // be popped and current (the colon) replaced with a parameter token.
         try_parameter_token(token, tokens);
-        
+
         tokens.push_back(token);
     }
 
-    if(num_open_brackets > 0)
-        throw string("'[' without closing ']'");
+    if(not open_brackets.empty())
+        THROW << "'[' without closing ']'";
         
     if(in_string)
-        throw string("String not terminated");
+        THROW << "String not terminated";
     
     tokens.push_back(new KeywordToken(EOI));
     input.clear();
@@ -85,6 +109,8 @@ void Lexer::lex(string filename, vector<Token*>& tokens) {
 
 //==========================================================================================================
 // See if current char can be processed as a string char (including start/end of string/interpolation).
+// Return whether a char was consumed or not.
+// Note: return value may differ from in_string value.
 //==========================================================================================================
 bool Lexer::try_string(vector<Token*>& tokens) {
     
@@ -92,19 +118,23 @@ bool Lexer::try_string(vector<Token*>& tokens) {
     // Inside a string, check for end of string or start of interpolation
     //------------------------------------------------------------------------------------------------------
     if(in_string) {
-        string seq = get_next_string_chars();
+        bool start_of_interpolation;
+        char c = get_next_string_char(start_of_interpolation);
         
-        if(in_string) {
-            cur_string += seq;
+        if(in_string) { // Still inside a string, add the returned char to the current string
+            cur_string += c;
         }
-        else {
+        else { // String was terminated (either by end of string or start of interpolation), create a token
             tokens.push_back(new StringToken(cur_string));
             cur_string.clear();
             
-            if(seq == "[") { // Start of interpolation
+            if(start_of_interpolation) { // Do not pop string kinds stack in this case, the current string will continue after the closing bracket
                 tokens.push_back(new KeywordToken(ADD));        // String interpolation is implemented by performing contactanation
                 tokens.push_back(new KeywordToken(LEFT_PAREN)); // We want the interpolated expression to be evaluated seperately from the string containing it 
-                ++num_open_brackets;
+                open_brackets.push(INTERPOLATION);
+            }
+            else { // String terminated, pop the string kinds stack
+                string_kinds.pop();
             }
         }
         
@@ -129,89 +159,95 @@ bool Lexer::try_string(vector<Token*>& tokens) {
     }
     
     //------------------------------------------------------------------------------------------------------
-    // Outside a string, check for end of interpolation. Note: currently '[' and ']' are only used in string
-    // interpolation
+    // Outside a string, check for end of interpolation.
+    // Note: open_brackets stack holds the type of opening brackets found, but SUBSCRIPT open brackets are
+    // only pushed if already inside an interpolation (i.e. a previous INTERPOLATION bracket is in the stack)
     //------------------------------------------------------------------------------------------------------
-    if(*iter == ']') {
-        if(num_open_brackets == 0) throw string("']' with no preceding '['");
-        --num_open_brackets;
-        tokens.push_back(new KeywordToken(RIGHT_PAREN)); // Close the interpolated expression
-        tokens.push_back(new KeywordToken(ADD));
-        in_string = true;
-        ++iter;
-        return true;
-    }
-
-    return false;
-}
-
-
-//==========================================================================================================
-// Get the next string char, while checking for end of string, esacaped sequences, or start of interpolation.
-// This needs to return a string and not a char because of "]]"
-//==========================================================================================================
-string Lexer::get_next_string_chars() {
-    
-    string res;
-    
-    //------------------------------------------------------------------------------------------------------
-    // Check if string has ended by an end of string (" or ]])
-    //------------------------------------------------------------------------------------------------------
-    if(check_string_end(res)) {
-        in_string = false;
-        string_kinds.pop();
-        return ""; // End of string sequence is not part of the string
-    }
-   
-    //------------------------------------------------------------------------------------------------------
-    // Check if escaped sequence
-    //------------------------------------------------------------------------------------------------------
-    if(*iter == '\\') {
-        ++iter;
-
-        if(check_string_end(res)) // Check if literal string end sequence
-            return res;
-    
-        if(is_escaped_char(*iter)) {
-            res = *(iter++);
-            return res;
+    if(not open_brackets.empty() and *iter == ']') {
+        if(open_brackets.top() == INTERPOLATION) {
+            tokens.push_back(new KeywordToken(RIGHT_PAREN)); // Close the interpolated expression
+            tokens.push_back(new KeywordToken(ADD));
+            in_string = true;
+            ++iter;
         }
         
-        return "\\"; // If the backslash doesn't escape, it is literal
+        open_brackets.pop();
+        return in_string;
     }
     
-    if(*iter == '[') 
-        in_string = false; // Start of interpolation, but don't pop the string_kinds stack because string will continue
-    else if(*iter == '\n')
-        ++line_num;
-    
-    res = *(iter++);
-    return res;
+    return false;
 }
 
 
 //==========================================================================================================
-// Check if current sequence of chars can be a string end. Whether it really is depends on whether it is not
-// preceded by a backslash.
+// Inside a string, get the next character, while checking if string terminates of interpolation starts.
 //==========================================================================================================
-bool Lexer::check_string_end(string& end_chars) {
-    if(string_kinds.top() == QUOTES and *iter == '"') {
+char Lexer::get_next_string_char(bool &start_of_interpolation) {
+    start_of_interpolation = false;
+    
+    //------------------------------------------------------------------------------------------------------
+    // Check if escaped sequence. Escaped char sequences are:
+    // \\ - a literal \
+    // \n - a newline
+    // \[ - a literal [ (not start of interpolated expression)
+    // \" - a literal double quote; doesn't have to be esacaped if inside a bracketed string
+    // \] - a literl ]; inside a bracketed string, to get two consecutive literal right brackets, at least
+    //      one of them need to be escaped
+    //------------------------------------------------------------------------------------------------------
+    if(*iter == '\\') {
+        if(iter + 1 == input.end())
+            THROW << "End of input reached while within a string";
+    
         ++iter;
-        end_chars = "\"";
-        return true;
+        
+        switch(*iter) {
+            case '\\':
+            case '"':
+            case ']':
+            case '[':
+                return *(iter++);
+            case 'n':
+                ++iter;
+                return '\n';                
+            default:
+                return '\\'; // if following char is not one of the known escaped chars, treat the backslash as literal 
+        }        
+    }
+
+    //------------------------------------------------------------------------------------------------------
+    // Check if start of interpolation
+    //------------------------------------------------------------------------------------------------------
+    if(*iter == '[') {
+        ++iter;
+        in_string = false;
+        start_of_interpolation = true;
+        return '\0';
     }
     
-    if(string_kinds.top() == BRACKETS) {
+    //------------------------------------------------------------------------------------------------------
+    // Check if end of string
+    //------------------------------------------------------------------------------------------------------
+    if(string_kinds.top() == QUOTES and *iter == '"') {
+        ++iter;
+        in_string = false;
+        return '\0';
+    }
+    
+    if(string_kinds.top() == BRACKETS and *iter == ']') {
         if(iter + 1 == input.end())
-            throw string("End of input reached while within string");
-        if(*iter == ']' and *(iter+1) == ']') {
+            THROW << "End of input reached while within a string";
+        
+        if(*(iter + 1) == ']') {
             iter += 2;
-            end_chars = "]]";
-            return true;
+            in_string = false;
+            return '\0';
         }
     }
     
-    return false;
+    //------------------------------------------------------------------------------------------------------
+    // Normal char - advance the iterator and return it
+    //------------------------------------------------------------------------------------------------------
+    return *(iter++);
 }
 
 
@@ -237,9 +273,14 @@ Token* Lexer::try_match() {
 //==========================================================================================================
 //==========================================================================================================
 Token* Lexer::match_keyword(smatch& match) {
-    if(regex_search(iter, input.cend(), match, keyword_re))
+    if(regex_search(iter, input.cend(), match, keyword_re)) {
+        // Only when inside a string interpolation (indicated by stack not empty) is there a need to keep 
+        // track of subscript brackets
+        if(match[0] == "[" and not open_brackets.empty())
+            open_brackets.push(SUBSCRIPT);
+            
         return new KeywordToken(symbol_str_map[match[0]]);
-    
+    }
     return nullptr;
 }
 
@@ -282,7 +323,6 @@ void Lexer::try_parameter_token(Token*& token, vector<Token*>& tokens) {
         Token* last_token = tokens.back(); 
         
         if(typeid(*last_token) == typeid(IdentifierToken)) {
-            
             // If parameter, replace ID token with param token and don't add the colon token
             if(tokens.size() == 1 or is_parameter_preceding_token(tokens[tokens.size() - 2])) {
                 delete token; // Colon token no longer needed
@@ -299,13 +339,16 @@ void Lexer::try_parameter_token(Token*& token, vector<Token*>& tokens) {
 // (EXP ? EXP : EXP). It can be determined which is the case by looking at the token preceding the ID token.
 //==========================================================================================================
 bool Lexer::is_parameter_preceding_token(Token* token) {
-    return (dynamic_cast<TokenWithValue*>(token) != nullptr or 
-            token->sym == LEFT_PAREN or
-            token->sym == RIGHT_PAREN or
-            token->sym == COMMA or
-            token->sym == SEND);
-}
+    if(dynamic_cast<TokenWithValue*>(token) != nullptr)
+        return true;
 
+    switch(token->sym) {
+        case LEFT_PAREN: case LEFT_CURLY: case COMMA: case ASSIGN: case CONDITIONAL_ASSIGN: case ID:
+            return true;
+        default:
+            return false;
+    }
+}
 
 
 //==========================================================================================================
@@ -317,7 +360,7 @@ bool Lexer::skip_irrelevant() {
         skipped = true;
     return skipped;
 }
-
+          
 
 //==========================================================================================================
 //==========================================================================================================
@@ -352,10 +395,10 @@ bool Lexer::skip_comment() {
 //==========================================================================================================
 //==========================================================================================================
 void Lexer::reset() {
+    filename.clear();
     input.clear();
     line_num = 1;
     in_string = false;
-    num_open_brackets = 0;
     cur_string.clear();
 }
 
@@ -382,8 +425,18 @@ void Lexer::get_current_line_position(int& start, int& len) {
 
 //==========================================================================================================
 //==========================================================================================================
-string Lexer::create_syntax_err_msg(string& filename) {
-    string res = "Unrecognized syntax at file " + filename + ", line " + to_string(line_num) + ":\n";
+string Lexer::create_syntax_err_msg() {
+    string res = "Lexer error: unrecognized syntax at ";
+    
+    if(not filename.empty()) {
+        res += "file " + filename; 
+    }
+    else {
+        res += "input string: \"" + input + "\"";
+    }
+    
+    res +=  ", line " + to_string(line_num) + ":\n";
+    
     int start, len, cur_pos = iter - input.begin();
     get_current_line_position(start, len);
     res += input.substr(start, len) + "\n";

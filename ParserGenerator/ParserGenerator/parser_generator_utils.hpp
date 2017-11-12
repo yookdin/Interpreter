@@ -1,25 +1,23 @@
 //
-//  utils.hpp
-//  SymbolGenerator
+//  parser_generator_utils.hpp
+//  ParserGenerator
 //
-//  Created by Yuval Dinari on 7/21/16.
+//  Created by Yuval Dinari on 7/31/16.
 //  Copyright © 2016 Vonage. All rights reserved.
 //
 
-#ifndef utils_hpp
-#define utils_hpp
-
+#ifndef parser_generator_utils_hpp
+#define parser_generator_utils_hpp
 
 #include <string>
 using namespace std;
 
-#include "Symbol.hpp"
-
 enum ParserActionKind {SHIFT, REDUCE, ACCEPT, ERROR};
-
 string action_kind_to_string(ParserActionKind kind);
+string& trim(string& line, string comment_start= "");
 
 //======================================================================================================
+// This struct represent an action the parser takes for a specific transition of its state machine.
 //======================================================================================================
 struct Action {
     Action(): kind(ERROR), val(-1) {}
@@ -44,18 +42,4 @@ struct Action {
 };
 
 
-//======================================================================================================
-//======================================================================================================
-struct ProductionInfo {
-    Symbol lhs;
-    int rhs_size;
-};
-
-
-string& trim(string& line, string comment_start= "");
-bool stob(string);
-string to_string(bool);
-string symbol_to_string(int sym);
-
-
-#endif /* utils_hpp */
+#endif /* parser_generator_utils_hpp */

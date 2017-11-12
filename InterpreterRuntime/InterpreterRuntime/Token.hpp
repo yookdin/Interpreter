@@ -9,20 +9,28 @@
 #ifndef Token_hpp
 #define Token_hpp
 
-#include "common_headers.h"
 #include "Operator.hpp"
-#include "utils.hpp"
+#include "sip_tester_utils.hpp"
+#include "ParseElement.h"
 
 
 //==========================================================================================================
 //==========================================================================================================
-class Token
+class Token: public ParseElement
 {
 public:
+    Token* get_token() override {
+        return this;
+    }
+    
+    bool is_token() override {
+        return true;
+    }
+
     Token(Symbol _sym): sym(_sym) {}
     
     string get_name() { return symbol_str_map[sym]; }
-    virtual void print() { cout << get_name() << endl; }
+    virtual void print() { cout << get_name() << endl; }    
     
     const Symbol sym;
 };
@@ -42,7 +50,7 @@ public:
 //==========================================================================================================
 class NumToken: public TokenWithValue {
 public:
-    NumToken(string n): TokenWithValue(NUM), val(stoi(n)) {}
+    NumToken(string n): TokenWithValue(NUM), val(string_to_int(n)) {}
     string value_to_string() { return to_string(val); }
     const int val;
 };
@@ -84,13 +92,15 @@ public:
 //==========================================================================================================
 class ParamToken: public TokenWithValue {
 public:
-    ParamToken(string _name): TokenWithValue(PARAM_NAME), name(_name) {}
+    ParamToken(string _name): TokenWithValue(PARAM), name(_name) {}
     string value_to_string() { return name; }
     const string name;
 };
 
 
 //==========================================================================================================
+// Keyword token includes all literal stuff, which means not only the words but also all punctuations and
+// operators
 //==========================================================================================================
 class KeywordToken: public Token {
 public:
@@ -99,3 +109,31 @@ public:
 
 
 #endif /* Token_hpp */
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

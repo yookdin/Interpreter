@@ -9,8 +9,11 @@
 #ifndef AstVisitor_hpp
 #define AstVisitor_hpp
 
-#include "common_headers.h"
+#include <iomanip>
+using namespace std;
+
 #include "AST.hpp"
+#include "Interpreter.hpp"
 
 
 //==========================================================================================================
@@ -28,7 +31,7 @@ public:
 class AstPrintVisitor: public AstVisitor {
 public:
     void visit(AST& ast) { 
-        cout << setw(level * tab_width) << "";
+        Print(false) << setw(level * tab_width) << "";
         ast.print_node(); 
     }
     void before_descending(AST&) { ++level; }
@@ -40,26 +43,28 @@ private:
 
 
 //==========================================================================================================
-// Update the interpreter field of var and function nodes.
+// Set the interpreter field
 //==========================================================================================================
-class UpdateInterpreterVisitor: public AstVisitor {
+class SetInterpreterVisitor: public AstVisitor {
 public:
-    UpdateInterpreterVisitor(Interpreter* _interpreter): interpreter(_interpreter) {}
+    SetInterpreterVisitor(Interpreter* _interpreter): interpreter(_interpreter) {}
     
-    void visit(AST& ast) { 
-        if(typeid(ast) == typeid(VarAST)) { 
-            dynamic_cast<VarAST&>(ast).interpreter = interpreter;
-        }
-        else if(typeid(ast) == typeid(FuncAST)) {
-            dynamic_cast<FuncAST&>(ast).interpreter = interpreter;
-        }
-        else if(typeid(ast) == typeid(AssignmentAST)) {
-            dynamic_cast<AssignmentAST&>(ast).interpreter = interpreter;
-        }
+    void visit(AST& ast) {
+        ast.interpreter = interpreter;
     }
     
 private:
     Interpreter* interpreter;
+};
+
+
+//==========================================================================================================
+//==========================================================================================================
+class DeleteVisitor: public AstVisitor {
+public:
+    void visit(AST& ast) {
+        delete &ast;
+    }
 };
 
 

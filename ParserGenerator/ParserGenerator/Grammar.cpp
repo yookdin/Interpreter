@@ -6,22 +6,41 @@
 //  Copyright © 2016 Vonage. All rights reserved.
 //
 
+#include <fstream>
+using namespace std;
+
 #include "Grammar.hpp"
-#include "utils.hpp"
+
 
 //==========================================================================================================
 //==========================================================================================================
 Production::Production(vector<Symbol> _symbols, string _action_name, int _index): symbols(_symbols), action_name(_action_name), index(_index) {
     // Find the last symbol that is an operator
-    auto iter = find_if(symbols.rbegin(), symbols.rend(), [](Symbol sym){ return is_op(sym); });
-    
-    if(iter != symbols.rend())
-        op = get_op(*iter);
-    else
-        op = nullptr;
+    // Note: don't consider the first symbol, it is the left hand side of the production
+    for(int i = symbols.size() - 1; i >= 1; --i) {
+        if(is_op(symbols[i])) {
+            if(i < symbols.size() - 1 and i > 1) // Infix operator, 2 operands
+                last_op = get_op(symbols[i], 2);
+            else
+                last_op = get_op(symbols[i], 1); // Post/prefix, 1 operand
+            break;
+        }
+    }
 }
 
+
+//==========================================================================================================
+//==========================================================================================================
+string Production::to_string() {
+    string res = symbol_str_map[symbols[0]] + " -> ";
     
+    for(int j = 1; j < size(); ++j)
+        res += symbol_str_map[symbols[j]] + " ";
+    
+    return res;
+}
+    
+
 //==========================================================================================================
 //==========================================================================================================
 Grammar::Grammar(string grammar_file) {
@@ -38,14 +57,18 @@ Grammar::Grammar(string grammar_file) {
 void Grammar::read_grammar_file(string grammar_file) {
     ifstream file = ifstream(grammar_file);
     
-    if(!file.is_open())
+    if(not file)
         throw string("File " + grammar_file + " not found");
         
     //------------------------------------------------------------------------------------------------------
     // For each production line extract the symbols and add a production
     //------------------------------------------------------------------------------------------------------
     for(string line; getline(file, line);) {
-        if(trim(line, "//").empty()) continue; // Ignore comments and empty lines
+        if(trim(line, "//").empty())
+            continue; // Ignore comments and empty lines
+        
+        if(regex_match(line, regex("(keyword|operator):.*"))) // Ignore keyword mapping and operator definition lines
+            continue;
         
         vector<Symbol> symbols;
         string action_name;
@@ -159,15 +182,14 @@ Set<Symbol> Grammar::get_first_set(Symbol sym) {
 }
 
 
+
+
 //==========================================================================================================
 //==========================================================================================================
 void Grammar::print() {
     cout << "Grammar:" << endl;
     for(int i = 0; i < productions.size(); ++i) {
-        cout << i << ": " << symbol_str_map[productions[i][0]] << " -> ";
-        for(int j = 1; j < productions[i].size(); ++j)
-            cout << symbol_str_map[productions[i][j]] << " ";
-        cout << endl;
+        cout << i << ": " << productions[i].to_string() << endl;
     }
     
     for(auto& p: first_table) {
@@ -176,8 +198,6 @@ void Grammar::print() {
             cout << symbol_str_map[s] << " ";
         cout << "}" << endl;
     }
-
-    cout << endl;
 }
 
 

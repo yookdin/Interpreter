@@ -1,87 +1,194 @@
-// If a # sign appear after a production rule, it means that the word after it is
-// the name of the specific AST class that should be created when this production is reduced.
-// If no AST specified, it means no new AST should be created, just pass on the AST already
-// created for the right-hand-side of that production.
+//-----------------------------------------------------------------------------------------------------------
+// Map the keywords of the scr language (including operators, punctuation, etc.) to their corresponding
+// symbols.
+// Note: the keywords are used in the following grammar rules and not their symbols for readablity.
+//-----------------------------------------------------------------------------------------------------------
+keyword: if         IF
+keyword: else       ELSE
+keyword: repeat     REPEAT
+keyword: times      TIMES
+keyword: while      WHILE
+keyword: for        FOR
+keyword: in         IN
+keyword: break      BREAK
+keyword: continue   CONTINUE
+keyword: and        AND
+keyword: or         OR
+keyword: not        NOT
+keyword: ;          SEMI_COLON
+keyword: ,          COMMA
+keyword: =          ASSIGN
+keyword: ?=         CONDITIONAL_ASSIGN
+keyword: (          LEFT_PAREN
+keyword: )          RIGHT_PAREN        
+keyword: [          LEFT_BRACKET
+keyword: ]          RIGHT_BRACKET
+keyword: {          LEFT_CURLY
+keyword: }          RIGHT_CURLY
+keyword: +          ADD
+keyword: -          SUB
+keyword: *          MUL
+keyword: /          DIV
+keyword: %          MOD
+keyword: .          DOT
+keyword: ==         EQUAL
+keyword: !=         NOT_EQUAL
+keyword: <          LESS_THAN
+keyword: >          GREATER_THAN
+keyword: <=         LESS_THAN_EQUAL
+keyword: >=         GREATER_THAN_EQUAL
+keyword: ~          STR_MATCH 
+keyword: !~         NO_STR_MATCH
+keyword: ?          QUESTION_MARK
+keyword: :          COLON
+keyword: ..         DOUBLE_DOT
+keyword: try        TRY
+keyword: finally    FINALLY   
+
+
+//-----------------------------------------------------------------------------------------------------------
+// Operators definition. Each line defines an operator using the following fields:
+// Keyword:       the keyword used to invoke the operator
+// Operands:      number of operands
+// Precedence:    precednce value, lower wins
+// Associativity: the order in which to evaluate consecutive identical operators
+// Class-Name:    the name of the class that implements the operator functionallity
+// Function:      the name of the function to call on values to perform the operator functionallity
+// Executable:    YES or NO; some operators are not directly executable, and are used only for parsing
+//
+// Note:
+// o An '*' indicates using default value for the parameter (class and function are derived from symbol that
+//   the keyword is mapped to, 'executable' is true).
+// o Operators may have the same keyword, differentiated by their number of operands.
+//
+//-----------------------------------------------------------------------------------------------------------
+//         Keyword    Operands  Precedence  Associativity    Class       Function   Exectuable
+//-----------------------------------------------------------------------------------------------------------
+operator:   /           2         3           LEFT          *             *          *
+operator:   *           2         3           LEFT          *             *          *
+operator:   %           2         3           LEFT          *             *          *
+operator:   +           2         4           LEFT          *             *          *
+operator:   -           2         4           LEFT          Subtract      *          *
+operator:   -           1         4           RIGHT         Minus         *          *
+operator:   and         2         8           LEFT          *             *          *
+operator:   or          2         9           LEFT          *             *          *
+operator:   not         1         2           RIGHT         *             *          *
+operator:   ==          2         7           LEFT          *             *          *
+operator:   !=          2         7           LEFT          *             *          *
+operator:   <           2         6           NONE          *             *          *
+operator:   >           2         6           NONE          *             *          *
+operator:   <=          2         6           NONE          *             *          *
+operator:   >=          2         6           NONE          *             *          *
+operator:   ~           2         5           NONE          *           match        *
+operator:   !~          2         5           NONE          *           not_match    *
+operator:   ?           2         10          RIGHT         *             *          NO
+operator:   :           2         11          LEFT          *             *          NO
+operator:   .           2         0           LEFT          *             *          NO
+operator:   [           2         1           RIGHT         Subscript     subscript  *
+                                    
+
+//-----------------------------------------------------------------------------------------------------------
+// Language grammar rules:
+// SCR is a CFG language. Rules (also called productions) are of the form:
+// NONTERMINAL -> SYMBOLS
+// Where SYMBOLS is a non empty list of terminals or nonterminals seperated by spaces.
+// A number sign (#) after the production rule specifies the action to take when that production is reduced
+// (meaning a part of the file parsed matches its right hand side).
+// The action is always to create an AST (Abstract Syntax Tree) object, and the name specifies exactly which
+// one.
+// If no action is specified, it means no new AST should be created, just use on the AST already created for
+// the right-hand-side of that production.
+//
 // Note:
 // 1. Empty productions are not allowed.
-// 2. Some terminals aren't literal but the tokens returned by a lexer (like ID, NUM)
+// 2. Some terminals aren't literal but the tokens returned by the lexer (like ID, NUM)
+//----------------------------------------------------------------------------------------------------------
 
 
-//---------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------
 // Statements
-//---------------------------------------------------------------------
-STATEMENTS  ->  STATEMENT                           #  Statements
-STATEMENTS  ->  STATEMENT STATEMENTS                #  Statements
-STATEMENTS  ->  STATEMENT ; STATEMENTS              #  Statements
-STATEMENT   ->  ID = EXP                            #  Assignment
-STATEMENT   ->  ID ?= EXP                           #  Assignment
-STATEMENT   ->  BLOCK                               #  Statements
-BLOCK       ->  { STATEMENTS }                      #  Statements
-STATEMENT   ->  if EXP STATEMENT                    #  If
-STATEMENT   ->  if EXP STATEMENT else STATEMENT     #  IfElse
-STATEMENT   ->  while EXP STATEMENT                 #  While
-STATEMENT   ->  repeat EXP times STATEMENT          #  Repeat
-STATEMENT   ->  break                               #  Break
-STATEMENT   ->  continue                            #  Continue
+//----------------------------------------------------------------------------------------------------------
+STATEMENTS  ->  STATEMENT                           # Statements
+STATEMENTS  ->  STATEMENT STATEMENTS                # Statements
+STATEMENTS  ->  STATEMENT ; STATEMENTS              # Statements
+STATEMENT   ->  ID = EXP                            # Assignment
+STATEMENT   ->  ID ?= EXP                           # Assignment
+STATEMENT   ->  { STATEMENTS }                      # Statements
+STATEMENT   ->  { }                                 # Statements
+STATEMENT   ->  if EXP STATEMENT                    # If
+STATEMENT   ->  if EXP STATEMENT else STATEMENT     # IfElse
+STATEMENT   ->  try STATEMENT finally STATEMENT     # TryFinally
+STATEMENT   ->  while EXP STATEMENT                 # While
+STATEMENT   ->  repeat EXP times STATEMENT          # Repeat
+STATEMENT   ->  for ID in EXP STATEMENT             # For
+STATEMENT   ->  break                               # Break
+STATEMENT   ->  continue                            # Continue
 STATEMENT   ->  FUNC_CALL
 STATEMENT   ->  COMMAND_CALL
-STATEMENT   ->  SEND_COMMAND
 
 
 //----------------------------------------------------------------------------------------------------------
-// Commands. Like function, but without parentheses (commas are optional)
+// Function calls
 //----------------------------------------------------------------------------------------------------------
-COMMAND_CALL  ->  ID NAMED_PARAMS_LIST              #  Command
+FUNC_CALL  ->  ID ( )                   # Func
+FUNC_CALL  ->  ID ( EXP_LIST )          # Func
+FUNC_CALL  ->  ID ( PARAM_VALS_LIST )   # Func
 
 
 //----------------------------------------------------------------------------------------------------------
-// send command has its own unique syntax for two reasons:
-// o Enable mixing param-val pairs and an unnamed param (the message string)
-// o Need different evaluation than normal function and commands, since the call number need to be set 
-//   BEFORE evaluating the message string (for last_* identifiers to be evaluated correctly)
+// Commands. Like function, but without parentheses, commas are optional, and parameters must be named.
+// Example:
+// recv message: "REGISTER"
 //----------------------------------------------------------------------------------------------------------
-SEND_COMMAND  ->  send STRING                    #  SendCommand
-SEND_COMMAND  ->  send NAMED_PARAMS_LIST STRING  #  SendCommand
+COMMAND_CALL  ->  ID PARAM_VALS_LIST    # Command
 
-    
-//---------------------------------------------------------------------
-// Expressions
-//---------------------------------------------------------------------
-EXP  ->  NUM                #  Num
-EXP  ->  BOOL               #  Bool
-EXP  ->  STRING             #  String
-EXP  ->  ID                 #  Var
-EXP  ->  ( EXP )            
-EXP  ->  EXP + EXP          #  Bop
-EXP  ->  EXP - EXP          #  Bop
-EXP  ->  EXP * EXP          #  Bop
-EXP  ->  EXP / EXP          #  Bop
-EXP  ->  EXP % EXP          #  Bop 
-EXP  ->  EXP == EXP         #  Bop  
-EXP  ->  EXP != EXP         #  Bop
-EXP  ->  EXP < EXP          #  Bop
-EXP  ->  EXP > EXP          #  Bop
-EXP  ->  EXP <= EXP         #  Bop
-EXP  ->  EXP >= EXP         #  Bop
-EXP  ->  EXP ~ EXP          #  Bop
-EXP  ->  EXP !~ EXP         #  Bop
-EXP  ->  EXP or EXP         #  Bop
-EXP  ->  EXP and EXP        #  Bop
-EXP  ->  not EXP            #  Uop
-EXP  ->  - EXP              #  Uop
-EXP  ->  EXP ? EXP : EXP    #  CondExp
+
+//----------------------------------------------------------------------------------------------------------
+// Lists
+//----------------------------------------------------------------------------------------------------------
+EXP_LIST        ->  EXP                          # NakedList
+EXP_LIST        ->  EXP , EXP_LIST               # NakedList
+PARAM_VALS_LIST ->  PARAM_VAL                    # ParamVals
+PARAM_VALS_LIST ->  PARAM_VAL , PARAM_VALS_LIST  # ParamVals
+PARAM_VALS_LIST ->  PARAM_VAL  PARAM_VALS_LIST   # ParamVals
+
+// PARAM is identifier followed by a colon (but only in some contexts)
+PARAM_VAL       ->  PARAM EXP                    # ParamVal
+
+
+//----------------------------------------------------------------------------------------------------------
+// Expressions.
+//----------------------------------------------------------------------------------------------------------
+EXP  ->  [ EXP .. EXP ]         # Range
+EXP  ->  NUM                    # Num
+EXP  ->  BOOL                   # Bool
+EXP  ->  STRING                 # String
+EXP  ->  ID                     # Var
+EXP  ->  ( EXP )
+EXP  ->  EXP [ EXP ]            # Bop
+EXP  ->  EXP . FUNC_CALL        # DotAccess
+EXP  ->  EXP + EXP              # Bop
+EXP  ->  EXP - EXP              # Bop
+EXP  ->  EXP * EXP              # Bop
+EXP  ->  EXP / EXP              # Bop
+EXP  ->  EXP % EXP              # Bop 
+EXP  ->  EXP == EXP             # Bop  
+EXP  ->  EXP != EXP             # Bop
+EXP  ->  EXP < EXP              # Bop
+EXP  ->  EXP > EXP              # Bop
+EXP  ->  EXP <= EXP             # Bop
+EXP  ->  EXP >= EXP             # Bop
+EXP  ->  EXP ~ EXP              # Bop
+EXP  ->  EXP !~ EXP             # Bop
+EXP  ->  EXP or EXP             # Bop
+EXP  ->  EXP and EXP            # Bop
+EXP  ->  not EXP                # Uop
+EXP  ->  - EXP                  # Uop
+EXP  ->  EXP ? EXP : EXP        # CondExp
+EXP  ->  { }                    # List
+EXP  ->  { EXP_LIST }           # List
+EXP  ->  ( )                    # ParamVals
+EXP  ->  ( PARAM_VALS_LIST )    # ParamVals
 EXP  ->  FUNC_CALL
 
 
-//---------------------------------------------------------------------
-// Function call (can be both a statement and an expression)
-//---------------------------------------------------------------------
-FUNC_CALL           ->  ID ( )                           # Func
-FUNC_CALL           ->  ID ( PARAMS_LIST )               # Func
-FUNC_CALL           ->  ID ( NAMED_PARAMS_LIST )         # Func
-PARAMS_LIST         ->  EXP                              # Params
-PARAMS_LIST         ->  EXP , PARAMS_LIST                # Params
-NAMED_PARAMS_LIST   ->  NAMED_PARAM                      # NamedParams
-NAMED_PARAMS_LIST   ->  NAMED_PARAM , NAMED_PARAMS_LIST  # NamedParams
-NAMED_PARAMS_LIST   ->  NAMED_PARAM   NAMED_PARAMS_LIST  # NamedParams
-NAMED_PARAM         ->  PARAM_NAME EXP                   # NamedParam

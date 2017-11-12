@@ -1,16 +1,71 @@
-// Generated Symbol source file
+// Generated Symbol source file, do not change manually!
 
 #include "Symbol.hpp"
 
-bool is_nonterminal(Symbol s) { return s < NUM_NON_TERMINALS; }
-bool is_terminal(Symbol s) { return not is_nonterminal(s); }
+
+bool is_nonterminal(Symbol s) {
+    return s < NUM_NON_TERMINALS;
+}
+
+bool is_terminal(Symbol s) {
+    return not is_nonterminal(s);
+}
 
 bimap<Symbol, string> symbol_str_map = {
-    {START, "START"}, {BLOCK, "BLOCK"}, {COMMAND_CALL, "COMMAND_CALL"}, {EXP, "EXP"}, {FUNC_CALL, "FUNC_CALL"}, {NAMED_PARAM, "NAMED_PARAM"}, {NAMED_PARAMS_LIST, "NAMED_PARAMS_LIST"}, {PARAMS_LIST, "PARAMS_LIST"}, {SEND_COMMAND, "SEND_COMMAND"}, {STATEMENT, "STATEMENT"}, {STATEMENTS, "STATEMENTS"}, 
-    
-    {NE, "!="}, {NO_STR_MATCH, "!~"}, {EOI, "$"}, {MOD, "%"}, {LEFT_PAREN, "("}, {RIGHT_PAREN, ")"}, {MUL, "*"}, {ADD, "+"}, {COMMA, ","}, {SUB, "-"}, 
-    {DIV, "/"}, {COLON, ":"}, {SEMI_COLON, ";"}, {LT, "<"}, {LE, "<="}, {ASSIGN, "="}, {EQ, "=="}, {GT, ">"}, {GE, ">="}, {QUESTION_MARK, "?"}, 
-    {CONDITIONAL_ASSIGN, "?="}, {LEFT_CURLY, "{"}, {RIGHT_CURLY, "}"}, {STR_MATCH, "~"}, {BOOL, "BOOL"}, {ID, "ID"}, {NUM, "NUM"}, {PARAM_NAME, "PARAM_NAME"}, {STRING, "STRING"}, {AND, "and"}, 
-    {BREAK, "break"}, {CONTINUE, "continue"}, {ELSE, "else"}, {IF, "if"}, {NOT, "not"}, {OR, "or"}, {REPEAT, "repeat"}, {SEND, "send"}, {TIMES, "times"}, {WHILE, "while"}, 
-    
+    {START,              "START"},
+    {COMMAND_CALL,       "COMMAND_CALL"},
+    {EXP,                "EXP"},
+    {EXP_LIST,           "EXP_LIST"},
+    {FUNC_CALL,          "FUNC_CALL"},
+    {PARAM_VAL,          "PARAM_VAL"},
+    {PARAM_VALS_LIST,    "PARAM_VALS_LIST"},
+    {STATEMENT,          "STATEMENT"},
+    {STATEMENTS,         "STATEMENTS"},
+    {NOT_EQUAL,          "!="},
+    {NO_STR_MATCH,       "!~"},
+    {MOD,                "%"},
+    {LEFT_PAREN,         "("},
+    {RIGHT_PAREN,        ")"},
+    {MUL,                "*"},
+    {ADD,                "+"},
+    {COMMA,              ","},
+    {SUB,                "-"},
+    {DOT,                "."},
+    {DOUBLE_DOT,         ".."},
+    {DIV,                "/"},
+    {COLON,              ":"},
+    {SEMI_COLON,         ";"},
+    {LESS_THAN,          "<"},
+    {LESS_THAN_EQUAL,    "<="},
+    {ASSIGN,             "="},
+    {EQUAL,              "=="},
+    {GREATER_THAN,       ">"},
+    {GREATER_THAN_EQUAL, ">="},
+    {QUESTION_MARK,      "?"},
+    {CONDITIONAL_ASSIGN, "?="},
+    {LEFT_BRACKET,       "["},
+    {RIGHT_BRACKET,      "]"},
+    {AND,                "and"},
+    {BREAK,              "break"},
+    {CONTINUE,           "continue"},
+    {ELSE,               "else"},
+    {FINALLY,            "finally"},
+    {FOR,                "for"},
+    {IF,                 "if"},
+    {IN,                 "in"},
+    {NOT,                "not"},
+    {OR,                 "or"},
+    {REPEAT,             "repeat"},
+    {TIMES,              "times"},
+    {TRY,                "try"},
+    {WHILE,              "while"},
+    {LEFT_CURLY,         "{"},
+    {RIGHT_CURLY,        "}"},
+    {STR_MATCH,          "~"},
+    {BOOL,               "BOOL"},
+    {EOI,                "EOI"},
+    {ID,                 "ID"},
+    {NUM,                "NUM"},
+    {PARAM,              "PARAM"},
+    {STRING,             "STRING"},
 };

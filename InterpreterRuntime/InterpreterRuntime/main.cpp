@@ -12,8 +12,9 @@
 int main(int argc, const char * argv[]) {
       
     try {
+        vector<SharedValue> args;
         Interpreter interpreter;
-        interpreter.interpret("/Users/ydinari/src/Interpreter/try.scr");
+        interpreter.run("/Users/ydinari/src/Interpreter/try.scr", args);
     
     } catch(string& err) {
         cout << "Error: " << err << endl;

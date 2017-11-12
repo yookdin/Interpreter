@@ -5,54 +5,77 @@
 //  Created by Yuval Dinari on 7/16/16.
 //  Copyright © 2016 Vonage. All rights reserved.
 //
+// TODO:
+// o Optimize evaluating constants, so not to create a new Value each time?
 
 #ifndef AST_hpp
 #define AST_hpp
 
-#include "common_headers.h"
+
 #include "Token.hpp"
-#include "ParseStackElement.hpp"
+#include "ParseElement.h"
 #include "Value.hpp"
 #include "Operator.hpp"
-#include "SymbolTable.hpp"
+
 
 class AstVisitor;
 class Interpreter;
 
-//==========================================================================================================
-//==========================================================================================================
-class FuncCallContext {
-public:
-    int call_number = -1;
-};
 
 //==========================================================================================================
 //==========================================================================================================
-class AST {
+class AST: public ParseElement {
 public:
+    Interpreter *interpreter = nullptr;
+    vector<AST*> children;
+
+    //----------------------------------------------------------------------------------
+    //----------------------------------------------------------------------------------
+    AST* get_ast() override {
+        return this;
+    }
+
+    //----------------------------------------------------------------------------------
+    //----------------------------------------------------------------------------------
+    bool is_token() override {
+        return false;
+    }
+
+    //----------------------------------------------------------------------------------
+    //----------------------------------------------------------------------------------
+    virtual ~AST(){}
+    
+    //----------------------------------------------------------------------------------
+    //----------------------------------------------------------------------------------
     void print();
+    void free();
+    
+    //----------------------------------------------------------------------------------
+    //----------------------------------------------------------------------------------
     void add_child(AST* ast) {
-        if(ast == nullptr) throw 
-            string("Trying to add null child");
+        if(ast == nullptr)
+            THROW << "Trying to add null child";
+        
         children.push_back(ast);
     }
 
-    vector<AST*> children;
-
-    void traverse(AstVisitor& visitor);
+    void pre_order_traverse(AstVisitor& visitor);
+    void post_order_traverse(AstVisitor& visitor);
     
     // When eval-ing a non-value node, no_value will be returned
     // Note: eval not done with traverse because each node has its own logic
-    virtual Value& eval(FuncCallContext* context = nullptr) = 0;
+    virtual SharedValue eval() = 0;
 
     virtual string get_name() = 0;
-    virtual void print_node() { cout << get_name() << endl; }
+    virtual void print_node() { Print(false) << get_name() << endl; }
+    vector<SharedValue> get_children_as_parameters();
     
 protected:
     enum JumpKind {BREAK, CONTINUE};
     
-    void eval_children(int start = 0, FuncCallContext* context = nullptr);
-    vector<Value*> get_children_vals(FuncCallContext* context = nullptr);
+    void eval_children(int start);
+    vector<SharedValue> get_children_vals();
+    void add_flat_statements(AST*);
 };
 
 
@@ -60,9 +83,15 @@ protected:
 //==========================================================================================================
 class NumAST: public AST {
 public:
-    NumAST(vector<TokenOrAST>& elements): num(((NumToken*)elements[0].get_token())->val) {}
-    Value& eval(FuncCallContext* context = nullptr) { return *(new Num(num)); }
-    string get_name() { return to_string(num); }
+    NumAST(vector<ParseElement*>& elements): num(((NumToken*)elements[0]->get_token())->val) {}
+    
+    SharedValue eval() override { 
+        return SharedValue(new Num(num)); 
+    }
+    
+    string get_name() override { 
+        return to_string(num); 
+    }
 
     const int num;
 };
@@ -72,9 +101,15 @@ public:
 //==========================================================================================================
 class BoolAST: public AST {
 public:
-    BoolAST(vector<TokenOrAST>& elements): val(((BoolToken*)elements[0].get_token())->val) {}
-    Value& eval(FuncCallContext* context = nullptr) { return *(new Bool(val)); }
-    string get_name() { return to_string(val); }
+    BoolAST(vector<ParseElement*>& elements): val(((BoolToken*)elements[0]->get_token())->val) {}
+    
+    SharedValue eval() override { 
+        return SharedValue(new Bool(val)); 
+    }
+    
+    string get_name() override { 
+        return to_string(val); 
+    }
     
     const bool val;
 };
@@ -84,13 +119,61 @@ public:
 //==========================================================================================================
 class StringAST: public AST {
 public:
-    StringAST(vector<TokenOrAST>& elements): val(((StringToken*)elements[0].get_token())->val) {}
-    StringAST(TokenOrAST& elem): val(((StringToken*)elem.get_token())->val) {}
-    Value& eval(FuncCallContext* context = nullptr) { return *(new String(val)); }
-    string get_name() { return "\"" + val + "\""; }
+    StringAST(vector<ParseElement*>& elements): val(((StringToken*)elements[0]->get_token())->val) {}
+    
+    SharedValue eval() override;
+    
+    string get_name() override { 
+        return "\"" + val + "\""; 
+    }
     
     const string val;
 };
+
+
+//==========================================================================================================
+//==========================================================================================================
+class ListAST: public AST {
+public:
+    ListAST(vector<ParseElement*>& elements);
+    
+    SharedValue eval() override;
+    
+    string get_name() override { 
+        return "list"; 
+    }
+};
+
+
+//==========================================================================================================
+//==========================================================================================================
+class RangeAST: public AST {
+public:
+    RangeAST(vector<ParseElement*>& elements);
+    SharedValue eval() override;
+    
+    string get_name() override { 
+        return "range"; 
+    }
+};
+
+
+
+//==========================================================================================================
+//==========================================================================================================
+class NakedListAST: public AST {
+public:
+    NakedListAST(vector<ParseElement*>& elements);
+    
+    SharedValue eval() override {
+        THROW << "NakedListAST::eval() should never be called";
+    }
+    
+    string get_name() override { 
+        return "naked-list"; 
+    }
+};
+
 
 
 //==========================================================================================================
@@ -99,16 +182,10 @@ class OpAST: public AST {
 public:
     OpAST(Operator* _op): op(_op){}
     
-    Value& eval(FuncCallContext* context = nullptr) {
-        auto vals = get_children_vals();
-        Value& res = op->eval(vals);
-        for(auto v: vals)
-            if(v->tmp) delete v;
-        return res;
-    } 
-    string get_name() { return op->get_name(); }
+    string get_name() override { 
+        return op->get_name(); 
+    }
 
-protected:
     const Operator* op;
 };
 
@@ -117,7 +194,20 @@ protected:
 //==========================================================================================================
 class BopAST: public OpAST {
 public:
-    BopAST(vector<TokenOrAST>& elements);
+    BopAST(vector<ParseElement*>& elements);
+    SharedValue eval() override;
+};
+
+
+//==========================================================================================================
+// Dot access currenlty supports only function calls on the left value.
+// It is a binary operator, but with a different evaluation method than other Bops: the right child is not
+// fully evaluated (the function isn't called), but rather sent to the left child for evaluation.
+//==========================================================================================================
+class DotAccessAST: public BopAST {
+public:
+    DotAccessAST(vector<ParseElement*>& elements): BopAST(elements) {}
+    SharedValue eval() override;
 };
 
 
@@ -125,7 +215,8 @@ public:
 //==========================================================================================================
 class UopAST: public OpAST {
 public:
-    UopAST(vector<TokenOrAST>& elements);
+    UopAST(vector<ParseElement*>& elements);
+    SharedValue eval() override;
 };
 
 
@@ -133,9 +224,12 @@ public:
 //==========================================================================================================
 class CondExpAST: public AST {
 public:
-    CondExpAST(vector<TokenOrAST>& elements);
-    Value& eval(FuncCallContext* context = nullptr);
-    string get_name() { return "?:"; }
+    CondExpAST(vector<ParseElement*>& elements);
+    SharedValue eval() override;
+    
+    string get_name() override { 
+        return "?:"; 
+    }
 };
 
 
@@ -143,12 +237,15 @@ public:
 //==========================================================================================================
 class VarAST: public AST {
 public:
-    VarAST(vector<TokenOrAST>& elements): name(((IdentifierToken*)elements[0].get_token())->name) {} 
-    Value& eval(FuncCallContext* context = nullptr);
-    string get_name() { return name; }
+    VarAST(vector<ParseElement*>& elements): name(((IdentifierToken*)elements[0]->get_token())->name) {} 
+    
+    SharedValue eval() override;
+    
+    string get_name() override { 
+        return name; 
+    }
 
     const string name;
-    Interpreter* interpreter;
 };
 
 
@@ -156,11 +253,12 @@ public:
 //==========================================================================================================
 class AssignmentAST: public AST {
 public:
-    AssignmentAST(vector<TokenOrAST>& elements);
-    Value& eval(FuncCallContext* context = nullptr);
-    string get_name() { return (conditional ? "?=" : "="); }
+    AssignmentAST(vector<ParseElement*>& elements);
+    SharedValue eval() override;
     
-    Interpreter* interpreter;
+    string get_name() override { 
+        return (conditional ? "?=" : "="); 
+    }
     
 private:
     const bool conditional;
@@ -171,9 +269,12 @@ private:
 //==========================================================================================================
 class StatementsAST: public AST {
 public:
-    StatementsAST(vector<TokenOrAST>& elements);
-    Value& eval(FuncCallContext* context = nullptr);
-    string get_name() { return "Statements"; }
+    StatementsAST(vector<ParseElement*>& elements);
+    SharedValue eval() override;
+    
+    string get_name() override { 
+        return "Statements"; 
+    }
 };
 
 
@@ -181,9 +282,12 @@ public:
 //==========================================================================================================
 class IfAST: public AST {
 public:
-    IfAST(vector<TokenOrAST>& elements);
-    Value& eval(FuncCallContext* context = nullptr);
-    string get_name() { return "if"; }
+    IfAST(vector<ParseElement*>& elements);
+    SharedValue eval() override;
+    
+    string get_name() override { 
+        return "if"; 
+    }
 };
 
 
@@ -191,9 +295,12 @@ public:
 //==========================================================================================================
 class IfElseAST: public AST {
 public:
-    IfElseAST(vector<TokenOrAST>& elements);
-    Value& eval(FuncCallContext* context = nullptr);
-    string get_name() { return "if-else"; }
+    IfElseAST(vector<ParseElement*>& elements);
+    SharedValue eval() override;
+    
+    string get_name() override { 
+        return "if-else"; 
+    }
 };
 
 
@@ -201,9 +308,12 @@ public:
 //==========================================================================================================
 class WhileAST: public AST {
 public:
-    WhileAST(vector<TokenOrAST>& elements);
-    Value& eval(FuncCallContext* context = nullptr);
-    string get_name() { return "while"; }
+    WhileAST(vector<ParseElement*>& elements);
+    SharedValue eval() override;
+    
+    string get_name() override { 
+        return "while"; 
+    }
 };
 
 
@@ -211,12 +321,31 @@ public:
 //==========================================================================================================
 class RepeatAST: public AST {
 public:
-    RepeatAST(vector<TokenOrAST>& elements);
-    Value& eval(FuncCallContext* context = nullptr);
-    string get_name() { return "repeat"; }
+    RepeatAST(vector<ParseElement*>& elements);
+    SharedValue eval() override;
+    
+    string get_name() override { 
+        return "repeat"; 
+    }
     
 private:
     int times; // How many times to repeat body
+};
+
+        
+//==========================================================================================================
+//==========================================================================================================
+class ForAST: public AST {
+public:
+    ForAST(vector<ParseElement*>& elements);
+    SharedValue eval() override;
+    
+    string get_name() override { 
+        return "for"; 
+    }
+    
+private:
+    string item_name;
 };
 
 
@@ -224,39 +353,44 @@ private:
 //==========================================================================================================
 class BreakAST: public AST {
 public:
-    BreakAST(vector<TokenOrAST>& elements) {}
-    Value& eval(FuncCallContext* context = nullptr) { throw BREAK; }
-    string get_name() { return "break"; }
+    BreakAST(vector<ParseElement*>& elements) {}
+    
+    SharedValue eval() override { 
+        throw BREAK; // Will be caught by containing loop node 
+    }
+    
+    string get_name() override { 
+        return "break"; 
+    }
 };
+
 
 //==========================================================================================================
 //==========================================================================================================
 class ContinueAST: public AST {
 public:
-    ContinueAST(vector<TokenOrAST>& elements) {}
-    Value& eval(FuncCallContext* context = nullptr) { throw CONTINUE; }
-    string get_name() { return "continue"; }
-};
-
-
-
-//==========================================================================================================
-//==========================================================================================================
-class ParamsAST: public AST {
-public:
-    ParamsAST(vector<TokenOrAST>& elements);
-    Value& eval(FuncCallContext* context = nullptr) { throw string("ParamsAST::eval() should never be called"); }
-    string get_name() { return "params-list"; }
+    ContinueAST(vector<ParseElement*>& elements) {}
+    
+    SharedValue eval() override { 
+        throw CONTINUE; // Will be caught by containing loop node 
+    }
+    
+    string get_name() override { 
+        return "continue"; 
+    }
 };
 
 
 //==========================================================================================================
 //==========================================================================================================
-class NamedParamAST: public AST {
+class ParamValAST: public AST {
 public:
-    NamedParamAST(vector<TokenOrAST>& elements);
-    Value& eval(FuncCallContext* context = nullptr);
-    string get_name() { return "named-param: " + name; }
+    ParamValAST(vector<ParseElement*>& elements);
+    SharedValue eval() override;
+    
+    string get_name() override { 
+        return "param-val: " + name; 
+    }
 
     const string name;
 };
@@ -264,11 +398,15 @@ public:
 
 //==========================================================================================================
 //==========================================================================================================
-class NamedParamsAST: public AST {
+class ParamValsAST: public AST {
 public:
-    NamedParamsAST(vector<TokenOrAST>& elements);
-    Value& eval(FuncCallContext* context = nullptr) { throw string("NamedParamsAST::eval() should never be called"); }
-    string get_name() { return "named-params-list"; }
+    ParamValsAST(vector<ParseElement*>& elements);
+    
+    SharedValue eval() override;
+    
+    string get_name() override { 
+        return "param-vals-list"; 
+    }
 };
 
 
@@ -277,13 +415,16 @@ public:
 //==========================================================================================================
 class CallableAST: public AST {
 public:
-    CallableAST(vector<TokenOrAST>& elements): name(((IdentifierToken*)elements[0].get_token())->name) {}
+    CallableAST(vector<ParseElement*>& elements): name(((IdentifierToken*)elements[0]->get_token())->name) {}
     CallableAST(string _name): name(_name) {}
-    Value& eval(FuncCallContext* context = nullptr);
-    string get_name() { return name + "()"; }
+    
+    SharedValue eval() override;
+    
+    string get_name() override { 
+        return name + "()"; 
+    }
     
     const string name;
-    Interpreter* interpreter;
 };
 
 
@@ -291,7 +432,7 @@ public:
 //==========================================================================================================
 class FuncAST: public CallableAST {
 public:
-    FuncAST(vector<TokenOrAST>& elements);
+    FuncAST(vector<ParseElement*>& elements);
 };
 
 
@@ -299,20 +440,22 @@ public:
 //==========================================================================================================
 class CommandAST: public CallableAST {
 public:
-    CommandAST(vector<TokenOrAST>& elements);
+    CommandAST(vector<ParseElement*>& elements);
 };
 
 
 //==========================================================================================================
 //==========================================================================================================
-class SendCommandAST: public CallableAST {
+class TryFinallyAST: public AST {
 public:
-    SendCommandAST(vector<TokenOrAST>& elements);
-    Value& eval(FuncCallContext* context = nullptr);
+    TryFinallyAST(vector<ParseElement*>& elements);
+    SharedValue eval() override;
+    
+    string get_name() override {
+        return "try-finally";
+    }
 };
-
-
-
+        
 #endif /* AST_hpp */
 
 

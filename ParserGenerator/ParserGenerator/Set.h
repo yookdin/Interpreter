@@ -9,7 +9,9 @@
 #ifndef Set_h
 #define Set_h
 
-#include "common_headers.h"
+#include <unordered_set>
+using namespace std;
+
 
 //==========================================================================================================
 // Set that support insert(another-set) operation
@@ -27,7 +29,7 @@ public:
     void insert(const set<T>& other) {
         set<T>::insert(other.begin(), other.end());
     }
-
+    
     void insert(Set<T>& other) {
         set<T>::insert(other.begin(), other.end());
     }
@@ -39,9 +41,9 @@ public:
     void insert(T value) {
         set<T>::insert(value);
     }
-
+    
     //------------------------------------------------------------------------------------------------------
-    // Return whether the diffenrece of this and other (the set of elements in this and not in other) is empty
+    // Return whether the difference of this and other (the set of elements in this and not in other) is empty
     //------------------------------------------------------------------------------------------------------
     bool is_difference_empty(Set<T>& other) {
         for(auto& t: *this)
@@ -77,6 +79,5 @@ public:
         return *unordered_set<T>::insert(value).first;
     }
 };
-
 
 #endif /* Set_h */

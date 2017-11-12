@@ -3,6 +3,7 @@
 
 #include <iostream>
 #include <map>
+#include <unordered_set>
 #include <string>
 #include <set>
 #include <fstream>
@@ -13,19 +14,34 @@ using namespace std;
 
 class SymbolGenerator {
 public:
-	SymbolGenerator(string grammar_file, string header_file, string source_file);
+    SymbolGenerator(string grammar_file, string output_dir);
 
 private:
-	map<string, string> string_symbol_map;
+    ofstream operators_hdr_file;
+	map<string, string> keyword_symbol_map;
 	set<string> terminals;
 	set<string> nonterminals;
 
-	void read_file(string filename);
-	void write_header_file(string filename);
-    void write_source_file(string src_filename, string header_filename);
+    // To uniquely define the operator we need the name and also the number of parameters
+    map<pair<string, int>, string> operators_class_names;
+    unordered_set<string> operators;
     
+    void read_file(string filename);
+    bool parse_keyword_line(string &line);
+    bool parse_operator_line(string &line);
+    bool parse_production_line(string &line);
+
+    void write_symbols_hdr_file(string filename);
+    void write_symbols_src_file(string src_filename);
+    void write_operators_hdr_file_start();
+    void write_operators_hdr_file_end();
+    void write_operators_src_file(string src_filename, string hdr_filename);
+    void write_kewords_regex_file(string filename);
+    
+    string symbol_to_class_name(string &name);
     string basename(string path);
     string& trim(string& line);
+    void write_pair(ofstream& file, string symbol_enum, string symbol_name = "");
 };
 
 #endif // _SYMBOL_GENERATOR_HPP_
